@@ -1,2 +1,0 @@
-Un agente de inteligencia artificial puede utilizar herramientas para ejecutar acciones.
-Las herramientas permiten al agente consultar archivos, APIs, bases de datos u otros sistemas.
