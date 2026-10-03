@@ -1,0 +1,2 @@
+Python es un lenguaje de programación de propósito general.
+Se utiliza ampliamente en automatización, ciencia de datos e inteligencia artificial.

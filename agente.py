@@ -1,492 +1,151 @@
+import json
 import os
 from pathlib import Path
 
+import numpy as np
 from dotenv import load_dotenv
-from pypdf import PdfReader
-from docx import Document
+from openai import OpenAI
 
 from agents import Agent, Runner, function_tool, ModelSettings
 
-
-# ============================================================
-# CONFIGURACIÓN
-# ============================================================
 
 load_dotenv()
 
 if not os.getenv("OPENAI_API_KEY"):
     raise RuntimeError(
-        "No se encontró OPENAI_API_KEY. Revisa el archivo .env."
+        "No se encontró OPENAI_API_KEY."
     )
 
-CARPETA_DOCUMENTOS = Path("documentos")
+client = OpenAI()
 
-EXTENSIONES_PERMITIDAS = {
-    ".txt",
-    ".pdf",
-    ".docx",
-}
+ARCHIVO_INDICE = Path("indice.json")
+
+MODELO_EMBEDDING = "text-embedding-3-small"
 
 
-# ============================================================
-# FUNCIONES INTERNAS
-# ============================================================
-
-def obtener_archivos():
-    """
-    Obtiene todos los documentos compatibles.
-    """
-    if not CARPETA_DOCUMENTOS.exists():
-        return []
-
-    return sorted(
-        [
-            archivo
-            for archivo in CARPETA_DOCUMENTOS.iterdir()
-            if archivo.is_file()
-            and archivo.suffix.lower() in EXTENSIONES_PERMITIDAS
-        ],
-        key=lambda x: x.name.lower(),
-    )
-
-
-def validar_ruta(nombre_archivo: str):
-    """
-    Evita acceder a archivos fuera de la carpeta documentos.
-    """
-
-    carpeta_base = CARPETA_DOCUMENTOS.resolve()
-    ruta = (CARPETA_DOCUMENTOS / nombre_archivo).resolve()
-
-    if carpeta_base not in ruta.parents:
-        raise ValueError(
-            "El archivo solicitado está fuera de la carpeta documentos."
+def cargar_indice():
+    if not ARCHIVO_INDICE.exists():
+        raise RuntimeError(
+            "No existe indice.json. "
+            "Ejecuta primero: python indexar.py"
         )
 
-    return ruta
+    with ARCHIVO_INDICE.open(
+        "r",
+        encoding="utf-8"
+    ) as archivo:
+        return json.load(archivo)
 
 
-def extraer_txt(ruta: Path):
-    """
-    Extrae texto de un archivo TXT.
-    """
-    return ruta.read_text(
-        encoding="utf-8",
-        errors="replace",
+INDICE = cargar_indice()
+
+
+def similitud_coseno(vector_a, vector_b):
+    a = np.array(vector_a)
+    b = np.array(vector_b)
+
+    denominador = (
+        np.linalg.norm(a)
+        * np.linalg.norm(b)
+    )
+
+    if denominador == 0:
+        return 0.0
+
+    return float(
+        np.dot(a, b) / denominador
     )
 
 
-def extraer_pdf(ruta: Path):
-    """
-    Extrae texto de un PDF que contenga texto seleccionable.
-    """
-
-    reader = PdfReader(str(ruta))
-
-    paginas = []
-
-    for numero, pagina in enumerate(reader.pages, start=1):
-
-        texto = pagina.extract_text() or ""
-
-        paginas.append(
-            f"\n--- PÁGINA {numero} ---\n{texto}"
-        )
-
-    return "\n".join(paginas)
-
-
-def extraer_docx(ruta: Path):
-    """
-    Extrae texto de un archivo Word DOCX.
-    """
-
-    documento = Document(str(ruta))
-
-    bloques = []
-
-    # Párrafos
-    for parrafo in documento.paragraphs:
-        texto = parrafo.text.strip()
-
-        if texto:
-            bloques.append(texto)
-
-    # Tablas
-    for numero_tabla, tabla in enumerate(
-        documento.tables,
-        start=1,
-    ):
-
-        bloques.append(
-            f"\n--- TABLA {numero_tabla} ---"
-        )
-
-        for fila in tabla.rows:
-
-            valores = [
-                celda.text.strip()
-                for celda in fila.cells
-            ]
-
-            bloques.append(
-                " | ".join(valores)
-            )
-
-    return "\n".join(bloques)
-
-
-def extraer_documento(ruta: Path):
-    """
-    Extrae texto según el formato del documento.
-    """
-
-    extension = ruta.suffix.lower()
-
-    if extension == ".txt":
-        return extraer_txt(ruta)
-
-    if extension == ".pdf":
-        return extraer_pdf(ruta)
-
-    if extension == ".docx":
-        return extraer_docx(ruta)
-
-    raise ValueError(
-        f"Formato no soportado: {extension}"
+def embedding_consulta(texto):
+    respuesta = client.embeddings.create(
+        model=MODELO_EMBEDDING,
+        input=texto
     )
 
-
-# ============================================================
-# HERRAMIENTAS DEL AGENTE
-# ============================================================
-
-@function_tool
-def listar_archivos() -> str:
-    """
-    Lista los documentos disponibles en la carpeta documentos.
-    """
-
-    print("[TOOL] listar_archivos")
-
-    archivos = obtener_archivos()
-
-    if not archivos:
-        return (
-            "No hay documentos compatibles disponibles."
-        )
-
-    salida = []
-
-    for archivo in archivos:
-
-        tamaño_kb = archivo.stat().st_size / 1024
-
-        salida.append(
-            f"{archivo.name} "
-            f"({archivo.suffix.lower()}, "
-            f"{tamaño_kb:.1f} KB)"
-        )
-
-    return "\n".join(salida)
+    return respuesta.data[0].embedding
 
 
 @function_tool
-def leer_documento(nombre_archivo: str) -> str:
+def buscar_semanticamente(
+    consulta: str,
+    cantidad_resultados: int = 5,
+) -> str:
     """
-    Lee el contenido completo de un archivo TXT, PDF o DOCX.
+    Busca los fragmentos semánticamente más relevantes
+    dentro del índice documental.
     """
 
     print(
-        f"[TOOL] leer_documento -> "
-        f"{nombre_archivo}"
-    )
-
-    try:
-        ruta = validar_ruta(nombre_archivo)
-
-    except Exception as error:
-        return str(error)
-
-    if not ruta.exists():
-        return (
-            f"No existe el archivo: "
-            f"{nombre_archivo}"
-        )
-
-    if ruta.suffix.lower() not in EXTENSIONES_PERMITIDAS:
-        return (
-            "Formato no permitido. "
-            "Se aceptan TXT, PDF y DOCX."
-        )
-
-    try:
-
-        contenido = extraer_documento(ruta)
-
-    except Exception as error:
-
-        return (
-            f"No fue posible leer "
-            f"{nombre_archivo}: {error}"
-        )
-
-    if not contenido.strip():
-
-        return (
-            f"El archivo {nombre_archivo} "
-            "no contiene texto extraíble."
-        )
-
-    # Protección frente a documentos enormes
-    LIMITE = 40000
-
-    if len(contenido) > LIMITE:
-
-        contenido = (
-            contenido[:LIMITE]
-            + "\n\n[CONTENIDO RECORTADO]"
-        )
-
-    return contenido
-
-
-@function_tool
-def buscar_en_documentos(consulta: str) -> str:
-    """
-    Busca una consulta entre todos los documentos TXT, PDF y DOCX.
-    """
-
-    print(
-        f"[TOOL] buscar_en_documentos -> "
+        f"[TOOL] buscar_semanticamente -> "
         f"{consulta}"
     )
 
-    archivos = obtener_archivos()
-
-    if not archivos:
-        return "No hay documentos disponibles."
-
-    palabras = [
-        palabra.lower().strip(
-            ".,;:!?()[]{}\"'"
-        )
-        for palabra in consulta.split()
-        if len(palabra.strip()) > 2
-    ]
-
-    if not palabras:
-        return (
-            "La consulta es demasiado corta "
-            "para realizar una búsqueda."
-        )
+    vector_consulta = embedding_consulta(
+        consulta
+    )
 
     resultados = []
 
-    for archivo in archivos:
-
-        try:
-
-            contenido = extraer_documento(
-                archivo
-            )
-
-        except Exception:
-
-            continue
-
-        lineas = contenido.splitlines()
-
-        for numero, linea in enumerate(
-            lineas,
-            start=1,
-        ):
-
-            linea_limpia = linea.strip()
-
-            if not linea_limpia:
-                continue
-
-            linea_lower = (
-                linea_limpia.lower()
-            )
-
-            coincidencias = sum(
-                1
-                for palabra in palabras
-                if palabra in linea_lower
-            )
-
-            if coincidencias > 0:
-
-                resultados.append(
-                    (
-                        coincidencias,
-                        archivo.name,
-                        numero,
-                        linea_limpia,
-                    )
-                )
-
-    if not resultados:
-
-        return (
-            "No se encontraron coincidencias "
-            "en los documentos."
+    for item in INDICE:
+        similitud = similitud_coseno(
+            vector_consulta,
+            item["embedding"]
         )
 
+        resultados.append({
+            "similitud": similitud,
+            "archivo": item["archivo"],
+            "fragmento": item["fragmento"],
+            "texto": item["texto"],
+        })
+
     resultados.sort(
-        key=lambda x: x[0],
+        key=lambda x: x["similitud"],
         reverse=True,
     )
 
-    mejores = resultados[:20]
+    mejores = resultados[
+        :cantidad_resultados
+    ]
 
     salida = []
 
-    for (
-        coincidencias,
-        archivo,
-        numero,
-        linea,
-    ) in mejores:
-
+    for resultado in mejores:
         salida.append(
-            f"Archivo: {archivo}\n"
-            f"Referencia: {numero}\n"
-            f"Coincidencias: "
-            f"{coincidencias}\n"
-            f"Contenido: {linea}"
+            f"Archivo: "
+            f"{resultado['archivo']}\n"
+            f"Fragmento: "
+            f"{resultado['fragmento']}\n"
+            f"Similitud: "
+            f"{resultado['similitud']:.3f}\n"
+            f"Contenido:\n"
+            f"{resultado['texto']}"
         )
 
-    return "\n\n".join(salida)
+    return "\n\n---\n\n".join(salida)
 
-
-@function_tool
-def obtener_informacion_documento(
-    nombre_archivo: str,
-) -> str:
-    """
-    Entrega información básica de un documento.
-    """
-
-    print(
-        f"[TOOL] obtener_informacion_documento "
-        f"-> {nombre_archivo}"
-    )
-
-    try:
-
-        ruta = validar_ruta(
-            nombre_archivo
-        )
-
-    except Exception as error:
-
-        return str(error)
-
-    if not ruta.exists():
-
-        return (
-            f"No existe el archivo: "
-            f"{nombre_archivo}"
-        )
-
-    tamaño_kb = (
-        ruta.stat().st_size / 1024
-    )
-
-    informacion = [
-        f"Nombre: {ruta.name}",
-        f"Formato: {ruta.suffix.lower()}",
-        f"Tamaño: {tamaño_kb:.1f} KB",
-    ]
-
-    if ruta.suffix.lower() == ".pdf":
-
-        try:
-
-            reader = PdfReader(
-                str(ruta)
-            )
-
-            informacion.append(
-                f"Páginas: "
-                f"{len(reader.pages)}"
-            )
-
-        except Exception:
-
-            pass
-
-    return "\n".join(informacion)
-
-
-# ============================================================
-# DEFINICIÓN DEL AGENTE
-# ============================================================
 
 agent = Agent(
-    name="Agente documental",
+    name="Agente documental RAG",
     instructions="""
-Eres un agente documental profesional.
+Eres un agente documental profesional con búsqueda semántica.
 
-Dispones de cuatro herramientas:
+Cuando el usuario pregunte por información contenida
+en los documentos:
 
-1. listar_archivos
-   Permite conocer todos los documentos disponibles.
-
-2. buscar_en_documentos
-   Permite buscar información dentro de todos los TXT,
-   PDF y DOCX disponibles.
-
-3. leer_documento
-   Permite consultar el contenido de un documento
-   específico.
-
-4. obtener_informacion_documento
-   Permite conocer nombre, formato, tamaño y otra
-   información básica del documento.
-
-REGLAS:
-
-- Cuando el usuario pregunte qué documentos existen,
-  usa listar_archivos.
-
-- Cuando el usuario solicite información que pueda
-  estar contenida en documentos, usa primero
-  buscar_en_documentos.
-
-- Cuando identifiques un documento especialmente
-  relevante, utiliza leer_documento si necesitas
-  revisar más contexto.
-
-- Puedes consultar más de un documento antes de
-  responder.
-
-- Cuando una respuesta dependa de los documentos,
-  basa la respuesta en el contenido encontrado.
-
-- No inventes información documental.
-
-- Si no encuentras la información solicitada,
-  indícalo claramente.
-
-- Cuando sea posible, menciona el nombre del archivo
-  utilizado como fuente.
-
-- Mantén el contexto de la conversación.
-
-- Responde en español salvo que el usuario solicite
-  otro idioma.
-
-- Sé claro, preciso y profesional.
+1. Usa buscar_semanticamente.
+2. Analiza los fragmentos recuperados.
+3. Basa la respuesta en esos fragmentos.
+4. Menciona los archivos utilizados.
+5. Si la evidencia documental es insuficiente,
+   indícalo claramente.
+6. No inventes contenido documental.
+7. Mantén el contexto de la conversación.
+8. Responde de forma clara, precisa y profesional.
 """,
     tools=[
-        listar_archivos,
-        buscar_en_documentos,
-        leer_documento,
-        obtener_informacion_documento,
+        buscar_semanticamente
     ],
     model_settings=ModelSettings(
         tool_choice="required"
@@ -494,30 +153,15 @@ REGLAS:
 )
 
 
-# ============================================================
-# MEMORIA DE LA SESIÓN
-# ============================================================
-
 historial = []
 
-
-# ============================================================
-# INTERFAZ DE TERMINAL
-# ============================================================
-
 print()
 print("=" * 65)
-print("AGENTE DOCUMENTAL")
+print("AGENTE DOCUMENTAL RAG")
 print("=" * 65)
-print()
-print("Formatos soportados:")
-print("  TXT")
-print("  PDF")
-print("  DOCX")
 print()
 print(
-    "Coloca los documentos dentro "
-    "de la carpeta 'documentos'."
+    f"Fragmentos indexados: {len(INDICE)}"
 )
 print()
 print(
@@ -529,47 +173,33 @@ print()
 
 
 while True:
-
-    mensaje = input(
-        "Tú: "
-    ).strip()
+    mensaje = input("Tú: ").strip()
 
     if not mensaje:
-
         continue
 
     if mensaje.lower() == "salir":
-
         print()
-        print(
-            "Agente: Hasta luego."
-        )
+        print("Agente: Hasta luego.")
         break
 
-    historial.append(
-        {
-            "role": "user",
-            "content": mensaje,
-        }
-    )
+    historial.append({
+        "role": "user",
+        "content": mensaje,
+    })
 
     try:
-
         resultado = Runner.run_sync(
             agent,
             historial,
         )
 
-        respuesta = (
-            resultado.final_output
-        )
+        respuesta = resultado.final_output
 
-        historial.append(
-            {
-                "role": "assistant",
-                "content": respuesta,
-            }
-        )
+        historial.append({
+            "role": "assistant",
+            "content": respuesta,
+        })
 
         print()
         print(
@@ -577,20 +207,10 @@ while True:
         )
         print()
 
-    except KeyboardInterrupt:
-
-        print()
-        print(
-            "Agente: Operación cancelada."
-        )
-        print()
-
     except Exception as error:
-
         print()
         print(
-            "Se produjo un error "
-            "al ejecutar el agente:"
+            "Se produjo un error:"
         )
         print(error)
         print()

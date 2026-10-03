@@ -1,0 +1,2 @@
+Git es un sistema de control de versiones distribuido.
+GitHub permite alojar repositorios Git y colaborar en proyectos.
