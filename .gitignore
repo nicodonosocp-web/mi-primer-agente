@@ -1,4 +1,9 @@
 .venv/
 .env
+credentials.json
+token.json
+indice.json
+documentos/
+drive_descargas/
 __pycache__/
 *.pyc
