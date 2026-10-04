@@ -14,8 +14,11 @@ from pydantic import BaseModel
 from memoria import (
     inicializar_db,
     crear_conversacion,
-    agregar_mensaje,
+    listar_conversaciones,
+    obtener_conversacion,
     actualizar_titulo,
+    agregar_mensaje,
+    obtener_mensajes,
     contar_mensajes,
 )
 
@@ -46,15 +49,12 @@ OPENAI_API_KEY = os.getenv(
 )
 
 if not OPENAI_API_KEY:
-
     raise RuntimeError(
         "No se encontró OPENAI_API_KEY en el archivo .env"
     )
 
 
-BASE_DIR = (
-    Path(__file__).resolve().parent
-)
+BASE_DIR = Path(__file__).resolve().parent
 
 INDICE_PATH = (
     BASE_DIR / "indice.json"
@@ -88,7 +88,6 @@ app = FastAPI(
 # ============================================================
 
 inicializar_db()
-
 inicializar_memoria_largo_plazo()
 
 
@@ -107,14 +106,353 @@ class MessageRequest(BaseModel):
     content: str
 
 
-class TitleRequest(BaseModel):
+# ============================================================
+# HELPERS DE NORMALIZACIÓN
+# ============================================================
+
+def convertir_fila_a_dict(
+    fila
+):
+
+    if fila is None:
+        return None
+
+    if isinstance(
+        fila,
+        dict,
+    ):
+        return fila
+
+    if hasattr(
+        fila,
+        "keys",
+    ):
+
+        try:
+            return {
+                clave: fila[clave]
+                for clave in fila.keys()
+            }
+
+        except Exception:
+            pass
+
+    return fila
+
+
+def normalizar_conversacion(
+    fila
+):
+
+    fila = convertir_fila_a_dict(
+        fila
+    )
+
+    if fila is None:
+        return None
+
+
+    if isinstance(
+        fila,
+        dict,
+    ):
+
+        return {
+
+            "id":
+                fila.get(
+                    "id"
+                ),
+
+            "titulo":
+                fila.get(
+                    "titulo",
+                    "Sin título",
+                ),
+
+            "fecha_creacion":
+                fila.get(
+                    "fecha_creacion"
+                ),
+
+            "fecha_actualizacion":
+                fila.get(
+                    "fecha_actualizacion"
+                ),
+        }
+
+
+    if isinstance(
+        fila,
+        (list, tuple),
+    ):
+
+        return {
+
+            "id":
+                fila[0]
+                if len(fila) > 0
+                else None,
+
+            "titulo":
+                fila[1]
+                if len(fila) > 1
+                else "Sin título",
+
+            "fecha_creacion":
+                fila[2]
+                if len(fila) > 2
+                else None,
+
+            "fecha_actualizacion":
+                fila[3]
+                if len(fila) > 3
+                else None,
+        }
+
+
+    return {
+        "id": None,
+        "titulo": str(fila),
+        "fecha_creacion": None,
+        "fecha_actualizacion": None,
+    }
+
+
+def normalizar_mensaje(
+    fila
+):
+
+    fila = convertir_fila_a_dict(
+        fila
+    )
+
+    if fila is None:
+        return None
+
+
+    if isinstance(
+        fila,
+        dict,
+    ):
+
+        role = (
+            fila.get("role")
+            or fila.get("rol")
+            or fila.get("tipo")
+        )
+
+        content = (
+            fila.get("content")
+            or fila.get("contenido")
+            or fila.get("mensaje")
+            or ""
+        )
+
+        return {
+
+            "id":
+                fila.get(
+                    "id"
+                ),
+
+            "role":
+                role,
+
+            "content":
+                content,
+
+            "fecha":
+                fila.get(
+                    "fecha"
+                )
+                or fila.get(
+                    "fecha_creacion"
+                )
+                or fila.get(
+                    "created_at"
+                ),
+        }
+
+
+    if isinstance(
+        fila,
+        (list, tuple),
+    ):
+
+        # Estructura esperada habitual:
+        # id, conversacion_id, role, content, fecha
+
+        if len(fila) >= 5:
+
+            return {
+                "id": fila[0],
+                "role": fila[2],
+                "content": fila[3],
+                "fecha": fila[4],
+            }
+
+        if len(fila) >= 3:
+
+            return {
+                "id": fila[0],
+                "role": fila[1],
+                "content": fila[2],
+                "fecha":
+                    fila[3]
+                    if len(fila) > 3
+                    else None,
+            }
+
+
+    return {
+        "id": None,
+        "role": None,
+        "content": str(fila),
+        "fecha": None,
+    }
+
+
+# ============================================================
+# CONVERSACIONES
+# ============================================================
+
+@app.get("/conversations")
+def api_listar_conversaciones():
+
+    try:
+
+        conversaciones_raw = (
+            listar_conversaciones()
+        )
+
+        conversaciones = []
+
+        for fila in (
+            conversaciones_raw
+            or []
+        ):
+
+            item = normalizar_conversacion(
+                fila
+            )
+
+            if (
+                item
+                and
+                item.get("id")
+                is not None
+            ):
+
+                conversaciones.append(
+                    item
+                )
+
+
+        return {
+            "ok": True,
+            "result": conversaciones,
+        }
+
+
+    except Exception as error:
+
+        print(
+            "[ERROR LISTANDO CONVERSACIONES]",
+            error,
+        )
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "ok": False,
+                "error": str(error),
+            },
+        )
+
+
+@app.get(
+    "/conversation/{conversacion_id}"
+)
+def api_obtener_conversacion(
     conversacion_id: int
-    titulo: str
+):
+
+    try:
+
+        conversacion_raw = (
+            obtener_conversacion(
+                conversacion_id
+            )
+        )
+
+        conversacion = (
+            normalizar_conversacion(
+                conversacion_raw
+            )
+        )
 
 
-# ============================================================
-# CONVERSACIONES REALTIME
-# ============================================================
+        mensajes_raw = (
+            obtener_mensajes(
+                conversacion_id
+            )
+        )
+
+        mensajes = []
+
+        for fila in (
+            mensajes_raw
+            or []
+        ):
+
+            item = (
+                normalizar_mensaje(
+                    fila
+                )
+            )
+
+            if (
+                item
+                and
+                item.get(
+                    "content"
+                )
+            ):
+
+                mensajes.append(
+                    item
+                )
+
+
+        return {
+
+            "ok":
+                True,
+
+            "conversacion":
+                conversacion,
+
+            "mensajes":
+                mensajes,
+        }
+
+
+    except Exception as error:
+
+        print(
+            "[ERROR OBTENIENDO CONVERSACIÓN]",
+            error,
+        )
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "ok": False,
+                "error": str(error),
+            },
+        )
+
 
 @app.post("/conversation/start")
 def iniciar_conversacion():
@@ -135,11 +473,13 @@ def iniciar_conversacion():
             conversacion_id,
         )
 
+
         return {
             "ok": True,
             "conversacion_id":
                 conversacion_id,
         }
+
 
     except Exception as error:
 
@@ -211,10 +551,6 @@ def guardar_mensaje_realtime(
         )
 
 
-        # ----------------------------------------------------
-        # PRIMER MENSAJE DEL USUARIO → TÍTULO
-        # ----------------------------------------------------
-
         if (
             role == "user"
             and
@@ -223,7 +559,10 @@ def guardar_mensaje_realtime(
 
             titulo = (
                 content
-                .replace("\n", " ")
+                .replace(
+                    "\n",
+                    " ",
+                )
                 .strip()
             )
 
@@ -310,7 +649,6 @@ def cargar_indice():
             datos,
             list,
         ):
-
             return []
 
 
@@ -340,10 +678,14 @@ def crear_embedding_consulta(
 
     respuesta = (
         client.embeddings.create(
-            model=MODELO_EMBEDDING,
-            input=texto,
+            model=
+                MODELO_EMBEDDING,
+
+            input=
+                texto,
         )
     )
+
 
     return (
         respuesta
@@ -407,7 +749,6 @@ def buscar_en_documentos(
 
 
     if not consulta:
-
         return []
 
 
@@ -415,7 +756,6 @@ def buscar_en_documentos(
 
 
     if not indice:
-
         return []
 
 
@@ -522,13 +862,19 @@ def normalizar_archivo_drive(
     return {
 
         "id":
-            archivo.get("id"),
+            archivo.get(
+                "id"
+            ),
 
         "nombre":
-            archivo.get("name"),
+            archivo.get(
+                "name"
+            ),
 
         "tipo":
-            archivo.get("mimeType"),
+            archivo.get(
+                "mimeType"
+            ),
 
         "fecha_modificacion":
             archivo.get(
@@ -563,7 +909,8 @@ def listar_drive_backend(
     respuesta = (
         servicio.files()
         .list(
-            pageSize=limite,
+            pageSize=
+                limite,
 
             fields=(
                 "files("
@@ -589,12 +936,11 @@ def listar_drive_backend(
 
 
     return [
-
         normalizar_archivo_drive(
             archivo
         )
-
-        for archivo in archivos
+        for archivo
+        in archivos
     ]
 
 
@@ -607,7 +953,6 @@ def buscar_drive_backend(
 
 
     if not consulta:
-
         return []
 
 
@@ -645,7 +990,8 @@ def buscar_drive_backend(
         .list(
             q=query,
 
-            pageSize=limite,
+            pageSize=
+                limite,
 
             fields=(
                 "files("
@@ -671,12 +1017,11 @@ def buscar_drive_backend(
 
 
     return [
-
         normalizar_archivo_drive(
             archivo
         )
-
-        for archivo in archivos
+        for archivo
+        in archivos
     ]
 
 
@@ -692,7 +1037,8 @@ def obtener_archivo_drive_backend(
     return (
         servicio.files()
         .get(
-            fileId=file_id,
+            fileId=
+                file_id,
 
             fields=(
                 "id,"
@@ -739,9 +1085,14 @@ def analizar_archivo_drive_backend(
         }
 
 
-    archivos = buscar_drive_backend(
-        consulta=consulta_archivo,
-        limite=10,
+    archivos = (
+        buscar_drive_backend(
+            consulta=
+                consulta_archivo,
+
+            limite=
+                10,
+        )
     )
 
 
@@ -757,8 +1108,8 @@ def analizar_archivo_drive_backend(
 
             "message":
                 (
-                    "No se encontró "
-                    "ningún archivo coincidente."
+                    "No se encontró ningún "
+                    "archivo coincidente."
                 ),
 
             "result":
@@ -789,7 +1140,9 @@ def analizar_archivo_drive_backend(
 
     archivo = archivos[0]
 
-    file_id = archivo["id"]
+    file_id = archivo[
+        "id"
+    ]
 
 
     antes = (
@@ -811,9 +1164,14 @@ def analizar_archivo_drive_backend(
 
     resultados_rag = (
         buscar_en_documentos(
-            consulta=pregunta,
-            limite=limite_resultados,
-            drive_file_id=file_id,
+            consulta=
+                pregunta,
+
+            limite=
+                limite_resultados,
+
+            drive_file_id=
+                file_id,
         )
     )
 
@@ -822,8 +1180,11 @@ def analizar_archivo_drive_backend(
 
         resultados_rag = (
             buscar_en_documentos(
-                consulta=pregunta,
-                limite=limite_resultados,
+                consulta=
+                    pregunta,
+
+                limite=
+                    limite_resultados,
             )
         )
 
@@ -879,6 +1240,7 @@ def inicio():
 
         return JSONResponse(
             status_code=404,
+
             content={
                 "error":
                     "No se encontró realtime.html"
@@ -925,6 +1287,9 @@ def health():
             True,
 
         "conversation_history":
+            True,
+
+        "conversation_resume":
             True,
 
         "memory":
@@ -1077,10 +1442,6 @@ def ejecutar_tool(
 
     try:
 
-        # ====================================================
-        # RECORDAR
-        # ====================================================
-
         if nombre == "recordar":
 
             contenido = argumentos.get(
@@ -1095,15 +1456,9 @@ def ejecutar_tool(
                     status_code=400,
 
                     content={
-
-                        "ok":
-                            False,
-
+                        "ok": False,
                         "error":
-                            (
-                                "No se recibió "
-                                "contenido."
-                            ),
+                            "No se recibió contenido.",
                     },
                 )
 
@@ -1134,18 +1489,10 @@ def ejecutar_tool(
 
 
             return {
-
-                "ok":
-                    True,
-
-                "result":
-                    resultado,
+                "ok": True,
+                "result": resultado,
             }
 
-
-        # ====================================================
-        # BUSCAR MEMORIA
-        # ====================================================
 
         if nombre == "buscar_memoria":
 
@@ -1188,18 +1535,10 @@ def ejecutar_tool(
 
 
             return {
-
-                "ok":
-                    True,
-
-                "result":
-                    resultados,
+                "ok": True,
+                "result": resultados,
             }
 
-
-        # ====================================================
-        # VER MEMORIAS
-        # ====================================================
 
         if nombre == "ver_memorias":
 
@@ -1250,18 +1589,10 @@ def ejecutar_tool(
 
 
             return {
-
-                "ok":
-                    True,
-
-                "result":
-                    resultados,
+                "ok": True,
+                "result": resultados,
             }
 
-
-        # ====================================================
-        # RAG
-        # ====================================================
 
         if nombre == "buscar_documentos":
 
@@ -1296,18 +1627,10 @@ def ejecutar_tool(
 
 
             return {
-
-                "ok":
-                    True,
-
-                "result":
-                    resultados,
+                "ok": True,
+                "result": resultados,
             }
 
-
-        # ====================================================
-        # DRIVE LISTAR
-        # ====================================================
 
         if nombre == "listar_drive":
 
@@ -1322,18 +1645,10 @@ def ejecutar_tool(
 
 
             return {
-
-                "ok":
-                    True,
-
-                "result":
-                    archivos,
+                "ok": True,
+                "result": archivos,
             }
 
-
-        # ====================================================
-        # DRIVE BUSCAR
-        # ====================================================
 
         if nombre == "buscar_drive":
 
@@ -1354,18 +1669,10 @@ def ejecutar_tool(
 
 
             return {
-
-                "ok":
-                    True,
-
-                "result":
-                    archivos,
+                "ok": True,
+                "result": archivos,
             }
 
-
-        # ====================================================
-        # DRIVE METADATA
-        # ====================================================
 
         if nombre == "obtener_archivo_drive":
 
@@ -1381,18 +1688,10 @@ def ejecutar_tool(
 
 
             return {
-
-                "ok":
-                    True,
-
-                "result":
-                    archivo,
+                "ok": True,
+                "result": archivo,
             }
 
-
-        # ====================================================
-        # INDEXAR
-        # ====================================================
 
         if nombre == "indexar_drive":
 
@@ -1408,10 +1707,7 @@ def ejecutar_tool(
                     status_code=403,
 
                     content={
-
-                        "ok":
-                            False,
-
+                        "ok": False,
                         "error":
                             (
                                 "La indexación "
@@ -1461,37 +1757,35 @@ def ejecutar_tool(
             }
 
 
-        # ====================================================
-        # ANALIZAR DRIVE
-        # ====================================================
-
         if nombre == "analizar_archivo_drive":
 
-            return analizar_archivo_drive_backend(
+            return (
+                analizar_archivo_drive_backend(
 
-                consulta_archivo=
-                    argumentos.get(
-                        "consulta_archivo",
-                        "",
-                    ),
+                    consulta_archivo=
+                        argumentos.get(
+                            "consulta_archivo",
+                            "",
+                        ),
 
-                pregunta=
-                    argumentos.get(
-                        "pregunta",
-                        "",
-                    ),
+                    pregunta=
+                        argumentos.get(
+                            "pregunta",
+                            "",
+                        ),
 
-                usuario_autorizo_indexacion=
-                    argumentos.get(
-                        "usuario_autorizo_indexacion",
-                        False,
-                    ),
+                    usuario_autorizo_indexacion=
+                        argumentos.get(
+                            "usuario_autorizo_indexacion",
+                            False,
+                        ),
 
-                limite_resultados=
-                    argumentos.get(
-                        "limite",
-                        5,
-                    ),
+                    limite_resultados=
+                        argumentos.get(
+                            "limite",
+                            5,
+                        ),
+                )
             )
 
 
@@ -1499,9 +1793,7 @@ def ejecutar_tool(
             status_code=400,
 
             content={
-
-                "ok":
-                    False,
+                "ok": False,
 
                 "error":
                     (
@@ -1525,13 +1817,8 @@ def ejecutar_tool(
             status_code=500,
 
             content={
-
-                "ok":
-                    False,
-
-                "error":
-                    str(error),
-
+                "ok": False,
+                "error": str(error),
                 "tipo":
                     type(error).__name__,
             },

@@ -12,11 +12,13 @@
 
     <title>Mi Agente IA</title>
 
+
     <style>
 
         * {
             box-sizing: border-box;
         }
+
 
         :root {
             --fondo: #080b10;
@@ -31,11 +33,12 @@
             --rojo: #e74c3c;
         }
 
+
         body {
+
             margin: 0;
 
             font-family:
-                Inter,
                 Arial,
                 Helvetica,
                 sans-serif;
@@ -50,53 +53,96 @@
                 100vh;
         }
 
+
         .app {
-            max-width: 1500px;
-            margin: 0 auto;
-            padding: 24px;
+
+            max-width:
+                1500px;
+
+            margin:
+                0 auto;
+
+            padding:
+                24px;
         }
+
 
         /* ====================================================
            HEADER
         ==================================================== */
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            gap:
+                20px;
+
+            margin-bottom:
+                20px;
         }
+
 
         .titulo h1 {
-            margin: 0;
-            font-size: 30px;
+
+            margin:
+                0;
+
+            font-size:
+                30px;
         }
+
 
         .titulo p {
-            margin: 7px 0 0;
-            color: var(--secundario);
+
+            margin:
+                7px 0 0;
+
+            color:
+                var(--secundario);
         }
 
-        .estado-conexion {
-            display: flex;
-            align-items: center;
-            gap: 9px;
 
-            padding: 10px 14px;
+        .estado-conexion {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+            padding:
+                10px 14px;
 
             border:
-                1px solid var(--borde);
+                1px solid
+                var(--borde);
 
-            border-radius: 999px;
+            border-radius:
+                999px;
 
             background:
                 var(--panel);
         }
 
+
         .indicador {
-            width: 11px;
-            height: 11px;
+
+            width:
+                11px;
+
+            height:
+                11px;
 
             border-radius:
                 50%;
@@ -105,46 +151,130 @@
                 #666;
         }
 
+
         .estado-conectado {
             background:
                 var(--verde);
         }
+
 
         .estado-escuchando {
             background:
                 var(--amarillo);
         }
 
+
         .estado-procesando {
             background:
                 var(--azul);
         }
+
 
         .estado-error {
             background:
                 var(--rojo);
         }
 
+
+        /* ====================================================
+           SELECTOR DE CONVERSACIÓN
+        ==================================================== */
+
+        .barra-conversacion {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                auto;
+
+            gap:
+                12px;
+
+            margin-bottom:
+                20px;
+
+            padding:
+                16px;
+
+            background:
+                var(--panel);
+
+            border:
+                1px solid
+                var(--borde);
+
+            border-radius:
+                16px;
+        }
+
+
+        select {
+
+            width:
+                100%;
+
+            padding:
+                13px 14px;
+
+            background:
+                var(--panel2);
+
+            color:
+                var(--texto);
+
+            border:
+                1px solid
+                var(--borde);
+
+            border-radius:
+                10px;
+
+            font-size:
+                14px;
+        }
+
+
+        .btn-nueva {
+
+            background:
+                #26313c;
+
+            color:
+                white;
+
+            white-space:
+                nowrap;
+        }
+
+
         /* ====================================================
            GRID
         ==================================================== */
 
         .grid {
-            display: grid;
+
+            display:
+                grid;
 
             grid-template-columns:
                 minmax(0, 2fr)
                 minmax(320px, 1fr);
 
-            gap: 20px;
+            gap:
+                20px;
         }
 
+
         .panel {
+
             background:
                 var(--panel);
 
             border:
-                1px solid var(--borde);
+                1px solid
+                var(--borde);
 
             border-radius:
                 18px;
@@ -153,43 +283,60 @@
                 hidden;
         }
 
+
         .panel-header {
-            padding: 17px 20px;
+
+            padding:
+                17px 20px;
 
             border-bottom:
-                1px solid var(--borde);
+                1px solid
+                var(--borde);
 
-            font-weight: 700;
+            font-weight:
+                700;
         }
+
 
         /* ====================================================
            CHAT
         ==================================================== */
 
         .chat {
-            height: 560px;
 
-            padding: 22px;
+            height:
+                560px;
 
-            overflow-y: auto;
+            padding:
+                22px;
 
-            display: flex;
+            overflow-y:
+                auto;
+
+            display:
+                flex;
 
             flex-direction:
                 column;
 
-            gap: 18px;
+            gap:
+                18px;
         }
 
-        .mensaje {
-            max-width: 84%;
 
-            padding: 14px 16px;
+        .mensaje {
+
+            max-width:
+                84%;
+
+            padding:
+                14px 16px;
 
             border-radius:
                 17px;
 
-            line-height: 1.5;
+            line-height:
+                1.5;
 
             white-space:
                 pre-wrap;
@@ -198,7 +345,9 @@
                 break-word;
         }
 
+
         .mensaje-usuario {
+
             align-self:
                 flex-end;
 
@@ -206,10 +355,13 @@
                 #1d3a2c;
 
             border:
-                1px solid #28553e;
+                1px solid
+                #28553e;
         }
 
+
         .mensaje-asistente {
+
             align-self:
                 flex-start;
 
@@ -217,13 +369,18 @@
                 #18212c;
 
             border:
-                1px solid #2c3b4b;
+                1px solid
+                #2c3b4b;
         }
 
-        .autor {
-            display: block;
 
-            font-size: 12px;
+        .autor {
+
+            display:
+                block;
+
+            font-size:
+                12px;
 
             font-weight:
                 bold;
@@ -235,48 +392,65 @@
                 5px;
         }
 
+
         .transcripcion-parcial {
-            opacity: 0.65;
+
+            opacity:
+                0.65;
 
             font-style:
                 italic;
         }
+
 
         /* ====================================================
            CONTROLES
         ==================================================== */
 
         .controles {
-            padding: 18px;
+
+            padding:
+                18px;
 
             border-top:
-                1px solid var(--borde);
+                1px solid
+                var(--borde);
 
-            display: grid;
+            display:
+                grid;
 
             grid-template-columns:
                 1fr 1fr 1fr;
 
-            gap: 10px;
+            gap:
+                10px;
         }
 
+
         button {
-            border: 0;
+
+            border:
+                0;
 
             border-radius:
                 12px;
 
-            padding: 14px;
+            padding:
+                14px;
 
-            cursor: pointer;
+            cursor:
+                pointer;
 
-            font-size: 15px;
+            font-size:
+                15px;
 
             font-weight:
                 600;
         }
 
+
         #conectar {
+
             background:
                 var(--verde);
 
@@ -284,7 +458,9 @@
                 #07130b;
         }
 
+
         #desconectar {
+
             background:
                 #313b47;
 
@@ -292,7 +468,9 @@
                 white;
         }
 
+
         #limpiar {
+
             background:
                 #222b35;
 
@@ -300,31 +478,45 @@
                 white;
         }
 
+
         button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
+
+            opacity:
+                0.4;
+
+            cursor:
+                not-allowed;
         }
+
 
         /* ====================================================
            CAPACIDADES
         ==================================================== */
 
         .capacidades {
-            padding: 16px;
 
-            display: grid;
+            padding:
+                16px;
+
+            display:
+                grid;
 
             grid-template-columns:
                 1fr 1fr;
 
-            gap: 10px;
+            gap:
+                10px;
         }
 
+
         .capacidad {
-            padding: 13px;
+
+            padding:
+                13px;
 
             border:
-                1px solid var(--borde);
+                1px solid
+                var(--borde);
 
             border-radius:
                 12px;
@@ -332,75 +524,56 @@
             background:
                 var(--panel2);
 
-            font-size: 13px;
+            font-size:
+                13px;
         }
 
+
         .capacidad strong {
-            display: block;
+
+            display:
+                block;
 
             margin-bottom:
                 5px;
         }
 
+
         .activo {
+
             color:
                 var(--verde);
         }
 
-        /* ====================================================
-           ACTIVIDAD
-        ==================================================== */
-
-        .actividad {
-            max-height: 265px;
-
-            overflow-y:
-                auto;
-
-            padding: 15px;
-        }
-
-        .evento {
-            padding: 10px 0;
-
-            border-bottom:
-                1px solid #202935;
-
-            font-size: 13px;
-
-            line-height:
-                1.4;
-        }
-
-        .hora {
-            color:
-                var(--secundario);
-
-            margin-right:
-                6px;
-        }
 
         /* ====================================================
-           FUENTES
+           FUENTES Y ACTIVIDAD
         ==================================================== */
 
         .fuentes {
-            max-height: 330px;
+
+            max-height:
+                300px;
 
             overflow-y:
                 auto;
 
-            padding: 15px;
+            padding:
+                15px;
         }
 
+
         .fuente {
-            padding: 13px;
+
+            padding:
+                13px;
 
             background:
                 var(--panel2);
 
             border:
-                1px solid var(--borde);
+                1px solid
+                var(--borde);
 
             border-radius:
                 12px;
@@ -409,11 +582,14 @@
                 10px;
         }
 
+
         .fuente-tipo {
+
             color:
                 var(--secundario);
 
-            font-size: 11px;
+            font-size:
+                11px;
 
             text-transform:
                 uppercase;
@@ -422,36 +598,76 @@
                 5px;
         }
 
+
         .fuente-nombre {
+
             font-weight:
                 700;
 
             margin-bottom:
-                6px;
-
-            word-break:
-                break-word;
+                5px;
         }
+
 
         .fuente-detalle {
-            font-size: 12px;
+
+            font-size:
+                12px;
 
             color:
                 var(--secundario);
-
-            line-height:
-                1.4;
         }
 
-        .sin-datos {
+
+        .actividad {
+
+            max-height:
+                265px;
+
+            overflow-y:
+                auto;
+
+            padding:
+                15px;
+        }
+
+
+        .evento {
+
+            padding:
+                9px 0;
+
+            border-bottom:
+                1px solid
+                #202935;
+
+            font-size:
+                13px;
+        }
+
+
+        .hora {
+
             color:
                 var(--secundario);
 
-            font-size: 13px;
+            margin-right:
+                6px;
+        }
+
+
+        .sin-datos {
+
+            color:
+                var(--secundario);
+
+            font-size:
+                13px;
 
             padding:
                 8px 2px;
         }
+
 
         @media (
             max-width: 900px
@@ -462,13 +678,21 @@
                     1fr;
             }
 
-            .header {
-                align-items:
-                    flex-start;
 
+            .header {
                 flex-direction:
                     column;
+
+                align-items:
+                    flex-start;
             }
+
+
+            .barra-conversacion {
+                grid-template-columns:
+                    1fr;
+            }
+
 
             .chat {
                 height:
@@ -486,10 +710,6 @@
 <div class="app">
 
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
     <div class="header">
 
         <div class="titulo">
@@ -499,7 +719,7 @@
             </h1>
 
             <p>
-                Voz Realtime · Memoria · RAG · Google Drive · Historial persistente
+                Voz Realtime · Historial · Memoria · RAG · Google Drive
             </p>
 
         </div>
@@ -521,11 +741,36 @@
     </div>
 
 
+    <!-- =====================================================
+         SELECTOR DE CONVERSACIÓN
+    ====================================================== -->
+
+    <div class="barra-conversacion">
+
+        <select id="selectorConversacion">
+
+            <option value="">
+                Nueva conversación
+            </option>
+
+        </select>
+
+
+        <button
+            id="nuevaConversacion"
+            class="btn-nueva"
+        >
+            ＋ Nueva conversación
+        </button>
+
+    </div>
+
+
     <div class="grid">
 
 
         <!-- =================================================
-             COLUMNA CHAT
+             CHAT
         ================================================== -->
 
         <div class="panel">
@@ -541,7 +786,7 @@
             >
 
                 <div class="sin-datos">
-                    Inicia una conversación por voz.
+                    Selecciona una conversación o inicia una nueva.
                 </div>
 
             </div>
@@ -561,7 +806,7 @@
                 </button>
 
                 <button id="limpiar">
-                    🧹 Limpiar
+                    🧹 Limpiar vista
                 </button>
 
             </div>
@@ -570,13 +815,11 @@
 
 
         <!-- =================================================
-             COLUMNA DERECHA
+             DERECHA
         ================================================== -->
 
         <div>
 
-
-            <!-- CAPACIDADES -->
 
             <div
                 class="panel"
@@ -591,88 +834,68 @@
                 <div class="capacidades">
 
                     <div class="capacidad">
-
                         <strong>
                             🧠 Memoria
                         </strong>
-
                         <span class="activo">
                             ● Activa
                         </span>
-
                     </div>
 
 
                     <div class="capacidad">
-
                         <strong>
                             📚 RAG
                         </strong>
-
                         <span class="activo">
                             ● Activo
                         </span>
-
                     </div>
 
 
                     <div class="capacidad">
-
                         <strong>
                             ☁️ Drive
                         </strong>
-
                         <span class="activo">
                             ● Solo lectura
                         </span>
-
                     </div>
 
 
                     <div class="capacidad">
-
                         <strong>
                             💾 Historial
                         </strong>
-
                         <span class="activo">
-                            ● Persistente
+                            ● Compartido
                         </span>
-
                     </div>
 
 
                     <div class="capacidad">
+                        <strong>
+                            🔄 Continuidad
+                        </strong>
+                        <span class="activo">
+                            ● Activa
+                        </span>
+                    </div>
 
+
+                    <div class="capacidad">
                         <strong>
                             🎙️ Realtime
                         </strong>
-
                         <span class="activo">
                             ● Voz
                         </span>
-
-                    </div>
-
-
-                    <div class="capacidad">
-
-                        <strong>
-                            🔎 Drive → RAG
-                        </strong>
-
-                        <span class="activo">
-                            ● Automático
-                        </span>
-
                     </div>
 
                 </div>
 
             </div>
 
-
-            <!-- FUENTES -->
 
             <div
                 class="panel"
@@ -698,8 +921,6 @@
             </div>
 
 
-            <!-- ACTIVIDAD -->
-
             <div class="panel">
 
                 <div class="panel-header">
@@ -719,7 +940,6 @@
                 </div>
 
             </div>
-
 
         </div>
 
@@ -742,6 +962,8 @@ let audioRemoto = null;
 
 let conversacionId = null;
 
+let historialSeleccionado = [];
+
 let transcripcionUsuario = "";
 let transcripcionAsistente = "";
 
@@ -752,6 +974,16 @@ let mensajeAsistenteTemporal = null;
 // ============================================================
 // ELEMENTOS
 // ============================================================
+
+const selectorConversacion =
+    document.getElementById(
+        "selectorConversacion"
+    );
+
+const botonNuevaConversacion =
+    document.getElementById(
+        "nuevaConversacion"
+    );
 
 const botonConectar =
     document.getElementById(
@@ -818,10 +1050,7 @@ function registrarActividad(
 
 
     evento.innerHTML =
-        `<span class="hora">
-            ${hora}
-        </span>
-        ${mensaje}`;
+        `<span class="hora">${hora}</span>${mensaje}`;
 
 
     actividad.prepend(
@@ -844,50 +1073,46 @@ function cambiarEstado(
 
 
     if (
-        tipo === "conectado"
+        tipo ===
+        "conectado"
     ) {
 
-        indicador
-            .classList
-            .add(
-                "estado-conectado"
-            );
+        indicador.classList.add(
+            "estado-conectado"
+        );
     }
 
 
     if (
-        tipo === "escuchando"
+        tipo ===
+        "escuchando"
     ) {
 
-        indicador
-            .classList
-            .add(
-                "estado-escuchando"
-            );
+        indicador.classList.add(
+            "estado-escuchando"
+        );
     }
 
 
     if (
-        tipo === "procesando"
+        tipo ===
+        "procesando"
     ) {
 
-        indicador
-            .classList
-            .add(
-                "estado-procesando"
-            );
+        indicador.classList.add(
+            "estado-procesando"
+        );
     }
 
 
     if (
-        tipo === "error"
+        tipo ===
+        "error"
     ) {
 
-        indicador
-            .classList
-            .add(
-                "estado-error"
-            );
+        indicador.classList.add(
+            "estado-error"
+        );
     }
 }
 
@@ -896,18 +1121,10 @@ function cambiarEstado(
 // CHAT
 // ============================================================
 
-function limpiarPlaceholderChat() {
+function limpiarChat() {
 
-    const placeholder =
-        chat.querySelector(
-            ".sin-datos"
-        );
-
-
-    if (placeholder) {
-
-        placeholder.remove();
-    }
+    chat.innerHTML =
+        "";
 }
 
 
@@ -916,9 +1133,6 @@ function crearMensaje(
     texto,
     temporal=false
 ) {
-
-    limpiarPlaceholderChat();
-
 
     const mensaje =
         document.createElement(
@@ -944,22 +1158,11 @@ function crearMensaje(
     }
 
 
-    const autor =
-        (
-            rol === "usuario"
-            ?
-            "Tú"
-            :
-            "Asistente"
-        );
-
-
     mensaje.innerHTML =
         `
         <span class="autor">
-            ${autor}
+            ${rol === "usuario" ? "Tú" : "Asistente"}
         </span>
-
         <span class="contenido"></span>
         `;
 
@@ -1022,6 +1225,461 @@ function actualizarMensaje(
 
     chat.scrollTop =
         chat.scrollHeight;
+}
+
+
+// ============================================================
+// CONVERSACIONES
+// ============================================================
+
+async function cargarListaConversaciones() {
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/conversations"
+            );
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                JSON.stringify(
+                    datos
+                )
+            );
+        }
+
+
+        selectorConversacion.innerHTML =
+            `
+            <option value="">
+                Nueva conversación
+            </option>
+            `;
+
+
+        const conversaciones =
+            datos.result || [];
+
+
+        conversaciones.forEach(
+            conversacion => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    conversacion.id;
+
+
+                option.textContent =
+                    conversacion.titulo
+                    ||
+                    (
+                        "Conversación "
+                        +
+                        conversacion.id
+                    );
+
+
+                selectorConversacion.appendChild(
+                    option
+                );
+            }
+        );
+
+
+        registrarActividad(
+            "💬 Historial cargado: "
+            +
+            conversaciones.length
+            +
+            " conversaciones."
+        );
+
+    }
+
+    catch(error) {
+
+        registrarActividad(
+            "⚠️ No se pudo cargar el historial."
+        );
+
+        console.error(
+            error
+        );
+    }
+}
+
+
+async function cargarConversacion(
+    id
+) {
+
+    if (!id) {
+
+        conversacionId =
+            null;
+
+        historialSeleccionado =
+            [];
+
+        limpiarChat();
+
+
+        chat.innerHTML =
+            `
+            <div class="sin-datos">
+                Se creará una nueva conversación al iniciar.
+            </div>
+            `;
+
+
+        registrarActividad(
+            "＋ Nueva conversación seleccionada."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        cambiarEstado(
+            "Cargando conversación...",
+            "procesando"
+        );
+
+
+        const respuesta =
+            await fetch(
+                `/conversation/${id}`
+            );
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                JSON.stringify(
+                    datos
+                )
+            );
+        }
+
+
+        conversacionId =
+            Number(id);
+
+
+        historialSeleccionado =
+            datos.mensajes
+            || [];
+
+
+        limpiarChat();
+
+
+        historialSeleccionado.forEach(
+            mensaje => {
+
+                const rol =
+                    (
+                        mensaje.role ===
+                        "assistant"
+                    )
+                    ?
+                    "asistente"
+                    :
+                    "usuario";
+
+
+                crearMensaje(
+                    rol,
+                    mensaje.content,
+                    false
+                );
+            }
+        );
+
+
+        registrarActividad(
+            "🔄 Conversación "
+            +
+            conversacionId
+            +
+            " cargada."
+        );
+
+
+        registrarActividad(
+            "💬 "
+            +
+            historialSeleccionado.length
+            +
+            " mensajes recuperados."
+        );
+
+
+        cambiarEstado(
+            "Conversación cargada"
+        );
+
+    }
+
+    catch(error) {
+
+        registrarActividad(
+            "❌ Error cargando conversación."
+        );
+
+        cambiarEstado(
+            "Error",
+            "error"
+        );
+
+        console.error(
+            error
+        );
+    }
+}
+
+
+async function crearConversacionPersistente() {
+
+    const respuesta =
+        await fetch(
+            "/conversation/start",
+            {
+                method:
+                    "POST"
+            }
+        );
+
+
+    const datos =
+        await respuesta.json();
+
+
+    if (!respuesta.ok) {
+
+        throw new Error(
+            JSON.stringify(
+                datos
+            )
+        );
+    }
+
+
+    conversacionId =
+        datos.conversacion_id;
+
+
+    historialSeleccionado =
+        [];
+
+
+    registrarActividad(
+        "💾 Nueva conversación: "
+        +
+        conversacionId
+    );
+
+
+    await cargarListaConversaciones();
+
+
+    selectorConversacion.value =
+        String(
+            conversacionId
+        );
+}
+
+
+async function guardarMensajePersistente(
+    role,
+    content
+) {
+
+    if (!conversacionId) {
+        return;
+    }
+
+
+    const texto =
+        (
+            content
+            || ""
+        )
+        .trim();
+
+
+    if (!texto) {
+        return;
+    }
+
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/conversation/message",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            conversacion_id:
+                                conversacionId,
+
+                            role:
+                                role,
+
+                            content:
+                                texto
+                        })
+                }
+            );
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            console.error(
+                datos
+            );
+
+            return;
+        }
+
+
+        historialSeleccionado.push({
+
+            role:
+                role,
+
+            content:
+                texto
+        });
+
+
+        registrarActividad(
+            "💾 Mensaje guardado."
+        );
+
+    }
+
+    catch(error) {
+
+        console.error(
+            error
+        );
+
+
+        registrarActividad(
+            "⚠️ Error guardando mensaje."
+        );
+    }
+}
+
+
+// ============================================================
+// CONTEXTO DE CONTINUIDAD
+// ============================================================
+
+function construirContextoHistorial() {
+
+    if (
+        !historialSeleccionado
+        ||
+        historialSeleccionado.length === 0
+    ) {
+
+        return "";
+    }
+
+
+    /*
+        Limitamos a los últimos 20 mensajes
+        y aproximadamente 12.000 caracteres
+        para no llenar innecesariamente
+        las instrucciones de sesión.
+    */
+
+    const ultimos =
+        historialSeleccionado
+        .slice(-20);
+
+
+    let contexto =
+        "";
+
+
+    for (
+        const mensaje
+        of ultimos
+    ) {
+
+        const role =
+            (
+                mensaje.role ===
+                "assistant"
+            )
+            ?
+            "ASISTENTE"
+            :
+            "USUARIO";
+
+
+        contexto +=
+            role
+            +
+            ": "
+            +
+            mensaje.content
+            +
+            "\n\n";
+    }
+
+
+    if (
+        contexto.length
+        > 12000
+    ) {
+
+        contexto =
+            contexto.slice(
+                contexto.length
+                - 12000
+            );
+    }
+
+
+    return contexto;
 }
 
 
@@ -1111,14 +1769,12 @@ function mostrarFuentesTool(
     }
 
 
-    // ========================================================
-    // DRIVE
-    // ========================================================
-
     if (
-        nombreTool === "buscar_drive"
+        nombreTool ===
+        "buscar_drive"
         ||
-        nombreTool === "listar_drive"
+        nombreTool ===
+        "listar_drive"
     ) {
 
         const archivos =
@@ -1129,14 +1785,12 @@ function mostrarFuentesTool(
         archivos
             .slice(0, 8)
             .forEach(
-
                 archivo => {
 
                     agregarFuente(
                         "Google Drive",
                         archivo.nombre
                             || "Archivo",
-
                         archivo.tipo
                             || ""
                     );
@@ -1144,10 +1798,6 @@ function mostrarFuentesTool(
             );
     }
 
-
-    // ========================================================
-    // RAG
-    // ========================================================
 
     if (
         nombreTool ===
@@ -1162,7 +1812,6 @@ function mostrarFuentesTool(
         fragmentos
             .slice(0, 6)
             .forEach(
-
                 item => {
 
                     let detalle =
@@ -1191,17 +1840,12 @@ function mostrarFuentesTool(
                         "RAG",
                         item.archivo
                             || "Documento",
-
                         detalle
                     );
                 }
             );
     }
 
-
-    // ========================================================
-    // ANALIZAR DRIVE
-    // ========================================================
 
     if (
         nombreTool ===
@@ -1218,38 +1862,11 @@ function mostrarFuentesTool(
                     .archivo
                     .nombre
                     || "Archivo",
-
                 "Archivo analizado"
             );
         }
-
-
-        const fragmentos =
-            resultado.result
-            || [];
-
-
-        fragmentos
-            .slice(0, 5)
-            .forEach(
-
-                item => {
-
-                    agregarFuente(
-                        "RAG",
-                        item.archivo
-                            || "Documento",
-
-                        "Fragmento utilizado"
-                    );
-                }
-            );
     }
 
-
-    // ========================================================
-    // MEMORIA
-    // ========================================================
 
     if (
         nombreTool ===
@@ -1267,152 +1884,17 @@ function mostrarFuentesTool(
         memorias
             .slice(0, 5)
             .forEach(
-
                 memoria => {
 
                     agregarFuente(
                         "Memoria",
                         memoria.clave
                             || "Recuerdo",
-
                         memoria.categoria
                             || ""
                     );
                 }
             );
-    }
-}
-
-
-// ============================================================
-// PERSISTENCIA
-// ============================================================
-
-async function crearConversacionPersistente() {
-
-    const respuesta =
-        await fetch(
-            "/conversation/start",
-            {
-                method:
-                    "POST"
-            }
-        );
-
-
-    const datos =
-        await respuesta.json();
-
-
-    if (!respuesta.ok) {
-
-        throw new Error(
-            JSON.stringify(
-                datos
-            )
-        );
-    }
-
-
-    conversacionId =
-        datos.conversacion_id;
-
-
-    registrarActividad(
-        "💾 Conversación creada: "
-        + conversacionId
-    );
-}
-
-
-async function guardarMensajePersistente(
-    role,
-    content
-) {
-
-    if (!conversacionId) {
-        return;
-    }
-
-
-    const texto =
-        (content || "")
-        .trim();
-
-
-    if (!texto) {
-        return;
-    }
-
-
-    try {
-
-        const respuesta =
-            await fetch(
-                "/conversation/message",
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            conversacion_id:
-                                conversacionId,
-
-                            role:
-                                role,
-
-                            content:
-                                texto
-                        })
-                }
-            );
-
-
-        const datos =
-            await respuesta.json();
-
-
-        if (!respuesta.ok) {
-
-            console.error(
-                "Error guardando mensaje:",
-                datos
-            );
-
-            registrarActividad(
-                "⚠️ No se pudo guardar un mensaje."
-            );
-
-            return;
-        }
-
-
-        registrarActividad(
-            "💾 Mensaje guardado."
-        );
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Error persistencia:",
-            error
-        );
-
-
-        registrarActividad(
-            "⚠️ Error de persistencia."
-        );
     }
 }
 
@@ -1424,33 +1906,25 @@ async function guardarMensajePersistente(
 const TOOLS = [
 
     {
-        type:
-            "function",
-
-        name:
-            "buscar_memoria",
+        type: "function",
+        name: "buscar_memoria",
 
         description:
             "Busca información guardada en la memoria persistente del usuario.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 consulta: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 limite: {
-                    type:
-                        "integer",
-
-                    default:
-                        10
+                    type: "integer",
+                    default: 10
                 }
             },
 
@@ -1462,49 +1936,35 @@ const TOOLS = [
 
 
     {
-        type:
-            "function",
-
-        name:
-            "recordar",
+        type: "function",
+        name: "recordar",
 
         description:
-            "Guarda información importante en memoria persistente para futuras conversaciones.",
+            "Guarda información importante en memoria persistente.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 categoria: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 clave: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 contenido: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 importancia: {
-                    type:
-                        "integer",
-
-                    minimum:
-                        1,
-
-                    maximum:
-                        5,
-
-                    default:
-                        3
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 5,
+                    default: 3
                 }
             },
 
@@ -1518,33 +1978,25 @@ const TOOLS = [
 
 
     {
-        type:
-            "function",
-
-        name:
-            "ver_memorias",
+        type: "function",
+        name: "ver_memorias",
 
         description:
-            "Lista las memorias persistentes activas.",
+            "Lista memorias persistentes activas.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 categoria: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 limite: {
-                    type:
-                        "integer",
-
-                    default:
-                        20
+                    type: "integer",
+                    default: 20
                 }
             }
         }
@@ -1552,39 +2004,27 @@ const TOOLS = [
 
 
     {
-        type:
-            "function",
-
-        name:
-            "buscar_documentos",
+        type: "function",
+        name: "buscar_documentos",
 
         description:
-            "Busca información dentro de documentos previamente indexados mediante RAG.",
+            "Busca información dentro de documentos indexados mediante RAG.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 consulta: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 limite: {
-                    type:
-                        "integer",
-
-                    minimum:
-                        1,
-
-                    maximum:
-                        8,
-
-                    default:
-                        5
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 8,
+                    default: 5
                 }
             },
 
@@ -1596,39 +2036,27 @@ const TOOLS = [
 
 
     {
-        type:
-            "function",
-
-        name:
-            "buscar_drive",
+        type: "function",
+        name: "buscar_drive",
 
         description:
-            "Busca archivos en Google Drive por nombre. Úsala para localizar archivos, no para analizar su contenido.",
+            "Busca archivos en Google Drive por nombre.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 consulta: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 limite: {
-                    type:
-                        "integer",
-
-                    minimum:
-                        1,
-
-                    maximum:
-                        50,
-
-                    default:
-                        10
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 50,
+                    default: 10
                 }
             },
 
@@ -1640,34 +2068,23 @@ const TOOLS = [
 
 
     {
-        type:
-            "function",
-
-        name:
-            "listar_drive",
+        type: "function",
+        name: "listar_drive",
 
         description:
-            "Lista archivos recientes disponibles en Google Drive.",
+            "Lista archivos recientes de Google Drive.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 limite: {
-                    type:
-                        "integer",
-
-                    minimum:
-                        1,
-
-                    maximum:
-                        50,
-
-                    default:
-                        10
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 50,
+                    default: 10
                 }
             }
         }
@@ -1675,25 +2092,20 @@ const TOOLS = [
 
 
     {
-        type:
-            "function",
-
-        name:
-            "obtener_archivo_drive",
+        type: "function",
+        name: "obtener_archivo_drive",
 
         description:
-            "Obtiene metadatos de un archivo específico de Google Drive.",
+            "Obtiene metadatos de un archivo de Google Drive.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 file_id: {
-                    type:
-                        "string"
+                    type: "string"
                 }
             },
 
@@ -1705,30 +2117,24 @@ const TOOLS = [
 
 
     {
-        type:
-            "function",
-
-        name:
-            "indexar_drive",
+        type: "function",
+        name: "indexar_drive",
 
         description:
-            "Indexa un archivo de Google Drive únicamente cuando el usuario lo solicite expresamente.",
+            "Indexa un archivo de Drive cuando el usuario lo solicita expresamente.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 file_id: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 usuario_autorizo_indexacion: {
-                    type:
-                        "boolean"
+                    type: "boolean"
                 }
             },
 
@@ -1741,49 +2147,35 @@ const TOOLS = [
 
 
     {
-        type:
-            "function",
-
-        name:
-            "analizar_archivo_drive",
+        type: "function",
+        name: "analizar_archivo_drive",
 
         description:
-            "Busca un archivo de Google Drive, lo incorpora al RAG y analiza su contenido. Úsala únicamente si el usuario solicita explícitamente leer, revisar, analizar o consultar el contenido del archivo.",
+            "Busca, indexa y analiza un archivo de Google Drive cuando el usuario pide explícitamente revisar su contenido.",
 
         parameters: {
 
-            type:
-                "object",
+            type: "object",
 
             properties: {
 
                 consulta_archivo: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 pregunta: {
-                    type:
-                        "string"
+                    type: "string"
                 },
 
                 usuario_autorizo_indexacion: {
-                    type:
-                        "boolean"
+                    type: "boolean"
                 },
 
                 limite: {
-                    type:
-                        "integer",
-
-                    minimum:
-                        1,
-
-                    maximum:
-                        8,
-
-                    default:
-                        5
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 8,
+                    default: 5
                 }
             },
 
@@ -1807,10 +2199,52 @@ function configurarSesion() {
     if (
         !dc
         ||
-        dc.readyState !== "open"
+        dc.readyState !==
+        "open"
     ) {
 
         return;
+    }
+
+
+    const historial =
+        construirContextoHistorial();
+
+
+    let instrucciones =
+        "Eres un asistente personal profesional que conversa por voz en español. " +
+
+        "Responde de manera clara, natural, precisa y concisa. " +
+
+        "MEMORIA: si el usuario pide guardar algo para futuras conversaciones, usa recordar. " +
+
+        "Si pregunta qué recuerdas, usa buscar_memoria. " +
+
+        "RAG: si pregunta por documentos ya indexados, usa buscar_documentos. " +
+
+        "DRIVE: si solo quiere localizar archivos, usa buscar_drive. " +
+
+        "Si solicita explícitamente analizar el contenido de un archivo de Drive, usa analizar_archivo_drive y establece usuario_autorizo_indexacion en true. " +
+
+        "No elijas arbitrariamente entre archivos similares. " +
+
+        "Google Drive es solo lectura. " +
+
+        "No inventes resultados de memoria, RAG ni Drive. " +
+
+        "No almacenes contraseñas, claves API, tokens ni credenciales. ";
+
+
+    if (historial) {
+
+        instrucciones +=
+            "\n\nCONTEXTO DE LA CONVERSACIÓN ANTERIOR:\n" +
+
+            "La siguiente transcripción corresponde a la conversación que el usuario ha decidido continuar. " +
+
+            "Úsala como contexto de continuidad. No la repitas salvo que sea necesario.\n\n" +
+
+            historial;
     }
 
 
@@ -1846,31 +2280,7 @@ function configurarSesion() {
             },
 
             instructions:
-                "Eres un asistente personal profesional que conversa por voz en español. " +
-
-                "Responde de manera clara, natural, precisa y concisa. " +
-
-                "MEMORIA: si el usuario pide recordar o guardar algo para conversaciones futuras, usa recordar. " +
-
-                "Si pregunta qué recuerdas sobre algo anterior, usa buscar_memoria. " +
-
-                "RAG: si pregunta por documentos ya indexados, usa buscar_documentos. " +
-
-                "DRIVE: si solamente desea localizar un archivo, usa buscar_drive. " +
-
-                "Si pide archivos recientes, usa listar_drive. " +
-
-                "Si pide explícitamente leer, revisar o analizar el contenido de un archivo de Drive, usa analizar_archivo_drive y establece usuario_autorizo_indexacion en true. " +
-
-                "Si analizar_archivo_drive devuelve seleccion_requerida, informa los archivos encontrados y pide al usuario que identifique cuál desea analizar. " +
-
-                "No elijas arbitrariamente entre archivos similares. " +
-
-                "Google Drive es solo lectura. " +
-
-                "No inventes información de memoria, RAG ni Drive. " +
-
-                "No almacenes contraseñas, claves API, tokens ni credenciales."
+                instrucciones
         }
     };
 
@@ -1887,9 +2297,20 @@ function configurarSesion() {
     );
 
 
-    registrarActividad(
-        "🎤 Transcripción de voz activada."
-    );
+    if (historial) {
+
+        registrarActividad(
+            "🔄 Contexto anterior enviado a Realtime."
+        );
+
+    }
+
+    else {
+
+        registrarActividad(
+            "✨ Sesión sin contexto previo."
+        );
+    }
 }
 
 
@@ -1928,7 +2349,7 @@ async function ejecutarTool(
     catch(error) {
 
         registrarActividad(
-            "❌ Error leyendo argumentos."
+            "❌ Argumentos inválidos."
         );
 
         return;
@@ -2003,31 +2424,26 @@ async function ejecutarTool(
         );
 
 
-        const eventoResultado = {
-
-            type:
-                "conversation.item.create",
-
-            item: {
+        dc.send(
+            JSON.stringify({
 
                 type:
-                    "function_call_output",
+                    "conversation.item.create",
 
-                call_id:
-                    functionCall.call_id,
+                item: {
 
-                output:
-                    JSON.stringify(
-                        resultado
-                    )
-            }
-        };
+                    type:
+                        "function_call_output",
 
+                    call_id:
+                        functionCall.call_id,
 
-        dc.send(
-            JSON.stringify(
-                eventoResultado
-            )
+                    output:
+                        JSON.stringify(
+                            resultado
+                        )
+                }
+            })
         );
 
 
@@ -2077,10 +2493,6 @@ async function procesarEvento(
 ) {
 
 
-    // ========================================================
-    // SESIÓN
-    // ========================================================
-
     if (
         eventoAPI.type ===
         "session.created"
@@ -2102,10 +2514,6 @@ async function procesarEvento(
         );
     }
 
-
-    // ========================================================
-    // HABLA USUARIO
-    // ========================================================
 
     if (
         eventoAPI.type ===
@@ -2143,10 +2551,6 @@ async function procesarEvento(
     }
 
 
-    // ========================================================
-    // TRANSCRIPCIÓN USUARIO DELTA
-    // ========================================================
-
     if (
         eventoAPI.type ===
         "conversation.item.input_audio_transcription.delta"
@@ -2164,10 +2568,6 @@ async function procesarEvento(
         );
     }
 
-
-    // ========================================================
-    // TRANSCRIPCIÓN USUARIO FINAL
-    // ========================================================
 
     if (
         eventoAPI.type ===
@@ -2201,10 +2601,6 @@ async function procesarEvento(
             "";
     }
 
-
-    // ========================================================
-    // TRANSCRIPCIÓN ASISTENTE DELTA
-    // ========================================================
 
     if (
         eventoAPI.type ===
@@ -2241,10 +2637,6 @@ async function procesarEvento(
     }
 
 
-    // ========================================================
-    // TRANSCRIPCIÓN ASISTENTE FINAL
-    // ========================================================
-
     if (
         eventoAPI.type ===
         "response.output_audio_transcript.done"
@@ -2278,10 +2670,6 @@ async function procesarEvento(
     }
 
 
-    // ========================================================
-    // TOOL CALL
-    // ========================================================
-
     if (
         eventoAPI.type ===
         "response.output_item.done"
@@ -2307,10 +2695,6 @@ async function procesarEvento(
     }
 
 
-    // ========================================================
-    // RESPUESTA TERMINADA
-    // ========================================================
-
     if (
         eventoAPI.type ===
         "response.done"
@@ -2322,10 +2706,6 @@ async function procesarEvento(
         );
     }
 
-
-    // ========================================================
-    // ERROR
-    // ========================================================
 
     if (
         eventoAPI.type ===
@@ -2361,26 +2741,34 @@ async function conectar() {
             true;
 
 
+        selectorConversacion.disabled =
+            true;
+
+
+        botonNuevaConversacion.disabled =
+            true;
+
+
         cambiarEstado(
             "Conectando..."
         );
 
 
+        /*
+        Si el usuario seleccionó "Nueva conversación",
+        recién aquí creamos una.
+        */
+
+        if (!conversacionId) {
+
+            await crearConversacionPersistente();
+        }
+
+
         registrarActividad(
-            "Solicitando sesión..."
+            "Solicitando sesión Realtime..."
         );
 
-
-        // ----------------------------------------------------
-        // CREAR CONVERSACIÓN PERSISTENTE
-        // ----------------------------------------------------
-
-        await crearConversacionPersistente();
-
-
-        // ----------------------------------------------------
-        // TOKEN
-        // ----------------------------------------------------
 
         const tokenResponse =
             await fetch(
@@ -2414,10 +2802,6 @@ async function conectar() {
         }
 
 
-        // ----------------------------------------------------
-        // WEBRTC
-        // ----------------------------------------------------
-
         pc =
             new RTCPeerConnection();
 
@@ -2445,10 +2829,6 @@ async function conectar() {
             };
 
 
-        // ----------------------------------------------------
-        // MICRÓFONO
-        // ----------------------------------------------------
-
         localStream =
             await navigator
                 .mediaDevices
@@ -2469,10 +2849,6 @@ async function conectar() {
             "🎙️ Micrófono conectado."
         );
 
-
-        // ----------------------------------------------------
-        // DATA CHANNEL
-        // ----------------------------------------------------
 
         dc =
             pc.createDataChannel(
@@ -2528,10 +2904,6 @@ async function conectar() {
                 }
             };
 
-
-        // ----------------------------------------------------
-        // SDP
-        // ----------------------------------------------------
 
         const oferta =
             await pc.createOffer();
@@ -2617,6 +2989,14 @@ async function conectar() {
 
         botonConectar.disabled =
             false;
+
+
+        selectorConversacion.disabled =
+            false;
+
+
+        botonNuevaConversacion.disabled =
+            false;
     }
 }
 
@@ -2632,7 +3012,6 @@ function desconectar() {
         localStream
             .getTracks()
             .forEach(
-
                 track =>
                     track.stop()
             );
@@ -2667,6 +3046,14 @@ function desconectar() {
         true;
 
 
+    selectorConversacion.disabled =
+        false;
+
+
+    botonNuevaConversacion.disabled =
+        false;
+
+
     cambiarEstado(
         "Desconectado"
     );
@@ -2675,19 +3062,25 @@ function desconectar() {
     registrarActividad(
         "Sesión finalizada."
     );
+
+
+    cargarListaConversaciones();
 }
 
 
 // ============================================================
-// LIMPIAR INTERFAZ
+// LIMPIAR SOLO LA VISTA
 // ============================================================
 
 function limpiarInterfaz() {
 
+    limpiarChat();
+
+
     chat.innerHTML =
         `
         <div class="sin-datos">
-            Inicia una conversación por voz.
+            Vista limpia. El historial no fue eliminado.
         </div>
         `;
 
@@ -2707,8 +3100,62 @@ function limpiarInterfaz() {
 
 
 // ============================================================
-// BOTONES
+// EVENTOS UI
 // ============================================================
+
+selectorConversacion
+    .addEventListener(
+        "change",
+
+        async function() {
+
+            if (
+                pc
+                ||
+                dc
+            ) {
+
+                return;
+            }
+
+
+            const id =
+                this.value;
+
+
+            await cargarConversacion(
+                id
+            );
+        }
+    );
+
+
+botonNuevaConversacion
+    .addEventListener(
+        "click",
+
+        async function() {
+
+            if (
+                pc
+                ||
+                dc
+            ) {
+
+                return;
+            }
+
+
+            selectorConversacion.value =
+                "";
+
+
+            await cargarConversacion(
+                ""
+            );
+        }
+    );
+
 
 botonConectar
     .addEventListener(
@@ -2730,8 +3177,21 @@ botonLimpiar
         limpiarInterfaz
     );
 
+
+// ============================================================
+// INICIO
+// ============================================================
+
+window.addEventListener(
+    "DOMContentLoaded",
+
+    async function() {
+
+        await cargarListaConversaciones();
+    }
+);
+
 </script>
 
 </body>
-
 </html>
