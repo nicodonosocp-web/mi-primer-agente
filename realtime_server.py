@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import json
 import os
@@ -71,7 +72,10 @@ UPLOAD_DIR.mkdir(
 
 MODELO_EMBEDDING = "text-embedding-3-small"
 
+MODELO_OCR = "gpt-5.6-luna"
+
 TAMANO_FRAGMENTO = 1200
+
 SOLAPAMIENTO = 200
 
 MAX_ARCHIVO_BYTES = 25 * 1024 * 1024
@@ -97,7 +101,7 @@ client = OpenAI(
 # ============================================================
 
 app = FastAPI(
-    title="Mi Agente IA Multimodal V1.2"
+    title="Mi Agente IA Multimodal V1.3 OCR"
 )
 
 
@@ -106,11 +110,12 @@ app = FastAPI(
 # ============================================================
 
 inicializar_db()
+
 inicializar_memoria_largo_plazo()
 
 
 # ============================================================
-# MODELOS
+# MODELOS API
 # ============================================================
 
 class ToolRequest(BaseModel):
@@ -125,7 +130,7 @@ class MessageRequest(BaseModel):
 
 
 # ============================================================
-# UTILIDADES SQLite
+# UTILIDADES SQLITE
 # ============================================================
 
 def convertir_fila_a_dict(fila):
@@ -270,10 +275,8 @@ def normalizar_mensaje(fila):
             "fecha":
                 (
                     fila.get("fecha")
-                    or
-                    fila.get("fecha_creacion")
-                    or
-                    fila.get("created_at")
+                    or fila.get("fecha_creacion")
+                    or fila.get("created_at")
                 ),
         }
 
@@ -604,13 +607,6 @@ def guardar_mensaje_api(
                     )
 
 
-        print(
-            "[MENSAJE]",
-            request.conversacion_id,
-            role,
-        )
-
-
         return {
 
             "ok":
@@ -625,11 +621,6 @@ def guardar_mensaje_api(
 
 
     except Exception as error:
-
-        print(
-            "[ERROR GUARDANDO MENSAJE]",
-            error,
-        )
 
         return JSONResponse(
             status_code=500,
@@ -757,6 +748,7 @@ def similitud_coseno(
 
 
     norma_a = np.linalg.norm(a)
+
     norma_b = np.linalg.norm(b)
 
 
@@ -818,14 +810,10 @@ def buscar_en_documentos(
 
         if drive_file_id:
 
-            item_drive_id = (
+            if (
                 item.get(
                     "drive_file_id"
                 )
-            )
-
-            if (
-                item_drive_id
                 != drive_file_id
             ):
 
@@ -998,6 +986,211 @@ def extraer_txt(
 
 
 # ============================================================
+# OCR
+# ============================================================
+
+def pagina_pdf_a_data_url(
+    pagina,
+    zoom: float = 2.0,
+):
+
+    matriz = fitz.Matrix(
+        zoom,
+        zoom,
+    )
+
+
+    pixmap = pagina.get_pixmap(
+        matrix=matriz,
+        alpha=False,
+    )
+
+
+    png_bytes = pixmap.tobytes(
+        "png"
+    )
+
+
+    base64_png = (
+        base64.b64encode(
+            png_bytes
+        )
+        .decode(
+            "utf-8"
+        )
+    )
+
+
+    return (
+        "data:image/png;base64,"
+        +
+        base64_png
+    )
+
+
+def ocr_imagen_openai(
+    image_data_url: str,
+    numero_pagina: int,
+):
+
+    print(
+        f"[OCR] Procesando página "
+        f"{numero_pagina}..."
+    )
+
+
+    respuesta = (
+        client.responses.create(
+
+            model=
+                MODELO_OCR,
+
+            input=[
+
+                {
+                    "role":
+                        "user",
+
+                    "content": [
+
+                        {
+                            "type":
+                                "input_text",
+
+                            "text":
+                                (
+                                    "Transcribe fielmente todo el texto "
+                                    "legible visible en esta página. "
+                                    "No resumas. "
+                                    "No expliques. "
+                                    "No interpretes. "
+                                    "Mantén títulos, párrafos, listas, "
+                                    "números, fechas y tablas de manera "
+                                    "legible. "
+                                    "Si algo no es legible, no lo inventes. "
+                                    "Devuelve únicamente la transcripción."
+                                ),
+                        },
+
+                        {
+                            "type":
+                                "input_image",
+
+                            "image_url":
+                                image_data_url,
+
+                            "detail":
+                                "high",
+                        },
+                    ],
+                }
+
+            ],
+        )
+    )
+
+
+    texto = (
+        respuesta.output_text
+        or ""
+    ).strip()
+
+
+    print(
+        f"[OCR] Página {numero_pagina}: "
+        f"{len(texto)} caracteres"
+    )
+
+
+    return texto
+
+
+def extraer_pdf_con_ocr(
+    ruta: Path
+):
+
+    documento = fitz.open(
+        str(ruta)
+    )
+
+
+    textos = []
+
+
+    total_paginas = len(
+        documento
+    )
+
+
+    print(
+        f"[OCR] Documento escaneado detectado: "
+        f"{total_paginas} páginas"
+    )
+
+
+    try:
+
+        for numero_pagina, pagina in enumerate(
+            documento,
+            start=1,
+        ):
+
+            image_data_url = (
+                pagina_pdf_a_data_url(
+                    pagina
+                )
+            )
+
+
+            texto = (
+                ocr_imagen_openai(
+                    image_data_url,
+                    numero_pagina,
+                )
+            )
+
+
+            if texto:
+
+                textos.append(
+                    (
+                        f"[Página {numero_pagina}]\n"
+                        f"{texto}"
+                    )
+                )
+
+
+    finally:
+
+        documento.close()
+
+
+    texto_total = (
+        "\n\n".join(
+            textos
+        )
+        .strip()
+    )
+
+
+    if not texto_total:
+
+        raise ValueError(
+            "OCR completado, pero no fue posible "
+            "reconocer texto legible en el PDF."
+        )
+
+
+    print(
+        f"[OCR] Texto total reconocido: "
+        f"{len(texto_total)} caracteres"
+    )
+
+
+    return texto_total
+
+
+# ============================================================
 # PDF
 # ============================================================
 
@@ -1010,6 +1203,9 @@ def extraer_pdf(
     # --------------------------------------------------------
 
     textos = []
+
+    documento = None
+
 
     try:
 
@@ -1025,7 +1221,8 @@ def extraer_pdf(
 
         print(
             f"[PDF] PyMuPDF analizando "
-            f"{ruta.name} - {paginas} páginas"
+            f"{ruta.name} - "
+            f"{paginas} páginas"
         )
 
 
@@ -1050,12 +1247,10 @@ def extraer_pdf(
 
 
                 print(
-                    f"[PDF] Página {numero_pagina}: "
+                    f"[PDF] Página "
+                    f"{numero_pagina}: "
                     f"{len(texto)} caracteres"
                 )
-
-
-        documento.close()
 
 
         texto_total = (
@@ -1069,8 +1264,10 @@ def extraer_pdf(
         if texto_total:
 
             print(
-                f"[PDF] Texto extraído con PyMuPDF: "
-                f"{len(texto_total)} caracteres"
+                f"[PDF] Texto extraído "
+                f"con PyMuPDF: "
+                f"{len(texto_total)} "
+                f"caracteres"
             )
 
 
@@ -1091,11 +1288,24 @@ def extraer_pdf(
         )
 
 
+    finally:
+
+        if documento is not None:
+
+            try:
+
+                documento.close()
+
+            except Exception:
+                pass
+
+
     # --------------------------------------------------------
     # MÉTODO 2: pypdf
     # --------------------------------------------------------
 
     textos = []
+
 
     try:
 
@@ -1129,7 +1339,8 @@ def extraer_pdf(
 
 
                 print(
-                    f"[PDF] pypdf página {numero_pagina}: "
+                    f"[PDF] pypdf página "
+                    f"{numero_pagina}: "
                     f"{len(texto)} caracteres"
                 )
 
@@ -1145,8 +1356,10 @@ def extraer_pdf(
         if texto_total:
 
             print(
-                f"[PDF] Texto extraído con pypdf: "
-                f"{len(texto_total)} caracteres"
+                f"[PDF] Texto extraído "
+                f"con pypdf: "
+                f"{len(texto_total)} "
+                f"caracteres"
             )
 
 
@@ -1168,14 +1381,16 @@ def extraer_pdf(
 
 
     # --------------------------------------------------------
-    # SIN TEXTO
+    # MÉTODO 3: OCR AUTOMÁTICO
     # --------------------------------------------------------
 
-    raise ValueError(
-        "El PDF no contiene texto extraíble. "
-        "Probablemente es un documento escaneado "
-        "o está compuesto por imágenes. "
-        "Este archivo requiere OCR."
+    print(
+        "[PDF] Activando OCR visual automático..."
+    )
+
+
+    return extraer_pdf_con_ocr(
+        ruta
     )
 
 
@@ -1223,14 +1438,14 @@ def extraer_docx(
 
                 for celda
                 in fila.cells
-
             ]
 
 
             contenido_fila = (
                 " | ".join(
                     celda
-                    for celda in celdas
+                    for celda
+                    in celdas
                     if celda
                 )
             )
@@ -1403,7 +1618,7 @@ def crear_embeddings_lote(
 
 
         print(
-            f"[EMBEDDINGS] Procesando "
+            f"[EMBEDDINGS] "
             f"{inicio + 1} a "
             f"{min(inicio + lote, len(fragmentos))}"
         )
@@ -1446,7 +1661,8 @@ def indexar_documento_local(
 
         if (
             item.get("sha256")
-            == sha256
+            ==
+            sha256
         ):
 
             print(
@@ -1488,8 +1704,8 @@ def indexar_documento_local(
     if not texto.strip():
 
         raise ValueError(
-            "No fue posible extraer texto del documento. "
-            "Si el PDF es escaneado o contiene imágenes, requiere OCR."
+            "No fue posible extraer texto "
+            "del documento."
         )
 
 
@@ -1507,7 +1723,8 @@ def indexar_documento_local(
     if not fragmentos:
 
         raise ValueError(
-            "No fue posible generar fragmentos del documento."
+            "No fue posible generar "
+            "fragmentos del documento."
         )
 
 
@@ -1524,11 +1741,13 @@ def indexar_documento_local(
 
     if (
         len(embeddings)
-        != len(fragmentos)
+        !=
+        len(fragmentos)
     ):
 
         raise RuntimeError(
-            "La cantidad de embeddings no coincide con los fragmentos."
+            "La cantidad de embeddings "
+            "no coincide con los fragmentos."
         )
 
 
@@ -1595,7 +1814,7 @@ def indexar_documento_local(
 
 
 # ============================================================
-# API UPLOAD
+# UPLOAD
 # ============================================================
 
 @app.post("/upload-rag")
@@ -1610,7 +1829,8 @@ async def upload_rag(
 
         nombre_original = (
             file.filename
-            or "documento"
+            or
+            "documento"
         )
 
 
@@ -1639,7 +1859,8 @@ async def upload_rag(
 
         if (
             extension
-            not in EXTENSIONES_PERMITIDAS
+            not in
+            EXTENSIONES_PERMITIDAS
         ):
 
             return JSONResponse(
@@ -1685,16 +1906,10 @@ async def upload_rag(
             )
 
 
-        print(
-            "[UPLOAD] Tamaño:",
-            len(contenido),
-            "bytes",
-        )
-
-
         if (
             len(contenido)
-            > MAX_ARCHIVO_BYTES
+            >
+            MAX_ARCHIVO_BYTES
         ):
 
             return JSONResponse(
@@ -1732,20 +1947,15 @@ async def upload_rag(
                 item
                 for item
                 in indice
-                if item.get(
-                    "sha256"
-                ) == sha256
+                if item.get("sha256")
+                ==
+                sha256
             ),
             None,
         )
 
 
         if existente:
-
-            print(
-                "[UPLOAD] Documento ya indexado."
-            )
-
 
             return {
 
@@ -1801,18 +2011,14 @@ async def upload_rag(
         )
 
 
-        print(
-            "[UPLOAD] Guardado en:",
-            ruta,
-        )
-
-
         etapa = "extraccion_indexacion"
 
 
-        resultado = indexar_documento_local(
-            ruta,
-            sha256,
+        resultado = (
+            indexar_documento_local(
+                ruta,
+                sha256,
+            )
         )
 
 
@@ -1833,13 +2039,6 @@ async def upload_rag(
         )
 
         print(
-            "Caracteres:",
-            resultado[
-                "texto_extraido_caracteres"
-            ],
-        )
-
-        print(
             "=" * 70
         )
 
@@ -1853,7 +2052,10 @@ async def upload_rag(
                 "completado",
 
             "message":
-                "Documento incorporado correctamente al RAG.",
+                (
+                    "Documento incorporado "
+                    "correctamente al RAG."
+                ),
 
             **resultado,
         }
@@ -1905,7 +2107,7 @@ async def upload_rag(
 
 
 # ============================================================
-# LISTA DOCUMENTOS RAG
+# LISTAR DOCUMENTOS RAG
 # ============================================================
 
 @app.get("/rag/files")
@@ -1962,8 +2164,7 @@ def listar_documentos_rag():
 
         archivos.sort(
             key=lambda x:
-                x["archivo"]
-                .lower()
+                x["archivo"].lower()
         )
 
 
@@ -2233,15 +2434,13 @@ def analizar_archivo_drive_backend(
         }
 
 
-    archivos = (
-        buscar_drive_backend(
+    archivos = buscar_drive_backend(
 
-            consulta=
-                consulta_archivo,
+        consulta=
+            consulta_archivo,
 
-            limite=
-                10,
-        )
+        limite=
+            10,
     )
 
 
@@ -2429,7 +2628,7 @@ def health():
             "ok",
 
         "version":
-            "multimodal-1.2",
+            "multimodal-1.3-ocr",
 
         "realtime":
             True,
@@ -2453,7 +2652,13 @@ def health():
             True,
 
         "ocr":
-            False,
+            True,
+
+        "ocr_mode":
+            "automatic_visual_fallback",
+
+        "ocr_model":
+            MODELO_OCR,
 
         "local_rag_upload":
             True,
@@ -2526,7 +2731,8 @@ def crear_token():
             "instructions":
                 (
                     "Eres un asistente personal "
-                    "profesional que conversa en español."
+                    "profesional que conversa "
+                    "en español."
                 ),
 
             "audio": {
@@ -3046,10 +3252,6 @@ def ejecutar_tool(
             )
 
 
-        # ====================================================
-        # DESCONOCIDA
-        # ====================================================
-
         return JSONResponse(
             status_code=400,
             content={
@@ -3090,7 +3292,7 @@ def ejecutar_tool(
 if __name__ == "__main__":
 
     print(
-        "Mi Agente IA Multimodal V1.2"
+        "Mi Agente IA Multimodal V1.3 OCR"
     )
 
     print(
@@ -3102,7 +3304,7 @@ if __name__ == "__main__":
     )
 
     print(
-        "OCR: pendiente"
+        f"OCR automático: activo ({MODELO_OCR})"
     )
 
     print(
