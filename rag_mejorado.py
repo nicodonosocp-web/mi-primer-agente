@@ -9,12 +9,16 @@ from collections import Counter
 from pathlib import Path
 
 import numpy as np
+
+from dotenv import load_dotenv
 from openai import OpenAI
 
 
 # ============================================================
 # CONFIGURACIÓN
 # ============================================================
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -30,8 +34,16 @@ CANDIDATOS_INICIALES = 30
 SIMILITUD_DUPLICADO = 0.82
 
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+if not OPENAI_API_KEY:
+    raise RuntimeError(
+        "No se encontró OPENAI_API_KEY."
+    )
+
+
 client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
+    api_key=OPENAI_API_KEY
 )
 
 
@@ -185,7 +197,7 @@ def cargar_indice():
     except Exception as error:
 
         print(
-            "[RAG 2.0] Error leyendo índice:",
+            "[RAG] Error leyendo índice:",
             error,
         )
 
@@ -235,7 +247,7 @@ def guardar_indice(indice):
 
 
 # ============================================================
-# EMBEDDING
+# EMBEDDINGS
 # ============================================================
 
 def crear_embedding(texto: str):
@@ -249,7 +261,7 @@ def crear_embedding(texto: str):
 
 
 # ============================================================
-# COSENO
+# SIMILITUD
 # ============================================================
 
 def similitud_coseno(
@@ -272,11 +284,7 @@ def similitud_coseno(
         norma_a = np.linalg.norm(a)
         norma_b = np.linalg.norm(b)
 
-        if (
-            norma_a == 0
-            or norma_b == 0
-        ):
-
+        if norma_a == 0 or norma_b == 0:
             return 0.0
 
         return float(
@@ -294,10 +302,6 @@ def similitud_coseno(
         return 0.0
 
 
-# ============================================================
-# PUNTUACIÓN LÉXICA
-# ============================================================
-
 def puntuacion_lexica(
     consulta_tokens,
     texto_tokens,
@@ -308,7 +312,6 @@ def puntuacion_lexica(
         or
         not texto_tokens
     ):
-
         return 0.0
 
     frecuencia = Counter(
@@ -336,11 +339,7 @@ def puntuacion_lexica(
 
     denominador = max(
         1,
-        len(
-            set(
-                consulta_tokens
-            )
-        )
+        len(set(consulta_tokens)),
     )
 
     return min(
@@ -386,20 +385,16 @@ def calcular_bonificaciones(
 
     if palabras_archivo:
 
-        coincidencias_archivo = sum(
+        coincidencias = sum(
             1
             for palabra in palabras_archivo
             if palabra in consulta_norm
         )
 
-        if coincidencias_archivo:
-
-            bonus += min(
-                0.08,
-                coincidencias_archivo
-                *
-                0.025,
-            )
+        bonus += min(
+            0.08,
+            coincidencias * 0.025,
+        )
 
     anos_consulta = set(
         re.findall(
@@ -408,22 +403,15 @@ def calcular_bonificaciones(
         )
     )
 
-    if anos_consulta:
-
-        anos_texto = set(
-            re.findall(
-                r"\b(?:19|20)\d{2}\b",
-                texto_norm,
-            )
+    anos_texto = set(
+        re.findall(
+            r"\b(?:19|20)\d{2}\b",
+            texto_norm,
         )
+    )
 
-        if (
-            anos_consulta
-            &
-            anos_texto
-        ):
-
-            bonus += 0.06
+    if anos_consulta & anos_texto:
+        bonus += 0.06
 
     numeros = set(
         re.findall(
@@ -432,28 +420,24 @@ def calcular_bonificaciones(
         )
     )
 
-    if numeros:
+    encontrados = sum(
+        1
+        for numero in numeros
+        if numero in texto_norm
+    )
 
-        encontrados = sum(
-            1
-            for numero in numeros
-            if numero in texto_norm
+    if encontrados:
+
+        bonus += min(
+            0.05,
+            encontrados * 0.015,
         )
-
-        if encontrados:
-
-            bonus += min(
-                0.05,
-                encontrados
-                *
-                0.015,
-            )
 
     return bonus
 
 
 # ============================================================
-# SIMILITUD ENTRE TEXTOS
+# DIVERSIFICACIÓN
 # ============================================================
 
 def similitud_jaccard(
@@ -462,50 +446,29 @@ def similitud_jaccard(
 ):
 
     tokens_a = set(
-        tokenizar(
-            texto_a
-        )
+        tokenizar(texto_a)
     )
 
     tokens_b = set(
-        tokenizar(
-            texto_b
-        )
+        tokenizar(texto_b)
     )
 
-    if (
-        not tokens_a
-        or
-        not tokens_b
-    ):
-
+    if not tokens_a or not tokens_b:
         return 0.0
 
-    interseccion = len(
-        tokens_a
-        &
-        tokens_b
-    )
-
     union = len(
-        tokens_a
-        |
-        tokens_b
+        tokens_a | tokens_b
     )
 
     if union == 0:
         return 0.0
 
     return (
-        interseccion
+        len(tokens_a & tokens_b)
         /
         union
     )
 
-
-# ============================================================
-# DIVERSIFICACIÓN
-# ============================================================
 
 def diversificar_resultados(
     candidatos,
@@ -516,7 +479,7 @@ def diversificar_resultados(
 
     for candidato in candidatos:
 
-        demasiado_parecido = False
+        repetido = False
 
         for seleccionado in seleccionados:
 
@@ -531,27 +494,18 @@ def diversificar_resultados(
                 ),
             )
 
-            if (
-                parecido
-                >=
-                SIMILITUD_DUPLICADO
-            ):
+            if parecido >= SIMILITUD_DUPLICADO:
 
-                demasiado_parecido = True
-
+                repetido = True
                 break
 
-        if not demasiado_parecido:
+        if not repetido:
 
             seleccionados.append(
                 candidato
             )
 
-        if (
-            len(seleccionados)
-            >= limite
-        ):
-
+        if len(seleccionados) >= limite:
             break
 
     return seleccionados
@@ -589,27 +543,22 @@ def buscar_documentos_hibrido(
         consulta
     )
 
-    candidatos = []
-
     archivo_objetivo = (
-        normalizar_texto(
-            archivo
-        )
+        normalizar_texto(archivo)
         if archivo
         else None
     )
+
+    candidatos = []
 
     for item in indice:
 
         if drive_file_id:
 
             if (
-                item.get(
-                    "drive_file_id"
-                )
+                item.get("drive_file_id")
                 != drive_file_id
             ):
-
                 continue
 
         if archivo_objetivo:
@@ -621,12 +570,7 @@ def buscar_documentos_hibrido(
                 )
             )
 
-            if (
-                nombre_item
-                !=
-                archivo_objetivo
-            ):
-
+            if nombre_item != archivo_objetivo:
                 continue
 
         texto = (
@@ -634,45 +578,29 @@ def buscar_documentos_hibrido(
                 "texto",
                 ""
             )
-            or
-            ""
+            or ""
         )
 
         embedding = item.get(
             "embedding"
         )
 
-        if (
-            not texto
-            or
-            not embedding
-        ):
-
+        if not texto or not embedding:
             continue
 
-        score_semantico = (
-            similitud_coseno(
-                embedding_consulta,
-                embedding,
-            )
+        score_semantico = similitud_coseno(
+            embedding_consulta,
+            embedding,
         )
 
-        texto_tokens = tokenizar(
-            texto
+        score_lexico = puntuacion_lexica(
+            consulta_tokens,
+            tokenizar(texto),
         )
 
-        score_lexico = (
-            puntuacion_lexica(
-                consulta_tokens,
-                texto_tokens,
-            )
-        )
-
-        bonus = (
-            calcular_bonificaciones(
-                consulta,
-                item,
-            )
+        bonus = calcular_bonificaciones(
+            consulta,
+            item,
         )
 
         score_final = (
@@ -687,39 +615,27 @@ def buscar_documentos_hibrido(
             bonus
         )
 
-        resultado = dict(
-            item
-        )
+        resultado = dict(item)
 
         resultado[
             "score_semantico"
-        ] = float(
-            score_semantico
-        )
+        ] = float(score_semantico)
 
         resultado[
             "score_lexico"
-        ] = float(
-            score_lexico
-        )
+        ] = float(score_lexico)
 
         resultado[
             "bonus"
-        ] = float(
-            bonus
-        )
+        ] = float(bonus)
 
         resultado[
             "score_final"
-        ] = float(
-            score_final
-        )
+        ] = float(score_final)
 
         resultado[
             "similitud"
-        ] = float(
-            score_final
-        )
+        ] = float(score_final)
 
         resultado[
             "origen"
@@ -740,9 +656,7 @@ def buscar_documentos_hibrido(
 
     candidatos.sort(
         key=lambda item:
-            item[
-                "score_final"
-            ],
+            item["score_final"],
         reverse=True,
     )
 
@@ -750,14 +664,10 @@ def buscar_documentos_hibrido(
         :CANDIDATOS_INICIALES
     ]
 
-    resultados = diversificar_resultados(
-        candidatos=
-            candidatos,
-        limite=
-            limite,
+    return diversificar_resultados(
+        candidatos,
+        limite,
     )
-
-    return resultados
 
 
 # ============================================================
@@ -775,7 +685,7 @@ def dividir_texto_inteligente(
 
     texto = texto.replace(
         "\r\n",
-        "\n"
+        "\n",
     )
 
     texto = re.sub(
@@ -836,14 +746,9 @@ def dividir_texto_inteligente(
                 actual.strip()
             )
 
-        if (
-            len(bloque)
-            <=
-            tamano_objetivo
-        ):
+        if len(bloque) <= tamano_objetivo:
 
             actual = bloque
-
             continue
 
         frases = re.split(
@@ -889,19 +794,11 @@ def dividir_texto_inteligente(
                         actual
                     )
 
-                if (
-                    len(frase)
-                    >
-                    tamano_objetivo
-                ):
+                if len(frase) > tamano_objetivo:
 
                     inicio = 0
 
-                    while (
-                        inicio
-                        <
-                        len(frase)
-                    ):
+                    while inicio < len(frase):
 
                         fin = min(
                             inicio
@@ -913,16 +810,10 @@ def dividir_texto_inteligente(
                         fragmentos.append(
                             frase[
                                 inicio:fin
-                            ]
-                            .strip()
+                            ].strip()
                         )
 
-                        if (
-                            fin
-                            >=
-                            len(frase)
-                        ):
-
+                        if fin >= len(frase):
                             break
 
                         inicio = max(
@@ -950,17 +841,13 @@ def dividir_texto_inteligente(
 
     for fragmento in fragmentos:
 
-        if (
-            anterior
-            and
-            solapamiento > 0
-        ):
+        if anterior and solapamiento > 0:
 
             contexto = anterior[
                 -solapamiento:
             ]
 
-            fragmento_final = (
+            final = (
                 contexto
                 +
                 "\n"
@@ -970,10 +857,10 @@ def dividir_texto_inteligente(
 
         else:
 
-            fragmento_final = fragmento
+            final = fragmento
 
         resultado.append(
-            fragmento_final.strip()
+            final.strip()
         )
 
         anterior = fragmento
@@ -982,7 +869,7 @@ def dividir_texto_inteligente(
 
 
 # ============================================================
-# ESTADÍSTICAS
+# RESUMEN DE DOCUMENTOS
 # ============================================================
 
 def obtener_estadisticas_indice():
@@ -1000,6 +887,20 @@ def obtener_estadisticas_indice():
 
         if nombre not in archivos:
 
+            origen = item.get(
+                "origen"
+            )
+
+            if not origen:
+
+                origen = (
+                    "drive"
+                    if item.get(
+                        "drive_file_id"
+                    )
+                    else "local"
+                )
+
             archivos[nombre] = {
 
                 "archivo":
@@ -1012,15 +913,16 @@ def obtener_estadisticas_indice():
                     0,
 
                 "origen":
+                    origen,
+
+                "drive_file_id":
                     item.get(
-                        "origen",
-                        (
-                            "drive"
-                            if item.get(
-                                "drive_file_id"
-                            )
-                            else "local"
-                        ),
+                        "drive_file_id"
+                    ),
+
+                "sha256":
+                    item.get(
+                        "sha256"
                     ),
             }
 
@@ -1037,22 +939,41 @@ def obtener_estadisticas_indice():
             )
         )
 
+        if (
+            not archivos[nombre].get(
+                "drive_file_id"
+            )
+            and
+            item.get(
+                "drive_file_id"
+            )
+        ):
+
+            archivos[nombre][
+                "drive_file_id"
+            ] = item.get(
+                "drive_file_id"
+            )
+
+    documentos = list(
+        archivos.values()
+    )
+
+    documentos.sort(
+        key=lambda item:
+            item["archivo"].lower()
+    )
+
     return {
 
         "fragmentos_totales":
             len(indice),
 
         "documentos_totales":
-            len(archivos),
+            len(documentos),
 
         "documentos":
-            sorted(
-                archivos.values(),
-                key=lambda item:
-                    item[
-                        "archivo"
-                    ].lower(),
-            ),
+            documentos,
     }
 
 
@@ -1064,7 +985,7 @@ def eliminar_documento_indice(
     archivo: str
 ):
 
-    archivo_objetivo = normalizar_texto(
+    objetivo = normalizar_texto(
         archivo
     )
 
@@ -1083,7 +1004,7 @@ def eliminar_documento_indice(
             )
         )
 
-        if nombre == archivo_objetivo:
+        if nombre == objetivo:
 
             eliminados += 1
 
@@ -1108,7 +1029,5 @@ def eliminar_documento_indice(
             eliminados,
 
         "fragmentos_restantes":
-            len(
-                nuevo_indice
-            ),
+            len(nuevo_indice),
     }
