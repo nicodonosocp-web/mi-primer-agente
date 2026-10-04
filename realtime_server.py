@@ -18,6 +18,14 @@ from memoria_largo_plazo import (
     listar_memorias,
 )
 
+from drive_tools import (
+    obtener_servicio_drive,
+)
+
+from rag_drive import (
+    indexar_archivo_drive,
+)
+
 
 # ============================================================
 # CONFIGURACIÓN
@@ -34,7 +42,6 @@ if not OPENAI_API_KEY:
 
 
 BASE_DIR = Path(__file__).resolve().parent
-
 INDICE_PATH = BASE_DIR / "indice.json"
 
 MODELO_EMBEDDING = "text-embedding-3-small"
@@ -66,7 +73,7 @@ inicializar_memoria_largo_plazo()
 
 
 # ============================================================
-# MODELO TOOL REQUEST
+# MODELO PARA TOOL CALLS
 # ============================================================
 
 class ToolRequest(BaseModel):
@@ -91,9 +98,7 @@ def cargar_indice():
             encoding="utf-8",
         ) as archivo:
 
-            datos = json.load(
-                archivo
-            )
+            datos = json.load(archivo)
 
         if not isinstance(
             datos,
@@ -124,18 +129,12 @@ def crear_embedding_consulta(
     texto: str
 ):
 
-    respuesta = (
-        client.embeddings.create(
-            model=MODELO_EMBEDDING,
-            input=texto,
-        )
+    respuesta = client.embeddings.create(
+        model=MODELO_EMBEDDING,
+        input=texto,
     )
 
-    return (
-        respuesta
-        .data[0]
-        .embedding
-    )
+    return respuesta.data[0].embedding
 
 
 def similitud_coseno(
@@ -153,15 +152,8 @@ def similitud_coseno(
         dtype=float,
     )
 
-
-    norma_a = np.linalg.norm(
-        a
-    )
-
-    norma_b = np.linalg.norm(
-        b
-    )
-
+    norma_a = np.linalg.norm(a)
+    norma_b = np.linalg.norm(b)
 
     if (
         norma_a == 0
@@ -169,7 +161,6 @@ def similitud_coseno(
         norma_b == 0
     ):
         return 0.0
-
 
     return float(
         np.dot(a, b)
@@ -187,22 +178,15 @@ def buscar_en_documentos(
     limite: int = 5,
 ):
 
-    consulta = (
-        consulta
-        .strip()
-    )
-
+    consulta = consulta.strip()
 
     if not consulta:
         return []
 
-
     indice = cargar_indice()
-
 
     if not indice:
         return []
-
 
     embedding_consulta = (
         crear_embedding_consulta(
@@ -210,9 +194,7 @@ def buscar_en_documentos(
         )
     )
 
-
     resultados = []
-
 
     for item in indice:
 
@@ -225,7 +207,6 @@ def buscar_en_documentos(
             "",
         )
 
-
         if (
             not embedding
             or
@@ -233,14 +214,10 @@ def buscar_en_documentos(
         ):
             continue
 
-
-        similitud = (
-            similitud_coseno(
-                embedding_consulta,
-                embedding,
-            )
+        similitud = similitud_coseno(
+            embedding_consulta,
+            embedding,
         )
-
 
         resultados.append({
 
@@ -252,7 +229,7 @@ def buscar_en_documentos(
 
             "fragmento":
                 item.get(
-                    "fragmento",
+                    "fragmento"
                 ),
 
             "texto":
@@ -262,17 +239,181 @@ def buscar_en_documentos(
                 similitud,
         })
 
-
     resultados.sort(
         key=lambda x:
             x["similitud"],
         reverse=True,
     )
 
+    return resultados[:limite]
 
-    return resultados[
-        :limite
+
+# ============================================================
+# GOOGLE DRIVE
+# ============================================================
+
+def normalizar_archivo_drive(
+    archivo
+):
+
+    return {
+
+        "id":
+            archivo.get("id"),
+
+        "nombre":
+            archivo.get("name"),
+
+        "tipo":
+            archivo.get("mimeType"),
+
+        "fecha_modificacion":
+            archivo.get(
+                "modifiedTime"
+            ),
+
+        "enlace":
+            archivo.get(
+                "webViewLink"
+            ),
+    }
+
+
+def listar_drive_backend(
+    limite: int = 20,
+):
+
+    servicio = obtener_servicio_drive()
+
+    limite = max(
+        1,
+        min(
+            int(limite),
+            100,
+        ),
+    )
+
+    respuesta = (
+        servicio.files()
+        .list(
+            pageSize=limite,
+            fields=(
+                "files("
+                "id,"
+                "name,"
+                "mimeType,"
+                "modifiedTime,"
+                "webViewLink"
+                ")"
+            ),
+            orderBy="modifiedTime desc",
+        )
+        .execute()
+    )
+
+    archivos = respuesta.get(
+        "files",
+        [],
+    )
+
+    return [
+        normalizar_archivo_drive(
+            archivo
+        )
+        for archivo
+        in archivos
     ]
+
+
+def buscar_drive_backend(
+    consulta: str,
+    limite: int = 20,
+):
+
+    consulta = consulta.strip()
+
+    if not consulta:
+        return []
+
+    servicio = obtener_servicio_drive()
+
+    limite = max(
+        1,
+        min(
+            int(limite),
+            100,
+        ),
+    )
+
+    consulta_segura = (
+        consulta.replace(
+            "'",
+            "\\'",
+        )
+    )
+
+    query = (
+        f"name contains "
+        f"'{consulta_segura}' "
+        f"and trashed = false"
+    )
+
+    respuesta = (
+        servicio.files()
+        .list(
+            q=query,
+            pageSize=limite,
+            fields=(
+                "files("
+                "id,"
+                "name,"
+                "mimeType,"
+                "modifiedTime,"
+                "webViewLink"
+                ")"
+            ),
+            orderBy="modifiedTime desc",
+        )
+        .execute()
+    )
+
+    archivos = respuesta.get(
+        "files",
+        [],
+    )
+
+    return [
+        normalizar_archivo_drive(
+            archivo
+        )
+        for archivo
+        in archivos
+    ]
+
+
+def obtener_archivo_drive_backend(
+    file_id: str
+):
+
+    servicio = obtener_servicio_drive()
+
+    archivo = (
+        servicio.files()
+        .get(
+            fileId=file_id,
+            fields=(
+                "id,"
+                "name,"
+                "mimeType,"
+                "modifiedTime,"
+                "webViewLink,"
+                "size"
+            ),
+        )
+        .execute()
+    )
+
+    return archivo
 
 
 # ============================================================
@@ -287,7 +428,6 @@ def inicio():
         / "realtime.html"
     )
 
-
     if not archivo.exists():
 
         return JSONResponse(
@@ -297,7 +437,6 @@ def inicio():
                     "No se encontró realtime.html"
             },
         )
-
 
     return FileResponse(
         archivo
@@ -310,6 +449,23 @@ def inicio():
 
 @app.get("/health")
 def health():
+
+    drive_ok = False
+
+    try:
+
+        obtener_servicio_drive()
+        drive_ok = True
+
+    except Exception as error:
+
+        print(
+            "[DRIVE HEALTH ERROR]",
+            error,
+        )
+
+        drive_ok = False
+
 
     return {
 
@@ -330,11 +486,17 @@ def health():
 
         "rag_fragments":
             contar_fragmentos_indice(),
+
+        "drive":
+            drive_ok,
+
+        "drive_mode":
+            "read_only",
     }
 
 
 # ============================================================
-# TOKEN EFÍMERO
+# TOKEN REALTIME
 # ============================================================
 
 @app.get("/token")
@@ -345,7 +507,6 @@ def crear_token():
         "v1/realtime/client_secrets"
     )
 
-
     headers = {
 
         "Authorization":
@@ -354,7 +515,6 @@ def crear_token():
         "Content-Type":
             "application/json",
     }
-
 
     payload = {
 
@@ -384,7 +544,6 @@ def crear_token():
         }
     }
 
-
     try:
 
         respuesta = requests.post(
@@ -393,7 +552,6 @@ def crear_token():
             json=payload,
             timeout=30,
         )
-
 
         if not respuesta.ok:
 
@@ -405,9 +563,7 @@ def crear_token():
                 },
             )
 
-
         return respuesta.json()
-
 
     except Exception as error:
 
@@ -432,12 +588,8 @@ def ejecutar_tool(
     nombre = request.name
     argumentos = request.arguments
 
-
     print()
-
-    print(
-        "=" * 60
-    )
+    print("=" * 60)
 
     print(
         f"[REALTIME TOOL] {nombre}"
@@ -448,9 +600,7 @@ def ejecutar_tool(
         argumentos
     )
 
-    print(
-        "=" * 60
-    )
+    print("=" * 60)
 
 
     try:
@@ -481,20 +631,17 @@ def ejecutar_tool(
                 3,
             )
 
-
             if not contenido:
 
                 return JSONResponse(
                     status_code=400,
                     content={
-                        "ok":
-                            False,
+                        "ok": False,
 
                         "error":
                             "No se recibió contenido para guardar.",
                     },
                 )
-
 
             resultado = guardar_memoria(
                 categoria=categoria,
@@ -503,7 +650,6 @@ def ejecutar_tool(
                 importancia=importancia,
             )
 
-
             print(
                 "[MEMORIA GUARDADA]"
             )
@@ -511,7 +657,6 @@ def ejecutar_tool(
             print(
                 resultado
             )
-
 
             return {
 
@@ -542,7 +687,6 @@ def ejecutar_tool(
                 10,
             )
 
-
             if not consulta:
 
                 return JSONResponse(
@@ -556,15 +700,12 @@ def ejecutar_tool(
                     },
                 )
 
-
             memorias = buscar_memorias(
                 consulta,
                 limite,
             )
 
-
             resultados = []
-
 
             for memoria in memorias:
 
@@ -586,12 +727,10 @@ def ejecutar_tool(
                         memoria["importancia"],
                 })
 
-
             print(
                 "[MEMORIAS ENCONTRADAS]",
                 len(resultados),
             )
-
 
             return {
 
@@ -618,19 +757,15 @@ def ejecutar_tool(
                 20,
             )
 
-
             if categoria == "":
                 categoria = None
-
 
             memorias = listar_memorias(
                 limite=limite,
                 categoria=categoria,
             )
 
-
             resultados = []
-
 
             for memoria in memorias:
 
@@ -652,7 +787,6 @@ def ejecutar_tool(
                         memoria["importancia"],
                 })
 
-
             return {
 
                 "ok":
@@ -664,7 +798,7 @@ def ejecutar_tool(
 
 
         # ====================================================
-        # BUSCAR DOCUMENTOS
+        # BUSCAR DOCUMENTOS RAG
         # ====================================================
 
         if nombre == "buscar_documentos":
@@ -679,27 +813,6 @@ def ejecutar_tool(
                 5,
             )
 
-
-            try:
-
-                limite = int(
-                    limite
-                )
-
-            except Exception:
-
-                limite = 5
-
-
-            limite = max(
-                1,
-                min(
-                    limite,
-                    8,
-                ),
-            )
-
-
             if not consulta:
 
                 return JSONResponse(
@@ -713,20 +826,29 @@ def ejecutar_tool(
                     },
                 )
 
+            try:
+                limite = int(limite)
 
-            resultados = (
-                buscar_en_documentos(
-                    consulta=consulta,
-                    limite=limite,
-                )
+            except Exception:
+                limite = 5
+
+            limite = max(
+                1,
+                min(
+                    limite,
+                    8,
+                ),
             )
 
+            resultados = buscar_en_documentos(
+                consulta=consulta,
+                limite=limite,
+            )
 
             print(
                 "[RAG RESULTADOS]",
                 len(resultados),
             )
-
 
             for numero, resultado in enumerate(
                 resultados,
@@ -750,22 +872,6 @@ def ejecutar_tool(
                     ),
                 )
 
-
-            if not resultados:
-
-                return {
-
-                    "ok":
-                        True,
-
-                    "message":
-                        "No se encontraron fragmentos en el índice documental.",
-
-                    "result":
-                        [],
-                }
-
-
             return {
 
                 "ok":
@@ -780,6 +886,221 @@ def ejecutar_tool(
 
                 "result":
                     resultados,
+            }
+
+
+        # ====================================================
+        # LISTAR DRIVE
+        # ====================================================
+
+        if nombre == "listar_drive":
+
+            limite = argumentos.get(
+                "limite",
+                20,
+            )
+
+            archivos = listar_drive_backend(
+                limite=limite
+            )
+
+            print(
+                "[DRIVE ARCHIVOS]",
+                len(archivos),
+            )
+
+            return {
+
+                "ok":
+                    True,
+
+                "message":
+                    (
+                        f"Se encontraron "
+                        f"{len(archivos)} "
+                        f"archivos recientes."
+                    ),
+
+                "result":
+                    archivos,
+            }
+
+
+        # ====================================================
+        # BUSCAR DRIVE
+        # ====================================================
+
+        if nombre == "buscar_drive":
+
+            consulta = argumentos.get(
+                "consulta",
+                "",
+            )
+
+            limite = argumentos.get(
+                "limite",
+                20,
+            )
+
+            if not consulta:
+
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "ok":
+                            False,
+
+                        "error":
+                            "La consulta está vacía.",
+                    },
+                )
+
+            archivos = buscar_drive_backend(
+                consulta=consulta,
+                limite=limite,
+            )
+
+            print(
+                "[DRIVE RESULTADOS]",
+                len(archivos),
+            )
+
+            for archivo in archivos:
+
+                print(
+                    "-",
+                    archivo["nombre"],
+                    "|",
+                    archivo["id"],
+                )
+
+            return {
+
+                "ok":
+                    True,
+
+                "message":
+                    (
+                        f"Se encontraron "
+                        f"{len(archivos)} "
+                        f"archivos en Google Drive."
+                    ),
+
+                "result":
+                    archivos,
+            }
+
+
+        # ====================================================
+        # OBTENER ARCHIVO DRIVE
+        # ====================================================
+
+        if nombre == "obtener_archivo_drive":
+
+            file_id = argumentos.get(
+                "file_id",
+                "",
+            )
+
+            if not file_id:
+
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "ok":
+                            False,
+
+                        "error":
+                            "Falta file_id.",
+                    },
+                )
+
+            archivo = obtener_archivo_drive_backend(
+                file_id
+            )
+
+            return {
+
+                "ok":
+                    True,
+
+                "result":
+                    archivo,
+            }
+
+
+        # ====================================================
+        # INDEXAR ARCHIVO DE DRIVE
+        # ====================================================
+
+        if nombre == "indexar_drive":
+
+            file_id = argumentos.get(
+                "file_id",
+                "",
+            )
+
+            if not file_id:
+
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "ok":
+                            False,
+
+                        "error":
+                            "Falta file_id.",
+                    },
+                )
+
+            antes = contar_fragmentos_indice()
+
+            resultado = indexar_archivo_drive(
+                file_id
+            )
+
+            despues = contar_fragmentos_indice()
+
+            agregados = despues - antes
+
+            print(
+                "[DRIVE INDEXADO]"
+            )
+
+            print(
+                "Fragmentos antes:",
+                antes,
+            )
+
+            print(
+                "Fragmentos después:",
+                despues,
+            )
+
+            print(
+                "Fragmentos agregados:",
+                agregados,
+            )
+
+            return {
+
+                "ok":
+                    True,
+
+                "message":
+                    "Archivo procesado para RAG.",
+
+                "fragmentos_antes":
+                    antes,
+
+                "fragmentos_despues":
+                    despues,
+
+                "fragmentos_agregados":
+                    agregados,
+
+                "result":
+                    resultado,
             }
 
 
@@ -806,7 +1127,6 @@ def ejecutar_tool(
     except Exception as error:
 
         print()
-
         print(
             "[ERROR REALTIME TOOL]"
         )
@@ -815,7 +1135,6 @@ def ejecutar_tool(
             type(error).__name__,
             error,
         )
-
 
         return JSONResponse(
             status_code=500,
@@ -852,6 +1171,10 @@ if __name__ == "__main__":
     )
 
     print(
-        "Fragmentos indexados:",
+        "Google Drive activo en modo lectura."
+    )
+
+    print(
+        "Fragmentos RAG:",
         contar_fragmentos_indice(),
     )

@@ -28,7 +28,7 @@
         }
 
         .contenedor {
-            width: min(760px, 92vw);
+            width: min(820px, 94vw);
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 22px;
@@ -51,6 +51,7 @@
             color: #9da7b3;
             margin-bottom: 24px;
             font-size: 14px;
+            line-height: 1.7;
         }
 
         .estado {
@@ -122,7 +123,7 @@
             border: 1px solid #30363d;
             border-radius: 12px;
             padding: 15px;
-            height: 280px;
+            height: 310px;
             overflow-y: auto;
             font-family: monospace;
             font-size: 13px;
@@ -132,7 +133,6 @@
 
 </head>
 
-
 <body>
 
 <div class="contenedor">
@@ -140,13 +140,15 @@
     <h1>🎙️ Mi Agente IA</h1>
 
     <div class="subtitulo">
-        Conversación de voz en tiempo real
+        Asistente personal en tiempo real
     </div>
 
     <div class="capacidades">
         🧠 Memoria persistente
         &nbsp;·&nbsp;
         📚 RAG documental
+        &nbsp;·&nbsp;
+        ☁️ Google Drive
         &nbsp;·&nbsp;
         🎙️ Voz Realtime
         &nbsp;·&nbsp;
@@ -248,34 +250,19 @@ function cambiarEstado(
 
 
     if (tipo === "conectado") {
-
-        indicador
-            .classList
-            .add("conectado");
+        indicador.classList.add("conectado");
     }
-
 
     if (tipo === "escuchando") {
-
-        indicador
-            .classList
-            .add("escuchando");
+        indicador.classList.add("escuchando");
     }
-
 
     if (tipo === "procesando") {
-
-        indicador
-            .classList
-            .add("procesando");
+        indicador.classList.add("procesando");
     }
 
-
     if (tipo === "error") {
-
-        indicador
-            .classList
-            .add("error");
+        indicador.classList.add("error");
     }
 }
 
@@ -286,9 +273,9 @@ function cambiarEstado(
 
 const TOOLS = [
 
-    // --------------------------------------------------------
-    // BUSCAR MEMORIA
-    // --------------------------------------------------------
+    // ========================================================
+    // MEMORIA
+    // ========================================================
 
     {
         type: "function",
@@ -296,7 +283,7 @@ const TOOLS = [
         name: "buscar_memoria",
 
         description:
-            "Busca información guardada en la memoria persistente del usuario. Úsala cuando el usuario pregunte qué recuerdas sobre un proyecto, decisión, pendiente, preferencia u otra información previa.",
+            "Busca información guardada anteriormente en la memoria persistente del usuario.",
 
         parameters: {
 
@@ -307,7 +294,7 @@ const TOOLS = [
                 consulta: {
                     type: "string",
                     description:
-                        "Texto o concepto a buscar en la memoria."
+                        "Texto o concepto que debe buscarse."
                 },
 
                 limite: {
@@ -323,17 +310,13 @@ const TOOLS = [
     },
 
 
-    // --------------------------------------------------------
-    // RECORDAR
-    // --------------------------------------------------------
-
     {
         type: "function",
 
         name: "recordar",
 
         description:
-            "Guarda información importante en memoria persistente para utilizarla en conversaciones futuras.",
+            "Guarda información importante en memoria persistente para futuras conversaciones.",
 
         parameters: {
 
@@ -342,24 +325,15 @@ const TOOLS = [
             properties: {
 
                 categoria: {
-                    type: "string",
-
-                    description:
-                        "Categoría, por ejemplo proyecto, pendiente, preferencia, persona o configuración."
+                    type: "string"
                 },
 
                 clave: {
-                    type: "string",
-
-                    description:
-                        "Nombre corto y reconocible de la memoria."
+                    type: "string"
                 },
 
                 contenido: {
-                    type: "string",
-
-                    description:
-                        "Información concreta que debe conservarse."
+                    type: "string"
                 },
 
                 importancia: {
@@ -379,17 +353,13 @@ const TOOLS = [
     },
 
 
-    // --------------------------------------------------------
-    // VER MEMORIAS
-    // --------------------------------------------------------
-
     {
         type: "function",
 
         name: "ver_memorias",
 
         description:
-            "Lista memorias persistentes activas. Úsala cuando el usuario pregunte qué recuerdas en general.",
+            "Lista las memorias persistentes activas del usuario.",
 
         parameters: {
 
@@ -410,9 +380,9 @@ const TOOLS = [
     },
 
 
-    // --------------------------------------------------------
-    // BUSCAR DOCUMENTOS - RAG
-    // --------------------------------------------------------
+    // ========================================================
+    // RAG
+    // ========================================================
 
     {
         type: "function",
@@ -420,7 +390,7 @@ const TOOLS = [
         name: "buscar_documentos",
 
         description:
-            "Busca información dentro de los documentos indexados del usuario mediante búsqueda semántica RAG. Debe utilizarse cuando el usuario pregunte qué dice un documento, informe, PDF, DOCX, TXT, archivo, antecedente documental o solicite buscar información dentro de sus documentos.",
+            "Busca semánticamente dentro de los documentos que ya están indexados en el RAG local. Úsala para consultar contenido de PDF, DOCX, TXT u otros documentos previamente indexados.",
 
         parameters: {
 
@@ -429,30 +399,142 @@ const TOOLS = [
             properties: {
 
                 consulta: {
-
                     type: "string",
-
                     description:
-                        "Pregunta o información que debe buscarse dentro de los documentos indexados."
+                        "Pregunta o concepto que debe buscarse dentro de los documentos."
                 },
 
                 limite: {
-
                     type: "integer",
-
-                    description:
-                        "Número máximo de fragmentos relevantes a recuperar.",
-
-                    default: 5,
-
                     minimum: 1,
-
-                    maximum: 8
+                    maximum: 8,
+                    default: 5
                 }
             },
 
             required: [
                 "consulta"
+            ]
+        }
+    },
+
+
+    // ========================================================
+    // GOOGLE DRIVE
+    // ========================================================
+
+    {
+        type: "function",
+
+        name: "buscar_drive",
+
+        description:
+            "Busca archivos en Google Drive por nombre. Úsala cuando el usuario solicite encontrar, localizar o buscar un archivo en Drive.",
+
+        parameters: {
+
+            type: "object",
+
+            properties: {
+
+                consulta: {
+                    type: "string",
+
+                    description:
+                        "Texto que debe aparecer en el nombre del archivo."
+                },
+
+                limite: {
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 50,
+                    default: 10
+                }
+            },
+
+            required: [
+                "consulta"
+            ]
+        }
+    },
+
+
+    {
+        type: "function",
+
+        name: "listar_drive",
+
+        description:
+            "Lista archivos recientes disponibles en Google Drive. Úsala cuando el usuario pregunte qué archivos tiene en Drive o solicite los archivos más recientes.",
+
+        parameters: {
+
+            type: "object",
+
+            properties: {
+
+                limite: {
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 50,
+                    default: 10
+                }
+            }
+        }
+    },
+
+
+    {
+        type: "function",
+
+        name: "obtener_archivo_drive",
+
+        description:
+            "Obtiene información y metadatos de un archivo específico de Google Drive utilizando su identificador.",
+
+        parameters: {
+
+            type: "object",
+
+            properties: {
+
+                file_id: {
+                    type: "string",
+                    description:
+                        "Identificador único del archivo en Google Drive."
+                }
+            },
+
+            required: [
+                "file_id"
+            ]
+        }
+    },
+
+
+    {
+        type: "function",
+
+        name: "indexar_drive",
+
+        description:
+            "Descarga e indexa localmente un archivo de Google Drive para incorporarlo al RAG. Usa esta herramienta solamente cuando el usuario solicite explícitamente indexar, analizar, incorporar o leer el contenido de un archivo de Drive.",
+
+        parameters: {
+
+            type: "object",
+
+            properties: {
+
+                file_id: {
+                    type: "string",
+                    description:
+                        "Identificador único del archivo de Google Drive que debe indexarse."
+                }
+            },
+
+            required: [
+                "file_id"
             ]
         }
     }
@@ -494,35 +576,35 @@ function registrarTools() {
             instructions:
                 "Eres un asistente personal profesional que conversa por voz en español. " +
 
-                "Habla de manera natural, clara, concisa y profesional. " +
+                "Habla de manera natural, clara y concisa. " +
 
-                "Tienes acceso a memoria persistente y a documentos indexados mediante RAG. " +
+                "Tienes cuatro capacidades principales: conversación, memoria persistente, documentos RAG y Google Drive. " +
 
-                "Si el usuario dice recuerda, guarda esto, ten presente o solicita conservar información para el futuro, debes usar recordar. " +
+                "MEMORIA: Si el usuario dice recuerda, guarda esto o solicita conservar información para futuras conversaciones, usa recordar. " +
 
-                "No digas que has guardado información si no ejecutaste recordar. " +
+                "Si pregunta qué recuerdas sobre algo anterior, usa buscar_memoria. " +
 
-                "Si pregunta qué recuerdas sobre conversaciones anteriores, usa buscar_memoria. " +
+                "RAG: Si pregunta por el contenido de documentos que ya están indexados, usa buscar_documentos. " +
 
-                "Si pregunta qué recuerdas en general, puedes usar ver_memorias. " +
+                "GOOGLE DRIVE: Si solicita encontrar o localizar un archivo en Drive, usa buscar_drive. " +
 
-                "Si pregunta por el contenido de un documento, informe, archivo, PDF, DOCX o TXT, o solicita buscar información dentro de sus documentos, usa buscar_documentos. " +
+                "Si pregunta qué archivos recientes tiene en Drive, usa listar_drive. " +
 
-                "Cuando uses buscar_documentos, basa tu respuesta en los fragmentos devueltos por la herramienta. " +
+                "Google Drive está configurado en modo lectura. No puedes borrar ni modificar archivos de Drive. " +
 
-                "Si los documentos no contienen información suficiente para responder, dilo claramente. " +
+                "INDEXACIÓN: No uses indexar_drive automáticamente solo porque encontraste un archivo. " +
 
-                "No inventes datos documentales. " +
+                "Usa indexar_drive únicamente cuando el usuario pida expresamente analizar, leer, indexar o incorporar al RAG un archivo encontrado en Drive. " +
 
-                "No confundas memoria con documentos. " +
+                "Después de indexar un archivo, puedes usar buscar_documentos para consultar su contenido. " +
 
-                "La memoria se usa para información persistente guardada previamente. " +
+                "Cuando una búsqueda encuentre varios archivos similares, pregunta o explica brevemente cuál corresponde antes de indexarlo si no puedes determinarlo con seguridad. " +
 
-                "El RAG se usa para consultar documentos indexados. " +
+                "No inventes resultados de memoria, documentos ni Drive. " +
 
-                "No guardes contraseñas, API keys, tokens ni credenciales. " +
+                "Si una herramienta no encuentra información suficiente, dilo claramente. " +
 
-                "Después de ejecutar una herramienta, responde naturalmente por voz."
+                "Nunca guardes ni repitas claves API, contraseñas, tokens o credenciales."
         }
     };
 
@@ -539,7 +621,15 @@ function registrarTools() {
     );
 
     escribirLog(
-        "📚 RAG documental registrado."
+        "🧠 Memoria activa."
+    );
+
+    escribirLog(
+        "📚 RAG activo."
+    );
+
+    escribirLog(
+        "☁️ Google Drive activo."
     );
 }
 
@@ -552,9 +642,13 @@ async function ejecutarTool(
     functionCall
 ) {
 
+    const nombre =
+        functionCall.name;
+
+
     escribirLog(
         "🛠 Tool solicitada: "
-        + functionCall.name
+        + nombre
     );
 
 
@@ -574,17 +668,54 @@ async function ejecutarTool(
     catch(error) {
 
         escribirLog(
-            "ERROR: argumentos inválidos para "
-            + functionCall.name
+            "❌ Argumentos inválidos para "
+            + nombre
         );
 
         return;
     }
 
 
+    // ========================================================
+    // ESTADO SEGÚN TOOL
+    // ========================================================
+
     if (
-        functionCall.name ===
-        "buscar_documentos"
+        nombre === "buscar_drive"
+        ||
+        nombre === "listar_drive"
+        ||
+        nombre === "obtener_archivo_drive"
+    ) {
+
+        cambiarEstado(
+            "Consultando Google Drive...",
+            "procesando"
+        );
+
+        escribirLog(
+            "☁️ Consultando Google Drive..."
+        );
+
+    }
+
+    else if (
+        nombre === "indexar_drive"
+    ) {
+
+        cambiarEstado(
+            "Indexando archivo de Drive...",
+            "procesando"
+        );
+
+        escribirLog(
+            "📥 Incorporando archivo de Drive al RAG..."
+        );
+
+    }
+
+    else if (
+        nombre === "buscar_documentos"
     ) {
 
         cambiarEstado(
@@ -599,11 +730,9 @@ async function ejecutarTool(
     }
 
     else if (
-        functionCall.name ===
-        "buscar_memoria"
+        nombre === "buscar_memoria"
         ||
-        functionCall.name ===
-        "ver_memorias"
+        nombre === "ver_memorias"
     ) {
 
         cambiarEstado(
@@ -639,7 +768,7 @@ async function ejecutarTool(
                         JSON.stringify({
 
                             name:
-                                functionCall.name,
+                                nombre,
 
                             arguments:
                                 argumentos
@@ -664,21 +793,21 @@ async function ejecutarTool(
 
         escribirLog(
             "✅ Tool completada: "
-            + functionCall.name
+            + nombre
         );
 
 
+        // ====================================================
+        // LOGS ESPECÍFICOS
+        // ====================================================
+
         if (
-            functionCall.name ===
-            "buscar_documentos"
+            nombre === "buscar_documentos"
         ) {
 
             const cantidad =
-                resultado
-                    ?.result
-                    ?.length
+                resultado?.result?.length
                 || 0;
-
 
             escribirLog(
                 "📚 Fragmentos recuperados: "
@@ -687,8 +816,41 @@ async function ejecutarTool(
         }
 
 
+        if (
+            nombre === "buscar_drive"
+            ||
+            nombre === "listar_drive"
+        ) {
+
+            const cantidad =
+                resultado?.result?.length
+                || 0;
+
+            escribirLog(
+                "☁️ Archivos encontrados: "
+                + cantidad
+            );
+        }
+
+
+        if (
+            nombre === "indexar_drive"
+        ) {
+
+            const agregados =
+                resultado
+                    ?.fragmentos_agregados
+                ?? 0;
+
+            escribirLog(
+                "📥 Fragmentos agregados al RAG: "
+                + agregados
+            );
+        }
+
+
         // ====================================================
-        // DEVOLVER TOOL OUTPUT
+        // DEVOLVER RESULTADO AL MODELO
         // ====================================================
 
         const eventoResultado = {
@@ -720,7 +882,7 @@ async function ejecutarTool(
 
 
         // ====================================================
-        // PEDIR RESPUESTA AL MODELO
+        // CONTINUAR RESPUESTA
         // ====================================================
 
         dc.send(
@@ -742,7 +904,7 @@ async function ejecutarTool(
     catch(error) {
 
         escribirLog(
-            "ERROR tool: "
+            "❌ ERROR tool: "
             + error.message
         );
 
@@ -828,8 +990,7 @@ async function procesarEvento(
 
         if (
             item &&
-            item.type ===
-            "function_call"
+            item.type === "function_call"
         ) {
 
             await ejecutarTool(
@@ -1141,7 +1302,7 @@ async function conectar() {
 
 
         escribirLog(
-            "ERROR: "
+            "❌ ERROR: "
             + error.message
         );
 
@@ -1228,5 +1389,4 @@ botonDesconectar.addEventListener(
 </script>
 
 </body>
-
 </html>
