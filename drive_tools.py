@@ -1,4 +1,5 @@
 from pathlib import Path
+from configuracion import DATA_DIR
 from file_safety import ruta_archivo_segura
 import io
 
@@ -13,9 +14,9 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly"
 ]
 
-CREDENTIALS_FILE = Path("credentials.json")
-TOKEN_FILE = Path("token.json")
-CARPETA_DESCARGAS = Path("drive_descargas")
+CREDENTIALS_FILE = DATA_DIR / "credentials.json"
+TOKEN_FILE = DATA_DIR / "token.json"
+CARPETA_DESCARGAS = DATA_DIR / "drive_descargas"
 
 
 def obtener_servicio_drive():

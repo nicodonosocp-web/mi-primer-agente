@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from configuracion import DATA_DIR
 from datetime import datetime
 
 
@@ -7,7 +8,7 @@ from datetime import datetime
 # CONFIGURACIÓN
 # ============================================================
 
-ARCHIVO_DB = Path("memoria.db")
+ARCHIVO_DB = DATA_DIR / "memoria.db"
 
 
 # ============================================================

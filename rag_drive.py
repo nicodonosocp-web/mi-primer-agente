@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from configuracion import DATA_DIR
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -10,7 +11,7 @@ from docx import Document
 from drive_tools import descargar_archivo_drive
 
 
-load_dotenv()
+# .env se carga desde configuracion antes de crear clientes.
 
 if not os.getenv("OPENAI_API_KEY"):
     raise RuntimeError(
@@ -19,7 +20,7 @@ if not os.getenv("OPENAI_API_KEY"):
 
 client = OpenAI()
 
-ARCHIVO_INDICE = Path("indice.json")
+ARCHIVO_INDICE = DATA_DIR / "indice.json"
 
 MODELO_EMBEDDING = "text-embedding-3-small"
 
@@ -176,9 +177,7 @@ def indexar_archivo_drive(file_id: str) -> str:
             file_id
         )
     except Exception as error:
-        return (
-            f"No fue posible descargar el archivo: {error}"
-        )
+        raise RuntimeError("No fue posible descargar el archivo de Drive.") from error
 
     ruta = Path(ruta)
 
@@ -187,14 +186,10 @@ def indexar_archivo_drive(file_id: str) -> str:
             ruta
         )
     except Exception as error:
-        return (
-            f"No fue posible extraer texto: {error}"
-        )
+        raise RuntimeError("No fue posible extraer texto del archivo de Drive.") from error
 
     if not texto.strip():
-        return (
-            "El documento no contiene texto extraíble."
-        )
+        raise ValueError("El documento no contiene texto extraíble.")
 
     fragmentos = dividir_texto(
         texto

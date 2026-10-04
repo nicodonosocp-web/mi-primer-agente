@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from configuracion import DATA_DIR
 
 import numpy as np
 from dotenv import load_dotenv
@@ -9,7 +10,7 @@ from openai import OpenAI
 from agents import Agent, Runner, function_tool, ModelSettings
 
 
-load_dotenv()
+# .env se carga desde configuracion antes de crear clientes.
 
 if not os.getenv("OPENAI_API_KEY"):
     raise RuntimeError(
@@ -18,7 +19,7 @@ if not os.getenv("OPENAI_API_KEY"):
 
 client = OpenAI()
 
-ARCHIVO_INDICE = Path("indice.json")
+ARCHIVO_INDICE = DATA_DIR / "indice.json"
 
 MODELO_EMBEDDING = "text-embedding-3-small"
 

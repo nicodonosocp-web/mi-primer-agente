@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from configuracion import DATA_DIR
 
 import numpy as np
 from dotenv import load_dotenv
@@ -9,7 +10,7 @@ from pypdf import PdfReader
 from docx import Document
 
 
-load_dotenv()
+# .env se carga desde configuracion antes de crear clientes.
 
 if not os.getenv("OPENAI_API_KEY"):
     raise RuntimeError(
@@ -18,8 +19,8 @@ if not os.getenv("OPENAI_API_KEY"):
 
 client = OpenAI()
 
-CARPETA_DOCUMENTOS = Path("documentos")
-ARCHIVO_INDICE = Path("indice.json")
+CARPETA_DOCUMENTOS = DATA_DIR / "documentos"
+ARCHIVO_INDICE = DATA_DIR / "indice.json"
 
 EXTENSIONES = {".txt", ".pdf", ".docx"}
 

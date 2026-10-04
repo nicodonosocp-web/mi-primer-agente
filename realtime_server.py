@@ -4,6 +4,7 @@ import json
 import os
 import re
 from pathlib import Path
+from configuracion import DATA_DIR
 from file_safety import ruta_archivo_segura
 
 import fitz
@@ -65,7 +66,7 @@ from calendar_tools import (
 # CONFIGURACIÓN
 # ============================================================
 
-load_dotenv()
+# Configuración cargada antes de importar clientes RAG.
 
 OPENAI_API_KEY = os.getenv(
     "OPENAI_API_KEY"
@@ -82,13 +83,13 @@ BASE_DIR = Path(
 ).resolve().parent
 
 INDICE_PATH = (
-    BASE_DIR
+    DATA_DIR
     /
     "indice.json"
 )
 
 UPLOAD_DIR = (
-    BASE_DIR
+    DATA_DIR
     /
     "documentos_subidos"
 )
@@ -259,14 +260,10 @@ def normalizar_conversacion(
                 ),
 
             "fecha_creacion":
-                fila.get(
-                    "fecha_creacion"
-                ),
+                (fila.get("fecha_creacion") or fila.get("creado_en")),
 
             "fecha_actualizacion":
-                fila.get(
-                    "fecha_actualizacion"
-                ),
+                (fila.get("fecha_actualizacion") or fila.get("actualizado_en")),
         }
 
     if isinstance(
@@ -808,6 +805,9 @@ def obtener_info_documento(
     origen = primero.get(
         "origen"
     )
+
+    if primero.get("drive_file_id") or origen == "google_drive":
+        origen = "drive"
 
     if not origen:
 

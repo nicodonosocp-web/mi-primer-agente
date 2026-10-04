@@ -7,6 +7,7 @@ import unicodedata
 
 from collections import Counter
 from pathlib import Path
+from configuracion import DATA_DIR
 
 import numpy as np
 from openai import OpenAI
@@ -18,7 +19,7 @@ from openai import OpenAI
 
 BASE_DIR = Path(__file__).resolve().parent
 
-INDICE_PATH = BASE_DIR / "indice.json"
+INDICE_PATH = DATA_DIR / "indice.json"
 
 MODELO_EMBEDDING = "text-embedding-3-small"
 
@@ -1023,6 +1024,12 @@ def obtener_estadisticas_indice():
                         ),
                     ),
             }
+
+        if item.get("drive_file_id"):
+            archivos[nombre]["drive_file_id"] = item["drive_file_id"]
+            archivos[nombre]["origen"] = "drive"
+        elif archivos[nombre]["origen"] == "google_drive":
+            archivos[nombre]["origen"] = "drive"
 
         archivos[nombre][
             "fragmentos"

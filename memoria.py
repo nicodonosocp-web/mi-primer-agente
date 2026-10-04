@@ -1,12 +1,13 @@
 import sqlite3
 from pathlib import Path
+from configuracion import DATA_DIR
 
 
 # ============================================================
 # CONFIGURACIÓN
 # ============================================================
 
-ARCHIVO_DB = Path("memoria.db")
+ARCHIVO_DB = DATA_DIR / "memoria.db"
 
 
 # ============================================================
