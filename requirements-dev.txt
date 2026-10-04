@@ -1,0 +1,5 @@
+-r requirements.txt
+httpx==0.28.1
+
+# Soporte del proxy SOCKS del entorno de pruebas; no realiza llamadas externas.
+socksio==1.0.0
