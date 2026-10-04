@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Mi Agente IA - Realtime</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #0e1117;
+            color: #ffffff;
+
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contenedor {
+            width: min(760px, 92vw);
+
+            background: #161b22;
+
+            border: 1px solid #30363d;
+            border-radius: 22px;
+
+            padding: 36px;
+
+            box-shadow:
+                0 20px 70px
+                rgba(0, 0, 0, 0.45);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 32px;
+        }
+
+        .subtitulo {
+            color: #9da7b3;
+            margin-bottom: 12px;
+        }
+
+        .capacidades {
+            color: #9da7b3;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .estado {
+            padding: 16px;
+
+            border-radius: 12px;
+
+            background: #0d1117;
+
+            border: 1px solid #30363d;
+
+            margin-bottom: 24px;
+        }
+
+        .indicador {
+            width: 12px;
+            height: 12px;
+
+            border-radius: 50%;
+
+            background: #777;
+
+            display: inline-block;
+
+            margin-right: 8px;
+        }
+
+        .conectado {
+            background: #2ecc71;
+        }
+
+        .escuchando {
+            background: #f1c40f;
+        }
+
+        .procesando {
+            background: #3498db;
+        }
+
+        .error {
+            background: #e74c3c;
+        }
+
+        .botones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            padding: 15px 20px;
+
+            border: 0;
+            border-radius: 12px;
+
+            font-size: 16px;
+
+            cursor: pointer;
+        }
+
+        #conectar {
+            background: #2ecc71;
+            color: #07150d;
+            font-weight: bold;
+        }
+
+        #desconectar {
+            background: #30363d;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .log {
+            margin-top: 24px;
+
+            background: #0d1117;
+
+            border: 1px solid #30363d;
+            border-radius: 12px;
+
+            padding: 15px;
+
+            height: 260px;
+
+            overflow-y: auto;
+
+            font-family: monospace;
+            font-size: 13px;
+
+            color: #aeb8c4;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="contenedor">
+
+    <h1>
+        🎙️ Mi Agente IA
+    </h1>
+
+    <div class="subtitulo">
+        Conversación de voz en tiempo real
+    </div>
+
+    <div class="capacidades">
+        🧠 Memoria persistente
+        &nbsp;·&nbsp;
+        🎙️ Voz Realtime
+        &nbsp;·&nbsp;
+        🛠 Tools
+    </div>
+
+    <div class="estado">
+
+        <span
+            id="indicador"
+            class="indicador"
+        ></span>
+
+        <span id="estado">
+            Desconectado
+        </span>
+
+    </div>
+
+    <div class="botones">
+
+        <button id="conectar">
+            🎙️ Iniciar conversación
+        </button>
+
+        <button
+            id="desconectar"
+            disabled
+        >
+            ⏹ Finalizar
+        </button>
+
+    </div>
+
+    <div
+        id="log"
+        class="log"
+    >
+        Sistema preparado.
+    </div>
+
+</div>
+
+
+<script>
+
+let pc = null;
+let dc = null;
+let localStream = null;
+let audioRemoto = null;
+
+
+// ============================================================
+// ELEMENTOS
+// ============================================================
+
+const botonConectar =
+    document.getElementById(
+        "conectar"
+    );
+
+const botonDesconectar =
+    document.getElementById(
+        "desconectar"
+    );
+
+const estado =
+    document.getElementById(
+        "estado"
+    );
+
+const indicador =
+    document.getElementById(
+        "indicador"
+    );
+
+const log =
+    document.getElementById(
+        "log"
+    );
+
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+
+function escribirLog(
+    mensaje
+) {
+
+    const hora =
+        new Date()
+            .toLocaleTimeString();
+
+    log.innerHTML +=
+        "<br>[" +
+        hora +
+        "] " +
+        mensaje;
+
+    log.scrollTop =
+        log.scrollHeight;
+}
+
+
+function cambiarEstado(
+    texto,
+    tipo=""
+) {
+
+    estado.textContent =
+        texto;
+
+    indicador.className =
+        "indicador";
+
+
+    if (
+        tipo === "conectado"
+    ) {
+
+        indicador
+            .classList
+            .add(
+                "conectado"
+            );
+    }
+
+
+    if (
+        tipo === "escuchando"
+    ) {
+
+        indicador
+            .classList
+            .add(
+                "escuchando"
+            );
+    }
+
+
+    if (
+        tipo === "procesando"
+    ) {
+
+        indicador
+            .classList
+            .add(
+                "procesando"
+            );
+    }
+
+
+    if (
+        tipo === "error"
+    ) {
+
+        indicador
+            .classList
+            .add(
+                "error"
+            );
+    }
+}
+
+
+// ============================================================
+// DEFINICIÓN DE TOOLS
+// ============================================================
+
+const TOOLS = [
+
+    {
+        type: "function",
+
+        name:
+            "buscar_memoria",
+
+        description:
+            "Busca información guardada en la memoria persistente del usuario. Úsala cuando el usuario pregunte qué recuerdas sobre un proyecto, decisión, pendiente, preferencia u otra información previa.",
+
+        parameters: {
+
+            type: "object",
+
+            properties: {
+
+                consulta: {
+                    type: "string",
+
+                    description:
+                        "Texto o concepto a buscar."
+                },
+
+                limite: {
+                    type: "integer",
+                    default: 10
+                }
+            },
+
+            required: [
+                "consulta"
+            ]
+        }
+    },
+
+
+    {
+        type: "function",
+
+        name:
+            "recordar",
+
+        description:
+            "Guarda información importante en la memoria persistente. Debe utilizarse cuando el usuario solicite recordar, guardar o conservar información para conversaciones futuras.",
+
+        parameters: {
+
+            type: "object",
+
+            properties: {
+
+                categoria: {
+                    type: "string",
+
+                    description:
+                        "Categoría de la memoria, por ejemplo proyecto, pendiente, preferencia, persona o configuración."
+                },
+
+                clave: {
+                    type: "string",
+
+                    description:
+                        "Nombre corto y reconocible para identificar la memoria."
+                },
+
+                contenido: {
+                    type: "string",
+
+                    description:
+                        "Información concreta que debe conservarse."
+                },
+
+                importancia: {
+                    type: "integer",
+                    minimum: 1,
+                    maximum: 5,
+                    default: 3
+                }
+            },
+
+            required: [
+                "categoria",
+                "clave",
+                "contenido"
+            ]
+        }
+    },
+
+
+    {
+        type: "function",
+
+        name:
+            "ver_memorias",
+
+        description:
+            "Lista las memorias persistentes activas. Úsala cuando el usuario pregunte qué recuerdas en general.",
+
+        parameters: {
+
+            type: "object",
+
+            properties: {
+
+                categoria: {
+                    type: "string"
+                },
+
+                limite: {
+                    type: "integer",
+                    default: 20
+                }
+            }
+        }
+    }
+
+];
+
+
+// ============================================================
+// REGISTRAR TOOLS
+// ============================================================
+
+function registrarTools() {
+
+    if (
+        !dc ||
+        dc.readyState !== "open"
+    ) {
+
+        escribirLog(
+            "No se pueden registrar tools: canal no disponible."
+        );
+
+        return;
+    }
+
+
+    const sessionUpdate = {
+
+        type:
+            "session.update",
+
+        session: {
+
+            /*
+            IMPORTANTE:
+            Realtime exige session.type.
+            */
+
+            type:
+                "realtime",
+
+            tools:
+                TOOLS,
+
+            tool_choice:
+                "auto",
+
+            instructions:
+                "Eres un asistente personal profesional que conversa por voz en español. " +
+
+                "Habla de manera natural, clara, concisa y profesional. " +
+
+                "Tienes acceso a memoria persistente. " +
+
+                "Cuando el usuario diga recuerda, guarda esto, guarda esta información, ten presente o solicita conservar información para el futuro, debes usar la herramienta recordar. " +
+
+                "No respondas que has guardado algo sin ejecutar recordar. " +
+
+                "Cuando el usuario pregunte qué recuerdas sobre un proyecto, asunto, decisión o dato de conversaciones anteriores, usa buscar_memoria. " +
+
+                "Cuando pregunte qué recuerdas en general, utiliza ver_memorias. " +
+
+                "No inventes recuerdos. " +
+
+                "No guardes contraseñas, claves API, tokens ni credenciales. " +
+
+                "Después de ejecutar una herramienta, explica el resultado naturalmente por voz."
+        }
+    };
+
+
+    dc.send(
+        JSON.stringify(
+            sessionUpdate
+        )
+    );
+
+
+    escribirLog(
+        "🛠 Tools enviadas a la sesión."
+    );
+}
+
+
+// ============================================================
+// EJECUTAR TOOL
+// ============================================================
+
+async function ejecutarTool(
+    functionCall
+) {
+
+    escribirLog(
+        "🛠 Tool solicitada: "
+        + functionCall.name
+    );
+
+
+    let argumentos = {};
+
+
+    try {
+
+        argumentos =
+            JSON.parse(
+                functionCall.arguments
+                || "{}"
+            );
+
+    }
+
+    catch(error) {
+
+        escribirLog(
+            "ERROR: argumentos inválidos para "
+            + functionCall.name
+        );
+
+        return;
+    }
+
+
+    cambiarEstado(
+        "Ejecutando "
+        + functionCall.name
+        + "...",
+        "procesando"
+    );
+
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/tool",
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            name:
+                                functionCall.name,
+
+                            arguments:
+                                argumentos
+                        })
+                }
+            );
+
+
+        const resultado =
+            await respuesta.json();
+
+
+        if (
+            !respuesta.ok
+        ) {
+
+            throw new Error(
+                JSON.stringify(
+                    resultado
+                )
+            );
+        }
+
+
+        escribirLog(
+            "✅ Tool completada: "
+            + functionCall.name
+        );
+
+
+        // ----------------------------------------------------
+        // DEVOLVER RESULTADO DE TOOL
+        // ----------------------------------------------------
+
+        const eventoResultado = {
+
+            type:
+                "conversation.item.create",
+
+            item: {
+
+                type:
+                    "function_call_output",
+
+                call_id:
+                    functionCall.call_id,
+
+                output:
+                    JSON.stringify(
+                        resultado
+                    )
+            }
+        };
+
+
+        dc.send(
+            JSON.stringify(
+                eventoResultado
+            )
+        );
+
+
+        // ----------------------------------------------------
+        // SOLICITAR CONTINUACIÓN
+        // ----------------------------------------------------
+
+        dc.send(
+            JSON.stringify({
+
+                type:
+                    "response.create"
+            })
+        );
+
+
+        cambiarEstado(
+            "Generando respuesta...",
+            "procesando"
+        );
+
+    }
+
+    catch(error) {
+
+        escribirLog(
+            "ERROR tool: "
+            + error.message
+        );
+
+        cambiarEstado(
+            "Error en herramienta",
+            "error"
+        );
+    }
+}
+
+
+// ============================================================
+// PROCESAR EVENTOS
+// ============================================================
+
+async function procesarEvento(
+    eventoAPI
+) {
+
+    console.log(
+        eventoAPI
+    );
+
+
+    // --------------------------------------------------------
+    // SESIÓN CREADA
+    // --------------------------------------------------------
+
+    if (
+        eventoAPI.type ===
+        "session.created"
+    ) {
+
+        escribirLog(
+            "Sesión Realtime creada."
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // SESIÓN ACTUALIZADA
+    // --------------------------------------------------------
+
+    if (
+        eventoAPI.type ===
+        "session.updated"
+    ) {
+
+        escribirLog(
+            "✅ Sesión actualizada. Tools activas."
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // HABLA DEL USUARIO
+    // --------------------------------------------------------
+
+    if (
+        eventoAPI.type ===
+        "input_audio_buffer.speech_started"
+    ) {
+
+        cambiarEstado(
+            "Escuchando...",
+            "escuchando"
+        );
+    }
+
+
+    if (
+        eventoAPI.type ===
+        "input_audio_buffer.speech_stopped"
+    ) {
+
+        cambiarEstado(
+            "Procesando...",
+            "procesando"
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // DETECTAR FUNCTION CALL
+    // --------------------------------------------------------
+
+    /*
+    Utilizamos response.output_item.done
+    como punto único de ejecución para evitar
+    ejecutar una misma herramienta dos veces.
+    */
+
+    if (
+        eventoAPI.type ===
+        "response.output_item.done"
+    ) {
+
+        const item =
+            eventoAPI.item;
+
+
+        if (
+            item &&
+            item.type === "function_call"
+        ) {
+
+            await ejecutarTool(
+                item
+            );
+
+            return;
+        }
+    }
+
+
+    // --------------------------------------------------------
+    // RESPUESTA TERMINADA
+    // --------------------------------------------------------
+
+    if (
+        eventoAPI.type ===
+        "response.done"
+    ) {
+
+        cambiarEstado(
+            "Escuchando",
+            "escuchando"
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // ERRORES API
+    // --------------------------------------------------------
+
+    if (
+        eventoAPI.type ===
+        "error"
+    ) {
+
+        escribirLog(
+            "❌ ERROR API: "
+            +
+            JSON.stringify(
+                eventoAPI.error
+            )
+        );
+
+        cambiarEstado(
+            "Error",
+            "error"
+        );
+    }
+}
+
+
+// ============================================================
+// CONECTAR
+// ============================================================
+
+async function conectar() {
+
+    try {
+
+        botonConectar.disabled =
+            true;
+
+
+        cambiarEstado(
+            "Conectando..."
+        );
+
+
+        escribirLog(
+            "Solicitando sesión..."
+        );
+
+
+        // ----------------------------------------------------
+        // TOKEN EFÍMERO
+        // ----------------------------------------------------
+
+        const tokenResponse =
+            await fetch(
+                "/token"
+            );
+
+
+        const tokenData =
+            await tokenResponse.json();
+
+
+        if (
+            !tokenResponse.ok
+        ) {
+
+            throw new Error(
+                JSON.stringify(
+                    tokenData
+                )
+            );
+        }
+
+
+        const ephemeralKey =
+            tokenData.value;
+
+
+        if (
+            !ephemeralKey
+        ) {
+
+            throw new Error(
+                "No se recibió token efímero."
+            );
+        }
+
+
+        escribirLog(
+            "Token recibido."
+        );
+
+
+        // ----------------------------------------------------
+        // WEBRTC
+        // ----------------------------------------------------
+
+        pc =
+            new RTCPeerConnection();
+
+
+        // ----------------------------------------------------
+        // AUDIO DEL ASISTENTE
+        // ----------------------------------------------------
+
+        audioRemoto =
+            document.createElement(
+                "audio"
+            );
+
+
+        audioRemoto.autoplay =
+            true;
+
+
+        pc.ontrack =
+            function(evento) {
+
+                audioRemoto.srcObject =
+                    evento.streams[0];
+
+
+                escribirLog(
+                    "Audio del asistente activo."
+                );
+            };
+
+
+        // ----------------------------------------------------
+        // MICRÓFONO
+        // ----------------------------------------------------
+
+        localStream =
+            await navigator
+                .mediaDevices
+                .getUserMedia({
+                    audio: true
+                });
+
+
+        const pistaAudio =
+            localStream
+                .getAudioTracks()[0];
+
+
+        pc.addTrack(
+            pistaAudio,
+            localStream
+        );
+
+
+        escribirLog(
+            "Micrófono conectado."
+        );
+
+
+        // ----------------------------------------------------
+        // DATA CHANNEL
+        // ----------------------------------------------------
+
+        dc =
+            pc.createDataChannel(
+                "oai-events"
+            );
+
+
+        dc.onopen =
+            function() {
+
+                escribirLog(
+                    "Canal de eventos activo."
+                );
+
+
+                /*
+                Registramos las herramientas
+                después de abrir el canal.
+                */
+
+                registrarTools();
+
+
+                cambiarEstado(
+                    "Escuchando",
+                    "escuchando"
+                );
+            };
+
+
+        dc.onmessage =
+            async function(evento) {
+
+                try {
+
+                    const eventoAPI =
+                        JSON.parse(
+                            evento.data
+                        );
+
+
+                    await procesarEvento(
+                        eventoAPI
+                    );
+
+                }
+
+                catch(error) {
+
+                    console.error(
+                        error
+                    );
+
+
+                    escribirLog(
+                        "Error procesando evento: "
+                        + error.message
+                    );
+                }
+            };
+
+
+        // ----------------------------------------------------
+        // CREAR OFERTA SDP
+        // ----------------------------------------------------
+
+        const oferta =
+            await pc.createOffer();
+
+
+        await pc.setLocalDescription(
+            oferta
+        );
+
+
+        // ----------------------------------------------------
+        // ESTABLECER CONEXIÓN OPENAI
+        // ----------------------------------------------------
+
+        const respuestaSDP =
+            await fetch(
+                "https://api.openai.com/v1/realtime/calls",
+                {
+                    method:
+                        "POST",
+
+                    body:
+                        oferta.sdp,
+
+                    headers: {
+
+                        "Authorization":
+                            "Bearer "
+                            + ephemeralKey,
+
+                        "Content-Type":
+                            "application/sdp"
+                    }
+                }
+            );
+
+
+        if (
+            !respuestaSDP.ok
+        ) {
+
+            const errorTexto =
+                await respuestaSDP.text();
+
+
+            throw new Error(
+                errorTexto
+            );
+        }
+
+
+        const answer = {
+
+            type:
+                "answer",
+
+            sdp:
+                await respuestaSDP.text()
+        };
+
+
+        await pc.setRemoteDescription(
+            answer
+        );
+
+
+        botonDesconectar.disabled =
+            false;
+
+
+        escribirLog(
+            "Conexión Realtime establecida."
+        );
+
+    }
+
+    catch(error) {
+
+        console.error(
+            error
+        );
+
+
+        escribirLog(
+            "ERROR: "
+            + error.message
+        );
+
+
+        cambiarEstado(
+            "Error",
+            "error"
+        );
+
+
+        botonConectar.disabled =
+            false;
+    }
+}
+
+
+// ============================================================
+// DESCONECTAR
+// ============================================================
+
+function desconectar() {
+
+    if (
+        localStream
+    ) {
+
+        localStream
+            .getTracks()
+            .forEach(
+                function(track) {
+
+                    track.stop();
+                }
+            );
+    }
+
+
+    if (
+        dc
+    ) {
+
+        dc.close();
+    }
+
+
+    if (
+        pc
+    ) {
+
+        pc.close();
+    }
+
+
+    pc = null;
+    dc = null;
+    localStream = null;
+
+
+    cambiarEstado(
+        "Desconectado"
+    );
+
+
+    botonConectar.disabled =
+        false;
+
+
+    botonDesconectar.disabled =
+        true;
+
+
+    escribirLog(
+        "Sesión finalizada."
+    );
+}
+
+
+// ============================================================
+// BOTONES
+// ============================================================
+
+botonConectar.addEventListener(
+    "click",
+    conectar
+);
+
+
+botonDesconectar.addEventListener(
+    "click",
+    desconectar
+);
+
+</script>
+
+</body>
+
+</html>
