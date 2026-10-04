@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="es">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -14,24 +12,16 @@
     <title>Mi Agente IA - Realtime</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
+            font-family: Arial, Helvetica, sans-serif;
             background: #0e1117;
             color: #ffffff;
-
             min-height: 100vh;
-
             display: flex;
             align-items: center;
             justify-content: center;
@@ -39,17 +29,11 @@
 
         .contenedor {
             width: min(760px, 92vw);
-
             background: #161b22;
-
             border: 1px solid #30363d;
             border-radius: 22px;
-
             padding: 36px;
-
-            box-shadow:
-                0 20px 70px
-                rgba(0, 0, 0, 0.45);
+            box-shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
         }
 
         h1 {
@@ -71,26 +55,18 @@
 
         .estado {
             padding: 16px;
-
             border-radius: 12px;
-
             background: #0d1117;
-
             border: 1px solid #30363d;
-
             margin-bottom: 24px;
         }
 
         .indicador {
             width: 12px;
             height: 12px;
-
             border-radius: 50%;
-
             background: #777;
-
             display: inline-block;
-
             margin-right: 8px;
         }
 
@@ -118,12 +94,9 @@
 
         button {
             padding: 15px 20px;
-
             border: 0;
             border-radius: 12px;
-
             font-size: 16px;
-
             cursor: pointer;
         }
 
@@ -145,24 +118,16 @@
 
         .log {
             margin-top: 24px;
-
             background: #0d1117;
-
             border: 1px solid #30363d;
             border-radius: 12px;
-
             padding: 15px;
-
-            height: 260px;
-
+            height: 280px;
             overflow-y: auto;
-
             font-family: monospace;
             font-size: 13px;
-
             color: #aeb8c4;
         }
-
     </style>
 
 </head>
@@ -172,9 +137,7 @@
 
 <div class="contenedor">
 
-    <h1>
-        🎙️ Mi Agente IA
-    </h1>
+    <h1>🎙️ Mi Agente IA</h1>
 
     <div class="subtitulo">
         Conversación de voz en tiempo real
@@ -182,6 +145,8 @@
 
     <div class="capacidades">
         🧠 Memoria persistente
+        &nbsp;·&nbsp;
+        📚 RAG documental
         &nbsp;·&nbsp;
         🎙️ Voz Realtime
         &nbsp;·&nbsp;
@@ -234,47 +199,30 @@ let localStream = null;
 let audioRemoto = null;
 
 
-// ============================================================
-// ELEMENTOS
-// ============================================================
-
 const botonConectar =
-    document.getElementById(
-        "conectar"
-    );
+    document.getElementById("conectar");
 
 const botonDesconectar =
-    document.getElementById(
-        "desconectar"
-    );
+    document.getElementById("desconectar");
 
 const estado =
-    document.getElementById(
-        "estado"
-    );
+    document.getElementById("estado");
 
 const indicador =
-    document.getElementById(
-        "indicador"
-    );
+    document.getElementById("indicador");
 
 const log =
-    document.getElementById(
-        "log"
-    );
+    document.getElementById("log");
 
 
 // ============================================================
 // UTILIDADES
 // ============================================================
 
-function escribirLog(
-    mensaje
-) {
+function escribirLog(mensaje) {
 
     const hora =
-        new Date()
-            .toLocaleTimeString();
+        new Date().toLocaleTimeString();
 
     log.innerHTML +=
         "<br>[" +
@@ -299,66 +247,53 @@ function cambiarEstado(
         "indicador";
 
 
-    if (
-        tipo === "conectado"
-    ) {
+    if (tipo === "conectado") {
 
         indicador
             .classList
-            .add(
-                "conectado"
-            );
+            .add("conectado");
     }
 
 
-    if (
-        tipo === "escuchando"
-    ) {
+    if (tipo === "escuchando") {
 
         indicador
             .classList
-            .add(
-                "escuchando"
-            );
+            .add("escuchando");
     }
 
 
-    if (
-        tipo === "procesando"
-    ) {
+    if (tipo === "procesando") {
 
         indicador
             .classList
-            .add(
-                "procesando"
-            );
+            .add("procesando");
     }
 
 
-    if (
-        tipo === "error"
-    ) {
+    if (tipo === "error") {
 
         indicador
             .classList
-            .add(
-                "error"
-            );
+            .add("error");
     }
 }
 
 
 // ============================================================
-// DEFINICIÓN DE TOOLS
+// TOOLS
 // ============================================================
 
 const TOOLS = [
 
+    // --------------------------------------------------------
+    // BUSCAR MEMORIA
+    // --------------------------------------------------------
+
     {
         type: "function",
 
-        name:
-            "buscar_memoria",
+        name: "buscar_memoria",
 
         description:
             "Busca información guardada en la memoria persistente del usuario. Úsala cuando el usuario pregunte qué recuerdas sobre un proyecto, decisión, pendiente, preferencia u otra información previa.",
@@ -371,9 +306,8 @@ const TOOLS = [
 
                 consulta: {
                     type: "string",
-
                     description:
-                        "Texto o concepto a buscar."
+                        "Texto o concepto a buscar en la memoria."
                 },
 
                 limite: {
@@ -389,14 +323,17 @@ const TOOLS = [
     },
 
 
+    // --------------------------------------------------------
+    // RECORDAR
+    // --------------------------------------------------------
+
     {
         type: "function",
 
-        name:
-            "recordar",
+        name: "recordar",
 
         description:
-            "Guarda información importante en la memoria persistente. Debe utilizarse cuando el usuario solicite recordar, guardar o conservar información para conversaciones futuras.",
+            "Guarda información importante en memoria persistente para utilizarla en conversaciones futuras.",
 
         parameters: {
 
@@ -408,14 +345,14 @@ const TOOLS = [
                     type: "string",
 
                     description:
-                        "Categoría de la memoria, por ejemplo proyecto, pendiente, preferencia, persona o configuración."
+                        "Categoría, por ejemplo proyecto, pendiente, preferencia, persona o configuración."
                 },
 
                 clave: {
                     type: "string",
 
                     description:
-                        "Nombre corto y reconocible para identificar la memoria."
+                        "Nombre corto y reconocible de la memoria."
                 },
 
                 contenido: {
@@ -442,14 +379,17 @@ const TOOLS = [
     },
 
 
+    // --------------------------------------------------------
+    // VER MEMORIAS
+    // --------------------------------------------------------
+
     {
         type: "function",
 
-        name:
-            "ver_memorias",
+        name: "ver_memorias",
 
         description:
-            "Lista las memorias persistentes activas. Úsala cuando el usuario pregunte qué recuerdas en general.",
+            "Lista memorias persistentes activas. Úsala cuando el usuario pregunte qué recuerdas en general.",
 
         parameters: {
 
@@ -466,6 +406,54 @@ const TOOLS = [
                     default: 20
                 }
             }
+        }
+    },
+
+
+    // --------------------------------------------------------
+    // BUSCAR DOCUMENTOS - RAG
+    // --------------------------------------------------------
+
+    {
+        type: "function",
+
+        name: "buscar_documentos",
+
+        description:
+            "Busca información dentro de los documentos indexados del usuario mediante búsqueda semántica RAG. Debe utilizarse cuando el usuario pregunte qué dice un documento, informe, PDF, DOCX, TXT, archivo, antecedente documental o solicite buscar información dentro de sus documentos.",
+
+        parameters: {
+
+            type: "object",
+
+            properties: {
+
+                consulta: {
+
+                    type: "string",
+
+                    description:
+                        "Pregunta o información que debe buscarse dentro de los documentos indexados."
+                },
+
+                limite: {
+
+                    type: "integer",
+
+                    description:
+                        "Número máximo de fragmentos relevantes a recuperar.",
+
+                    default: 5,
+
+                    minimum: 1,
+
+                    maximum: 8
+                }
+            },
+
+            required: [
+                "consulta"
+            ]
         }
     }
 
@@ -493,45 +481,48 @@ function registrarTools() {
 
     const sessionUpdate = {
 
-        type:
-            "session.update",
+        type: "session.update",
 
         session: {
 
-            /*
-            IMPORTANTE:
-            Realtime exige session.type.
-            */
+            type: "realtime",
 
-            type:
-                "realtime",
+            tools: TOOLS,
 
-            tools:
-                TOOLS,
-
-            tool_choice:
-                "auto",
+            tool_choice: "auto",
 
             instructions:
                 "Eres un asistente personal profesional que conversa por voz en español. " +
 
                 "Habla de manera natural, clara, concisa y profesional. " +
 
-                "Tienes acceso a memoria persistente. " +
+                "Tienes acceso a memoria persistente y a documentos indexados mediante RAG. " +
 
-                "Cuando el usuario diga recuerda, guarda esto, guarda esta información, ten presente o solicita conservar información para el futuro, debes usar la herramienta recordar. " +
+                "Si el usuario dice recuerda, guarda esto, ten presente o solicita conservar información para el futuro, debes usar recordar. " +
 
-                "No respondas que has guardado algo sin ejecutar recordar. " +
+                "No digas que has guardado información si no ejecutaste recordar. " +
 
-                "Cuando el usuario pregunte qué recuerdas sobre un proyecto, asunto, decisión o dato de conversaciones anteriores, usa buscar_memoria. " +
+                "Si pregunta qué recuerdas sobre conversaciones anteriores, usa buscar_memoria. " +
 
-                "Cuando pregunte qué recuerdas en general, utiliza ver_memorias. " +
+                "Si pregunta qué recuerdas en general, puedes usar ver_memorias. " +
 
-                "No inventes recuerdos. " +
+                "Si pregunta por el contenido de un documento, informe, archivo, PDF, DOCX o TXT, o solicita buscar información dentro de sus documentos, usa buscar_documentos. " +
 
-                "No guardes contraseñas, claves API, tokens ni credenciales. " +
+                "Cuando uses buscar_documentos, basa tu respuesta en los fragmentos devueltos por la herramienta. " +
 
-                "Después de ejecutar una herramienta, explica el resultado naturalmente por voz."
+                "Si los documentos no contienen información suficiente para responder, dilo claramente. " +
+
+                "No inventes datos documentales. " +
+
+                "No confundas memoria con documentos. " +
+
+                "La memoria se usa para información persistente guardada previamente. " +
+
+                "El RAG se usa para consultar documentos indexados. " +
+
+                "No guardes contraseñas, API keys, tokens ni credenciales. " +
+
+                "Después de ejecutar una herramienta, responde naturalmente por voz."
         }
     };
 
@@ -545,6 +536,10 @@ function registrarTools() {
 
     escribirLog(
         "🛠 Tools enviadas a la sesión."
+    );
+
+    escribirLog(
+        "📚 RAG documental registrado."
     );
 }
 
@@ -587,12 +582,44 @@ async function ejecutarTool(
     }
 
 
-    cambiarEstado(
-        "Ejecutando "
-        + functionCall.name
-        + "...",
-        "procesando"
-    );
+    if (
+        functionCall.name ===
+        "buscar_documentos"
+    ) {
+
+        cambiarEstado(
+            "Buscando en documentos...",
+            "procesando"
+        );
+
+        escribirLog(
+            "📚 Consultando índice RAG..."
+        );
+
+    }
+
+    else if (
+        functionCall.name ===
+        "buscar_memoria"
+        ||
+        functionCall.name ===
+        "ver_memorias"
+    ) {
+
+        cambiarEstado(
+            "Consultando memoria...",
+            "procesando"
+        );
+
+    }
+
+    else {
+
+        cambiarEstado(
+            "Ejecutando herramienta...",
+            "procesando"
+        );
+    }
 
 
     try {
@@ -601,11 +628,9 @@ async function ejecutarTool(
             await fetch(
                 "/tool",
                 {
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
-
                         "Content-Type":
                             "application/json"
                     },
@@ -627,9 +652,7 @@ async function ejecutarTool(
             await respuesta.json();
 
 
-        if (
-            !respuesta.ok
-        ) {
+        if (!respuesta.ok) {
 
             throw new Error(
                 JSON.stringify(
@@ -645,9 +668,28 @@ async function ejecutarTool(
         );
 
 
-        // ----------------------------------------------------
-        // DEVOLVER RESULTADO DE TOOL
-        // ----------------------------------------------------
+        if (
+            functionCall.name ===
+            "buscar_documentos"
+        ) {
+
+            const cantidad =
+                resultado
+                    ?.result
+                    ?.length
+                || 0;
+
+
+            escribirLog(
+                "📚 Fragmentos recuperados: "
+                + cantidad
+            );
+        }
+
+
+        // ====================================================
+        // DEVOLVER TOOL OUTPUT
+        // ====================================================
 
         const eventoResultado = {
 
@@ -677,9 +719,9 @@ async function ejecutarTool(
         );
 
 
-        // ----------------------------------------------------
-        // SOLICITAR CONTINUACIÓN
-        // ----------------------------------------------------
+        // ====================================================
+        // PEDIR RESPUESTA AL MODELO
+        // ====================================================
 
         dc.send(
             JSON.stringify({
@@ -713,7 +755,7 @@ async function ejecutarTool(
 
 
 // ============================================================
-// PROCESAR EVENTOS
+// EVENTOS REALTIME
 // ============================================================
 
 async function procesarEvento(
@@ -724,10 +766,6 @@ async function procesarEvento(
         eventoAPI
     );
 
-
-    // --------------------------------------------------------
-    // SESIÓN CREADA
-    // --------------------------------------------------------
 
     if (
         eventoAPI.type ===
@@ -740,10 +778,6 @@ async function procesarEvento(
     }
 
 
-    // --------------------------------------------------------
-    // SESIÓN ACTUALIZADA
-    // --------------------------------------------------------
-
     if (
         eventoAPI.type ===
         "session.updated"
@@ -754,10 +788,6 @@ async function procesarEvento(
         );
     }
 
-
-    // --------------------------------------------------------
-    // HABLA DEL USUARIO
-    // --------------------------------------------------------
 
     if (
         eventoAPI.type ===
@@ -783,15 +813,9 @@ async function procesarEvento(
     }
 
 
-    // --------------------------------------------------------
-    // DETECTAR FUNCTION CALL
-    // --------------------------------------------------------
-
-    /*
-    Utilizamos response.output_item.done
-    como punto único de ejecución para evitar
-    ejecutar una misma herramienta dos veces.
-    */
+    // ========================================================
+    // FUNCTION CALL
+    // ========================================================
 
     if (
         eventoAPI.type ===
@@ -804,7 +828,8 @@ async function procesarEvento(
 
         if (
             item &&
-            item.type === "function_call"
+            item.type ===
+            "function_call"
         ) {
 
             await ejecutarTool(
@@ -815,10 +840,6 @@ async function procesarEvento(
         }
     }
 
-
-    // --------------------------------------------------------
-    // RESPUESTA TERMINADA
-    // --------------------------------------------------------
 
     if (
         eventoAPI.type ===
@@ -831,10 +852,6 @@ async function procesarEvento(
         );
     }
 
-
-    // --------------------------------------------------------
-    // ERRORES API
-    // --------------------------------------------------------
 
     if (
         eventoAPI.type ===
@@ -879,9 +896,9 @@ async function conectar() {
         );
 
 
-        // ----------------------------------------------------
-        // TOKEN EFÍMERO
-        // ----------------------------------------------------
+        // ====================================================
+        // TOKEN
+        // ====================================================
 
         const tokenResponse =
             await fetch(
@@ -893,9 +910,7 @@ async function conectar() {
             await tokenResponse.json();
 
 
-        if (
-            !tokenResponse.ok
-        ) {
+        if (!tokenResponse.ok) {
 
             throw new Error(
                 JSON.stringify(
@@ -909,9 +924,7 @@ async function conectar() {
             tokenData.value;
 
 
-        if (
-            !ephemeralKey
-        ) {
+        if (!ephemeralKey) {
 
             throw new Error(
                 "No se recibió token efímero."
@@ -924,17 +937,17 @@ async function conectar() {
         );
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // WEBRTC
-        // ----------------------------------------------------
+        // ====================================================
 
         pc =
             new RTCPeerConnection();
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // AUDIO DEL ASISTENTE
-        // ----------------------------------------------------
+        // ====================================================
 
         audioRemoto =
             document.createElement(
@@ -959,9 +972,9 @@ async function conectar() {
             };
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // MICRÓFONO
-        // ----------------------------------------------------
+        // ====================================================
 
         localStream =
             await navigator
@@ -987,9 +1000,9 @@ async function conectar() {
         );
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // DATA CHANNEL
-        // ----------------------------------------------------
+        // ====================================================
 
         dc =
             pc.createDataChannel(
@@ -1004,11 +1017,6 @@ async function conectar() {
                     "Canal de eventos activo."
                 );
 
-
-                /*
-                Registramos las herramientas
-                después de abrir el canal.
-                */
 
                 registrarTools();
 
@@ -1052,9 +1060,9 @@ async function conectar() {
             };
 
 
-        // ----------------------------------------------------
-        // CREAR OFERTA SDP
-        // ----------------------------------------------------
+        // ====================================================
+        // SDP
+        // ====================================================
 
         const oferta =
             await pc.createOffer();
@@ -1064,10 +1072,6 @@ async function conectar() {
             oferta
         );
 
-
-        // ----------------------------------------------------
-        // ESTABLECER CONEXIÓN OPENAI
-        // ----------------------------------------------------
 
         const respuestaSDP =
             await fetch(
@@ -1092,9 +1096,7 @@ async function conectar() {
             );
 
 
-        if (
-            !respuestaSDP.ok
-        ) {
+        if (!respuestaSDP.ok) {
 
             const errorTexto =
                 await respuestaSDP.text();
@@ -1162,33 +1164,24 @@ async function conectar() {
 
 function desconectar() {
 
-    if (
-        localStream
-    ) {
+    if (localStream) {
 
         localStream
             .getTracks()
             .forEach(
                 function(track) {
-
                     track.stop();
                 }
             );
     }
 
 
-    if (
-        dc
-    ) {
-
+    if (dc) {
         dc.close();
     }
 
 
-    if (
-        pc
-    ) {
-
+    if (pc) {
         pc.close();
     }
 
