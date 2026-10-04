@@ -3,947 +3,2324 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Mi Agente IA</title>
+<title>Mi Agente IA</title>
 
+<style>
 
-    <style>
+/* ============================================================
+   RESET
+============================================================ */
 
-        * {
-            box-sizing: border-box;
-        }
+* {
+    box-sizing: border-box;
+}
 
+html,
+body {
 
-        :root {
-            --fondo: #080b10;
-            --panel: #11161d;
-            --panel2: #0d1218;
-            --borde: #28313d;
-            --texto: #f4f7fa;
-            --secundario: #929eaa;
-            --verde: #2ecc71;
-            --amarillo: #f1c40f;
-            --azul: #3498db;
-            --rojo: #e74c3c;
-        }
+    margin: 0;
 
+    width: 100%;
 
-        body {
+    height: 100%;
 
-            margin: 0;
+    min-height: 100%;
 
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
+    overflow: hidden;
 
-            background:
-                var(--fondo);
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
 
-            color:
-                var(--texto);
+    color: #f4f7fb;
 
-            min-height:
-                100vh;
-        }
+    background:
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(56, 112, 255, 0.18),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 88% 15%,
+            rgba(47, 224, 181, 0.11),
+            transparent 24%
+        ),
+        radial-gradient(
+            circle at 55% 90%,
+            rgba(131, 92, 255, 0.12),
+            transparent 26%
+        ),
+        linear-gradient(
+            145deg,
+            #04070b,
+            #09111a
+        );
+}
 
 
-        .app {
+body::before {
 
-            max-width:
-                1500px;
+    content: "";
 
-            margin:
-                0 auto;
+    position: fixed;
 
-            padding:
-                24px;
-        }
+    inset: 0;
 
+    pointer-events: none;
 
-        /* ====================================================
-           HEADER
-        ==================================================== */
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,0.018)
+            1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.018)
+            1px,
+            transparent 1px
+        );
 
-        .header {
+    background-size:
+        42px 42px;
 
-            display:
-                flex;
+    opacity: 0.75;
+}
 
-            justify-content:
-                space-between;
 
-            align-items:
-                center;
+/* ============================================================
+   VARIABLES
+============================================================ */
 
-            gap:
-                20px;
+:root {
 
-            margin-bottom:
-                20px;
-        }
+    --panel:
+        rgba(14, 21, 31, 0.80);
 
+    --panel-soft:
+        rgba(255,255,255,0.04);
 
-        .titulo h1 {
+    --border:
+        rgba(255,255,255,0.09);
 
-            margin:
-                0;
+    --text:
+        #f4f7fb;
 
-            font-size:
-                30px;
-        }
+    --muted:
+        #8d9aac;
 
+    --green:
+        #34e2a2;
 
-        .titulo p {
+    --cyan:
+        #63e7ff;
 
-            margin:
-                7px 0 0;
+    --blue:
+        #5c9dff;
 
-            color:
-                var(--secundario);
-        }
+    --yellow:
+        #ffd35c;
 
+    --red:
+        #ff6679;
+}
 
-        .estado-conexion {
 
-            display:
-                flex;
+/* ============================================================
+   APP
+   TODA LA INTERFAZ QUEDA LIMITADA A UNA SOLA PANTALLA
+============================================================ */
 
-            align-items:
-                center;
+.app {
 
-            gap:
-                9px;
+    position: relative;
 
-            padding:
-                10px 14px;
+    z-index: 1;
 
-            border:
-                1px solid
-                var(--borde);
+    width: 100%;
 
-            border-radius:
-                999px;
+    max-width: 1650px;
 
-            background:
-                var(--panel);
-        }
+    height: 100vh;
 
+    height: 100dvh;
 
-        .indicador {
+    margin: 0 auto;
 
-            width:
-                11px;
+    padding: 14px 18px;
 
-            height:
-                11px;
+    display: grid;
 
-            border-radius:
-                50%;
+    grid-template-rows:
+        auto
+        auto
+        minmax(0, 1fr);
 
-            background:
-                #666;
-        }
+    gap: 11px;
 
+    overflow: hidden;
+}
 
-        .estado-conectado {
-            background:
-                var(--verde);
-        }
 
+.glass {
 
-        .estado-escuchando {
-            background:
-                var(--amarillo);
-        }
+    background:
+        var(--panel);
 
+    border:
+        1px solid
+        var(--border);
 
-        .estado-procesando {
-            background:
-                var(--azul);
-        }
+    backdrop-filter:
+        blur(18px);
 
+    -webkit-backdrop-filter:
+        blur(18px);
 
-        .estado-error {
-            background:
-                var(--rojo);
-        }
+    box-shadow:
+        0 20px 50px
+        rgba(0,0,0,0.30);
+}
 
 
-        /* ====================================================
-           SELECTOR DE CONVERSACIÓN
-        ==================================================== */
+/* ============================================================
+   TOPBAR
+============================================================ */
 
-        .barra-conversacion {
+.topbar {
 
-            display:
-                grid;
+    min-height: 50px;
 
-            grid-template-columns:
-                minmax(0, 1fr)
-                auto;
+    display: flex;
 
-            gap:
-                12px;
+    justify-content: space-between;
 
-            margin-bottom:
-                20px;
+    align-items: center;
 
-            padding:
-                16px;
+    gap: 18px;
+}
 
-            background:
-                var(--panel);
 
-            border:
-                1px solid
-                var(--borde);
+.brand {
 
-            border-radius:
-                16px;
-        }
+    display: flex;
 
+    align-items: center;
 
-        select {
+    gap: 12px;
 
-            width:
-                100%;
+    min-width: 0;
+}
 
-            padding:
-                13px 14px;
 
-            background:
-                var(--panel2);
+.brand-logo {
 
-            color:
-                var(--texto);
+    flex: 0 0 auto;
 
-            border:
-                1px solid
-                var(--borde);
+    width: 46px;
 
-            border-radius:
-                10px;
+    height: 46px;
 
-            font-size:
-                14px;
-        }
+    border-radius: 15px;
 
+    display: flex;
 
-        .btn-nueva {
+    align-items: center;
 
-            background:
-                #26313c;
+    justify-content: center;
 
-            color:
-                white;
+    font-size: 21px;
 
-            white-space:
-                nowrap;
-        }
+    background:
+        linear-gradient(
+            135deg,
+            rgba(52,226,162,0.24),
+            rgba(99,231,255,0.14)
+        );
 
+    border:
+        1px solid
+        rgba(99,231,255,0.18);
 
-        /* ====================================================
-           GRID
-        ==================================================== */
+    box-shadow:
+        0 0 24px
+        rgba(99,231,255,0.09);
+}
 
-        .grid {
 
-            display:
-                grid;
+.brand-text {
 
-            grid-template-columns:
-                minmax(0, 2fr)
-                minmax(320px, 1fr);
+    min-width: 0;
+}
 
-            gap:
-                20px;
-        }
 
+.brand h1 {
 
-        .panel {
+    margin: 0;
 
-            background:
-                var(--panel);
+    font-size: 21px;
 
-            border:
-                1px solid
-                var(--borde);
+    line-height: 1.1;
+}
 
-            border-radius:
-                18px;
 
-            overflow:
-                hidden;
-        }
+.brand p {
 
+    margin: 4px 0 0;
 
-        .panel-header {
+    color:
+        var(--muted);
 
-            padding:
-                17px 20px;
+    font-size: 12px;
 
-            border-bottom:
-                1px solid
-                var(--borde);
+    white-space: nowrap;
 
-            font-weight:
-                700;
-        }
+    overflow: hidden;
 
+    text-overflow: ellipsis;
+}
 
-        /* ====================================================
-           CHAT
-        ==================================================== */
 
-        .chat {
+.status-pill {
 
-            height:
-                560px;
+    flex: 0 0 auto;
 
-            padding:
-                22px;
+    display: flex;
 
-            overflow-y:
-                auto;
+    align-items: center;
 
-            display:
-                flex;
+    gap: 8px;
 
-            flex-direction:
-                column;
+    padding: 9px 13px;
 
-            gap:
-                18px;
-        }
+    border-radius: 999px;
 
+    border:
+        1px solid
+        var(--border);
 
-        .mensaje {
+    background:
+        rgba(255,255,255,0.035);
 
-            max-width:
-                84%;
+    font-size: 13px;
+}
 
-            padding:
-                14px 16px;
 
-            border-radius:
-                17px;
+.status-dot {
 
-            line-height:
-                1.5;
+    width: 9px;
 
-            white-space:
-                pre-wrap;
+    height: 9px;
 
-            word-break:
-                break-word;
-        }
+    border-radius: 50%;
 
+    background: #66717e;
+}
 
-        .mensaje-usuario {
 
-            align-self:
-                flex-end;
+.status-dot.connected {
 
-            background:
-                #1d3a2c;
+    background:
+        var(--green);
 
-            border:
-                1px solid
-                #28553e;
-        }
+    box-shadow:
+        0 0 13px
+        var(--green);
+}
 
 
-        .mensaje-asistente {
+.status-dot.listening {
 
-            align-self:
-                flex-start;
+    background:
+        var(--yellow);
 
-            background:
-                #18212c;
+    box-shadow:
+        0 0 13px
+        var(--yellow);
+}
 
-            border:
-                1px solid
-                #2c3b4b;
-        }
 
+.status-dot.processing {
 
-        .autor {
+    background:
+        var(--blue);
 
-            display:
-                block;
+    box-shadow:
+        0 0 13px
+        var(--blue);
+}
 
-            font-size:
-                12px;
 
-            font-weight:
-                bold;
+.status-dot.error {
 
-            color:
-                var(--secundario);
+    background:
+        var(--red);
 
-            margin-bottom:
-                5px;
-        }
+    box-shadow:
+        0 0 13px
+        var(--red);
+}
 
 
-        .transcripcion-parcial {
+/* ============================================================
+   SELECTOR DE CONVERSACIÓN
+============================================================ */
 
-            opacity:
-                0.65;
+.conversation-bar {
 
-            font-style:
-                italic;
-        }
+    display: grid;
 
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto;
 
-        /* ====================================================
-           CONTROLES
-        ==================================================== */
+    gap: 9px;
 
-        .controles {
+    padding: 9px;
 
-            padding:
-                18px;
+    border-radius: 16px;
+}
 
-            border-top:
-                1px solid
-                var(--borde);
 
-            display:
-                grid;
+select {
 
-            grid-template-columns:
-                1fr 1fr 1fr;
+    min-width: 0;
 
-            gap:
-                10px;
-        }
+    width: 100%;
 
+    height: 42px;
 
-        button {
+    border:
+        1px solid
+        var(--border);
 
-            border:
-                0;
+    border-radius: 11px;
 
-            border-radius:
-                12px;
+    background:
+        rgba(255,255,255,0.04);
 
-            padding:
-                14px;
+    color:
+        white;
 
-            cursor:
-                pointer;
+    padding:
+        0 12px;
 
-            font-size:
-                15px;
+    outline: none;
 
-            font-weight:
-                600;
-        }
+    font-size: 13px;
+}
 
 
-        #conectar {
+select option {
 
-            background:
-                var(--verde);
+    background:
+        #111821;
 
-            color:
-                #07130b;
-        }
+    color:
+        white;
+}
 
 
-        #desconectar {
+/* ============================================================
+   BOTONES
+============================================================ */
 
-            background:
-                #313b47;
+button {
 
-            color:
-                white;
-        }
+    border: 0;
 
+    border-radius: 11px;
 
-        #limpiar {
+    min-height: 42px;
 
-            background:
-                #222b35;
+    padding:
+        0 13px;
 
-            color:
-                white;
-        }
+    color:
+        white;
 
+    font-weight: 700;
 
-        button:disabled {
+    cursor: pointer;
 
-            opacity:
-                0.4;
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease,
+        border-color 0.15s ease;
+}
 
-            cursor:
-                not-allowed;
-        }
 
+button:hover:not(:disabled) {
 
-        /* ====================================================
-           CAPACIDADES
-        ==================================================== */
+    transform:
+        translateY(-1px);
+}
 
-        .capacidades {
 
-            padding:
-                16px;
+button:disabled {
 
-            display:
-                grid;
+    opacity: 0.42;
 
-            grid-template-columns:
-                1fr 1fr;
+    cursor: not-allowed;
 
-            gap:
-                10px;
-        }
+    transform: none;
+}
 
 
-        .capacidad {
+.primary {
 
-            padding:
-                13px;
+    color: #04110c;
 
-            border:
-                1px solid
-                var(--borde);
+    background:
+        linear-gradient(
+            135deg,
+            var(--green),
+            var(--cyan)
+        );
+}
 
-            border-radius:
-                12px;
 
-            background:
-                var(--panel2);
+.secondary {
 
-            font-size:
-                13px;
-        }
+    background:
+        rgba(255,255,255,0.06);
 
+    border:
+        1px solid
+        var(--border);
+}
 
-        .capacidad strong {
 
-            display:
-                block;
+.danger {
 
-            margin-bottom:
-                5px;
-        }
+    background:
+        rgba(255,102,121,0.13);
 
+    border:
+        1px solid
+        rgba(255,102,121,0.18);
+}
 
-        .activo {
 
-            color:
-                var(--verde);
-        }
+.icon-button {
 
+    width: 46px;
 
-        /* ====================================================
-           FUENTES Y ACTIVIDAD
-        ==================================================== */
+    min-width: 46px;
 
-        .fuentes {
+    padding: 0;
 
-            max-height:
-                300px;
+    font-size: 18px;
 
-            overflow-y:
-                auto;
+    background:
+        rgba(255,255,255,0.06);
 
-            padding:
-                15px;
-        }
+    border:
+        1px solid
+        var(--border);
+}
 
 
-        .fuente {
+/* ============================================================
+   GRID PRINCIPAL
+   NUNCA PUEDE CRECER MÁS QUE EL ESPACIO DISPONIBLE
+============================================================ */
 
-            padding:
-                13px;
+.main-grid {
 
-            background:
-                var(--panel2);
+    min-width: 0;
 
-            border:
-                1px solid
-                var(--borde);
+    min-height: 0;
 
-            border-radius:
-                12px;
+    width: 100%;
 
-            margin-bottom:
-                10px;
-        }
+    height: 100%;
 
+    overflow: hidden;
 
-        .fuente-tipo {
+    display: grid;
 
-            color:
-                var(--secundario);
+    grid-template-columns:
+        245px
+        minmax(430px, 1fr)
+        320px;
 
-            font-size:
-                11px;
+    gap: 12px;
+}
 
-            text-transform:
-                uppercase;
 
-            margin-bottom:
-                5px;
-        }
+.panel {
 
+    min-width: 0;
 
-        .fuente-nombre {
+    min-height: 0;
 
-            font-weight:
-                700;
+    border-radius: 19px;
 
-            margin-bottom:
-                5px;
-        }
+    overflow: hidden;
+}
 
 
-        .fuente-detalle {
+.panel-title {
 
-            font-size:
-                12px;
+    flex: 0 0 auto;
 
-            color:
-                var(--secundario);
-        }
+    height: 43px;
 
+    display: flex;
 
-        .actividad {
+    align-items: center;
 
-            max-height:
-                265px;
+    padding:
+        0 14px;
 
-            overflow-y:
-                auto;
+    border-bottom:
+        1px solid
+        var(--border);
 
-            padding:
-                15px;
-        }
+    color: #ccd5df;
 
+    font-size: 10px;
 
-        .evento {
+    font-weight: 800;
 
-            padding:
-                9px 0;
+    letter-spacing: 0.08em;
 
-            border-bottom:
-                1px solid
-                #202935;
+    text-transform: uppercase;
+}
 
-            font-size:
-                13px;
-        }
 
+/* ============================================================
+   AVATAR
+============================================================ */
 
-        .hora {
+.avatar-panel {
 
-            color:
-                var(--secundario);
+    height: 100%;
 
-            margin-right:
-                6px;
-        }
+    min-height: 0;
 
+    max-height: 100%;
 
-        .sin-datos {
+    display: flex;
 
-            color:
-                var(--secundario);
+    flex-direction: column;
 
-            font-size:
-                13px;
+    overflow: hidden;
+}
 
-            padding:
-                8px 2px;
-        }
 
+.avatar-area {
 
-        @media (
-            max-width: 900px
-        ) {
+    flex:
+        1 1 auto;
 
-            .grid {
-                grid-template-columns:
-                    1fr;
-            }
+    min-height: 0;
 
+    overflow: hidden;
 
-            .header {
-                flex-direction:
-                    column;
+    display: flex;
 
-                align-items:
-                    flex-start;
-            }
+    flex-direction: column;
 
+    align-items: center;
 
-            .barra-conversacion {
-                grid-template-columns:
-                    1fr;
-            }
+    justify-content: center;
 
+    padding: 10px;
+}
 
-            .chat {
-                height:
-                    480px;
-            }
-        }
 
-    </style>
+.avatar-scene {
+
+    position: relative;
+
+    flex: 0 0 auto;
+
+    width: 205px;
+
+    height: 215px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+}
+
+
+.ring {
+
+    position: absolute;
+
+    width: 195px;
+
+    height: 195px;
+
+    border-radius: 50%;
+
+    border:
+        1px dashed
+        rgba(99,231,255,0.16);
+
+    animation:
+        spin 18s linear infinite;
+}
+
+
+.ring::after {
+
+    content: "";
+
+    position: absolute;
+
+    top: 17px;
+
+    left: 45px;
+
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background:
+        var(--cyan);
+
+    box-shadow:
+        0 0 12px
+        var(--cyan);
+}
+
+
+@keyframes spin {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+.halo {
+
+    position: absolute;
+
+    width: 164px;
+
+    height: 164px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(99,231,255,0.12);
+
+    box-shadow:
+        0 0 30px
+        rgba(99,231,255,0.13);
+
+    animation:
+        breathe
+        4s ease-in-out infinite;
+}
+
+
+@keyframes breathe {
+
+    0%,
+    100% {
+
+        transform:
+            scale(1);
+    }
+
+    50% {
+
+        transform:
+            scale(1.045);
+    }
+}
+
+
+.avatar {
+
+    position: relative;
+
+    width: 120px;
+
+    height: 150px;
+
+    animation:
+        floatAvatar
+        4.5s
+        ease-in-out infinite;
+}
+
+
+@keyframes floatAvatar {
+
+    0%,
+    100% {
+
+        transform:
+            translateY(0);
+    }
+
+    50% {
+
+        transform:
+            translateY(-6px);
+    }
+}
+
+
+.face {
+
+    position: absolute;
+
+    inset: 0;
+
+    border-radius:
+        44% 44% 49% 49%
+        /
+        37% 37% 58% 58%;
+
+    background:
+        radial-gradient(
+            circle at 50% 18%,
+            rgba(255,255,255,0.15),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(99,231,255,0.11),
+            rgba(92,157,255,0.06)
+        );
+
+    border:
+        1px solid
+        rgba(99,231,255,0.19);
+
+    box-shadow:
+        0 0 25px
+        rgba(99,231,255,0.13);
+}
+
+
+.eye {
+
+    position: absolute;
+
+    top: 50px;
+
+    width: 19px;
+
+    height: 19px;
+
+    border-radius: 50%;
+
+    background: #071019;
+
+    border:
+        1px solid
+        rgba(99,231,255,0.26);
+
+    overflow: hidden;
+}
+
+
+.eye.left {
+    left: 28px;
+}
+
+
+.eye.right {
+    right: 28px;
+}
+
+
+.eye::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 5px;
+
+    border-radius: 50%;
+
+    background:
+        var(--cyan);
+
+    box-shadow:
+        0 0 11px
+        var(--cyan);
+}
+
+
+.eyelid {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 3;
+
+    background: #09111b;
+
+    transform:
+        scaleY(0);
+
+    transform-origin:
+        top;
+}
+
+
+.avatar.blink
+.eyelid {
+
+    animation:
+        blink
+        0.22s ease;
+}
+
+
+@keyframes blink {
+
+    0% {
+
+        transform:
+            scaleY(0);
+    }
+
+    50% {
+
+        transform:
+            scaleY(1);
+    }
+
+    100% {
+
+        transform:
+            scaleY(0);
+    }
+}
+
+
+.mouth {
+
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 37px;
+
+    transform:
+        translateX(-50%);
+
+    width: 27px;
+
+    height: 8px;
+
+    border-bottom:
+        2px solid
+        var(--cyan);
+
+    border-radius: 50%;
+}
+
+
+.avatar.speaking
+.mouth {
+
+    animation:
+        speak
+        0.28s infinite ease-in-out;
+}
+
+
+@keyframes speak {
+
+    0%,
+    100% {
+
+        width: 19px;
+
+        height: 7px;
+    }
+
+    50% {
+
+        width: 26px;
+
+        height: 17px;
+
+        border:
+            2px solid
+            var(--cyan);
+
+        border-radius: 50%;
+    }
+}
+
+
+.avatar-label {
+
+    flex: 0 0 auto;
+
+    color:
+        var(--muted);
+
+    font-size: 12px;
+
+    min-height: 18px;
+
+    text-align: center;
+}
+
+
+.wave {
+
+    flex: 0 0 auto;
+
+    height: 31px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    margin-top: 3px;
+}
+
+
+.wave-bar {
+
+    width: 5px;
+
+    height: 6px;
+
+    border-radius: 99px;
+
+    background:
+        linear-gradient(
+            var(--cyan),
+            var(--blue)
+        );
+
+    opacity: 0.35;
+
+    transition:
+        height 60ms linear;
+}
+
+
+.agent-info {
+
+    flex: 0 0 auto;
+
+    margin-top: 5px;
+
+    padding:
+        7px 10px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 999px;
+
+    color:
+        var(--muted);
+
+    font-size: 10px;
+}
+
+
+.capabilities {
+
+    flex: 0 0 auto;
+
+    padding: 9px;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 6px;
+
+    border-top:
+        1px solid
+        var(--border);
+}
+
+
+.cap {
+
+    padding: 7px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 9px;
+
+    background:
+        var(--panel-soft);
+
+    font-size: 10px;
+}
+
+
+.cap span {
+
+    color:
+        var(--green);
+}
+
+
+/* ============================================================
+   CHAT
+   ESTA ES LA PARTE PRINCIPAL DE LA CORRECCIÓN
+============================================================ */
+
+.chat-panel {
+
+    height: 100%;
+
+    min-height: 0;
+
+    max-height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+
+.chat {
+
+    /*
+       height: 0 + flex: 1
+       evita que los mensajes aumenten el tamaño del panel.
+    */
+
+    flex:
+        1 1 0;
+
+    height: 0;
+
+    min-height: 0;
+
+    min-width: 0;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    overscroll-behavior: contain;
+
+    padding: 16px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    scroll-behavior: smooth;
+
+    scrollbar-gutter: stable;
+}
+
+
+.chat::-webkit-scrollbar {
+
+    width: 8px;
+}
+
+
+.chat::-webkit-scrollbar-track {
+
+    background:
+        transparent;
+}
+
+
+.chat::-webkit-scrollbar-thumb {
+
+    background:
+        rgba(255,255,255,0.11);
+
+    border-radius: 999px;
+}
+
+
+.message {
+
+    flex:
+        0 0 auto;
+
+    width: fit-content;
+
+    max-width: 84%;
+
+    padding:
+        11px 13px;
+
+    border-radius: 16px;
+
+    line-height: 1.48;
+
+    white-space: pre-wrap;
+
+    overflow-wrap: anywhere;
+
+    word-break: break-word;
+
+    animation:
+        messageIn
+        0.18s ease;
+}
+
+
+@keyframes messageIn {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(5px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+.message.user {
+
+    align-self: flex-end;
+
+    background:
+        rgba(52,226,162,0.13);
+
+    border:
+        1px solid
+        rgba(52,226,162,0.21);
+}
+
+
+.message.assistant {
+
+    align-self: flex-start;
+
+    background:
+        rgba(92,157,255,0.11);
+
+    border:
+        1px solid
+        rgba(92,157,255,0.16);
+}
+
+
+.message-author {
+
+    display: block;
+
+    color:
+        var(--muted);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    margin-bottom: 5px;
+}
+
+
+.partial {
+
+    opacity: 0.65;
+
+    font-style: italic;
+}
+
+
+/* ============================================================
+   COMPOSER
+============================================================ */
+
+.composer-wrap {
+
+    flex: 0 0 auto;
+
+    min-height: 0;
+
+    padding: 10px;
+
+    border-top:
+        1px solid
+        var(--border);
+
+    background:
+        rgba(7,11,17,0.18);
+}
+
+
+.composer {
+
+    display: grid;
+
+    grid-template-columns:
+        46px
+        minmax(0,1fr)
+        48px;
+
+    gap: 7px;
+
+    align-items: end;
+}
+
+
+textarea {
+
+    resize: none;
+
+    width: 100%;
+
+    min-width: 0;
+
+    min-height: 42px;
+
+    max-height: 90px;
+
+    border-radius: 11px;
+
+    border:
+        1px solid
+        var(--border);
+
+    background:
+        rgba(255,255,255,0.04);
+
+    color: white;
+
+    padding:
+        10px 12px;
+
+    outline: none;
+
+    font: inherit;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    overflow-y: auto;
+}
+
+
+.controls {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr 1fr;
+
+    gap: 7px;
+
+    margin-top: 7px;
+}
+
+
+/* ============================================================
+   PANEL DERECHO
+============================================================ */
+
+.right-column {
+
+    height: 100%;
+
+    min-height: 0;
+
+    max-height: 100%;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    overscroll-behavior: contain;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 11px;
+
+    padding-right: 2px;
+
+    scrollbar-gutter: stable;
+}
+
+
+.right-column::-webkit-scrollbar {
+
+    width: 7px;
+}
+
+
+.right-column::-webkit-scrollbar-thumb {
+
+    background:
+        rgba(255,255,255,0.09);
+
+    border-radius: 999px;
+}
+
+
+.right-panel {
+
+    flex: 0 0 auto;
+
+    min-height: 0;
+}
+
+
+/* ============================================================
+   UPLOAD
+============================================================ */
+
+.drop-zone {
+
+    margin: 9px;
+
+    padding: 13px;
+
+    text-align: center;
+
+    border:
+        1px dashed
+        rgba(99,231,255,0.28);
+
+    border-radius: 12px;
+
+    background:
+        rgba(99,231,255,0.025);
+
+    cursor: pointer;
+
+    transition:
+        0.18s ease;
+}
+
+
+.drop-zone:hover,
+.drop-zone.drag {
+
+    border-color:
+        var(--cyan);
+
+    background:
+        rgba(99,231,255,0.07);
+}
+
+
+.drop-zone strong {
+
+    display: block;
+
+    font-size: 11px;
+}
+
+
+.drop-zone small {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--muted);
+
+    font-size: 9px;
+}
+
+
+.upload-status {
+
+    margin:
+        0 9px 9px;
+
+    padding:
+        8px 9px;
+
+    border-radius: 10px;
+
+    background:
+        var(--panel-soft);
+
+    border:
+        1px solid
+        var(--border);
+
+    color:
+        var(--muted);
+
+    font-size: 10px;
+
+    display: none;
+
+    overflow-wrap: anywhere;
+}
+
+
+.upload-status.visible {
+
+    display: block;
+}
+
+
+.upload-status.success {
+
+    color:
+        var(--green);
+
+    border-color:
+        rgba(52,226,162,0.25);
+}
+
+
+.upload-status.error {
+
+    color:
+        var(--red);
+
+    border-color:
+        rgba(255,102,121,0.25);
+}
+
+
+.progress {
+
+    height: 4px;
+
+    margin:
+        0 9px 9px;
+
+    border-radius: 999px;
+
+    overflow: hidden;
+
+    background:
+        rgba(255,255,255,0.05);
+
+    display: none;
+}
+
+
+.progress.active {
+
+    display: block;
+}
+
+
+.progress::before {
+
+    content: "";
+
+    display: block;
+
+    width: 35%;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--green),
+            var(--cyan)
+        );
+
+    animation:
+        load
+        1.1s linear infinite;
+}
+
+
+@keyframes load {
+
+    from {
+
+        transform:
+            translateX(-120%);
+    }
+
+    to {
+
+        transform:
+            translateX(320%);
+    }
+}
+
+
+/* ============================================================
+   DOCUMENTOS / FUENTES / ACTIVIDAD
+============================================================ */
+
+.file-list,
+.source-list,
+.activity-list {
+
+    padding: 9px;
+
+    max-height: 185px;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    overscroll-behavior: contain;
+}
+
+
+.file-list::-webkit-scrollbar,
+.source-list::-webkit-scrollbar,
+.activity-list::-webkit-scrollbar {
+
+    width: 6px;
+}
+
+
+.file-list::-webkit-scrollbar-thumb,
+.source-list::-webkit-scrollbar-thumb,
+.activity-list::-webkit-scrollbar-thumb {
+
+    background:
+        rgba(255,255,255,0.08);
+
+    border-radius: 999px;
+}
+
+
+.file-card,
+.source-card {
+
+    padding: 8px;
+
+    margin-bottom: 6px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 10px;
+
+    background:
+        var(--panel-soft);
+}
+
+
+.source-type {
+
+    color:
+        var(--muted);
+
+    font-size: 8px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.08em;
+
+    margin-bottom: 4px;
+}
+
+
+.source-name {
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    overflow-wrap: anywhere;
+}
+
+
+.source-detail {
+
+    margin-top: 4px;
+
+    color:
+        var(--muted);
+
+    font-size: 9px;
+}
+
+
+.activity-event {
+
+    padding:
+        6px 0;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,0.05);
+
+    font-size: 9px;
+
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+
+.activity-time {
+
+    color:
+        var(--muted);
+
+    margin-right: 5px;
+}
+
+
+.empty {
+
+    color:
+        var(--muted);
+
+    font-size: 10px;
+
+    padding: 5px;
+}
+
+
+/* ============================================================
+   RESOLUCIONES DE ESCRITORIO MÁS PEQUEÑAS
+   MANTIENE SIEMPRE UNA SOLA VISTA
+============================================================ */
+
+@media (
+    max-width: 1250px
+) {
+
+    .main-grid {
+
+        grid-template-columns:
+            215px
+            minmax(400px,1fr)
+            280px;
+    }
+
+
+    .brand p {
+
+        max-width: 500px;
+    }
+}
+
+
+@media (
+    max-width: 1050px
+) {
+
+    .main-grid {
+
+        grid-template-columns:
+            190px
+            minmax(380px,1fr)
+            250px;
+    }
+
+
+    .avatar-scene {
+
+        transform:
+            scale(0.85);
+    }
+
+
+    .capabilities {
+
+        grid-template-columns:
+            1fr;
+    }
+}
+
+
+/*
+   En móviles sí permitimos una interfaz diferente,
+   pero en escritorio queda completamente fija.
+*/
+
+@media (
+    max-width: 760px
+) {
+
+    html,
+    body {
+
+        overflow:
+            auto;
+    }
+
+
+    .app {
+
+        height:
+            auto;
+
+        min-height:
+            100dvh;
+
+        overflow:
+            visible;
+
+        display:
+            flex;
+
+        flex-direction:
+            column;
+    }
+
+
+    .topbar {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .conversation-bar {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .main-grid {
+
+        display:
+            flex;
+
+        flex-direction:
+            column;
+
+        height:
+            auto;
+
+        overflow:
+            visible;
+    }
+
+
+    .avatar-panel {
+
+        height:
+            440px;
+    }
+
+
+    .chat-panel {
+
+        height:
+            650px;
+    }
+
+
+    .right-column {
+
+        height:
+            auto;
+
+        overflow:
+            visible;
+    }
+
+
+    .controls {
+
+        grid-template-columns:
+            1fr;
+    }
+}
+
+</style>
 
 </head>
 
 
 <body>
 
+
 <div class="app">
 
 
-    <div class="header">
+<!-- ============================================================
+     TOPBAR
+============================================================ -->
 
-        <div class="titulo">
+<div class="topbar">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            ◉
+        </div>
+
+
+        <div class="brand-text">
 
             <h1>
-                🎙️ Mi Agente IA
+                Mi Agente IA
             </h1>
 
             <p>
-                Voz Realtime · Historial · Memoria · RAG · Google Drive
+                Voz · Texto · Documentos · RAG · Memoria · Google Drive
             </p>
 
         </div>
 
+    </div>
 
-        <div class="estado-conexion">
 
-            <span
-                id="indicador"
-                class="indicador"
-            ></span>
+    <div class="status-pill">
 
-            <span id="estado">
-                Desconectado
+        <span
+            id="statusDot"
+            class="status-dot"
+        ></span>
+
+        <span id="estado">
+            Desconectado
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     SELECTOR DE CONVERSACIÓN
+============================================================ -->
+
+<div class="conversation-bar glass">
+
+    <select id="selectorConversacion">
+
+        <option value="">
+            Nueva conversación
+        </option>
+
+    </select>
+
+
+    <button
+        id="nuevaConversacion"
+        class="secondary"
+    >
+        ＋ Nueva conversación
+    </button>
+
+</div>
+
+
+<!-- ============================================================
+     GRID PRINCIPAL
+============================================================ -->
+
+<div class="main-grid">
+
+
+<!-- ============================================================
+     AVATAR
+============================================================ -->
+
+<div class="panel glass avatar-panel">
+
+
+    <div class="panel-title">
+        Agente
+    </div>
+
+
+    <div class="avatar-area">
+
+
+        <div class="avatar-scene">
+
+
+            <div class="ring"></div>
+
+
+            <div
+                id="halo"
+                class="halo"
+            ></div>
+
+
+            <div
+                id="avatar"
+                class="avatar"
+            >
+
+                <div class="face">
+
+
+                    <div class="eye left">
+
+                        <div class="eyelid"></div>
+
+                    </div>
+
+
+                    <div class="eye right">
+
+                        <div class="eyelid"></div>
+
+                    </div>
+
+
+                    <div class="mouth"></div>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div
+            id="avatarLabel"
+            class="avatar-label"
+        >
+            Esperando activación
+        </div>
+
+
+        <div
+            class="wave"
+        >
+
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+
+        </div>
+
+
+        <div
+            id="agentInfo"
+            class="agent-info"
+        >
+            Sistema disponible
+        </div>
+
+
+    </div>
+
+
+    <div class="capabilities">
+
+
+        <div class="cap">
+
+            🧠 Memoria<br>
+
+            <span>
+                ● Activa
             </span>
 
         </div>
 
+
+        <div class="cap">
+
+            📚 RAG<br>
+
+            <span>
+                ● Activo
+            </span>
+
+        </div>
+
+
+        <div class="cap">
+
+            ☁️ Drive<br>
+
+            <span>
+                ● Activo
+            </span>
+
+        </div>
+
+
+        <div class="cap">
+
+            💾 Historial<br>
+
+            <span>
+                ● Activo
+            </span>
+
+        </div>
+
+
     </div>
 
 
-    <!-- =====================================================
-         SELECTOR DE CONVERSACIÓN
-    ====================================================== -->
-
-    <div class="barra-conversacion">
-
-        <select id="selectorConversacion">
-
-            <option value="">
-                Nueva conversación
-            </option>
-
-        </select>
+</div>
 
 
-        <button
-            id="nuevaConversacion"
-            class="btn-nueva"
+<!-- ============================================================
+     CHAT
+============================================================ -->
+
+<div class="panel glass chat-panel">
+
+
+    <div class="panel-title">
+        Conversación
+    </div>
+
+
+    <div
+        id="chat"
+        class="chat"
+    >
+
+        <div class="empty">
+            Selecciona una conversación o inicia una nueva.
+        </div>
+
+    </div>
+
+
+    <div class="composer-wrap">
+
+
+        <div class="composer">
+
+
+            <button
+                id="adjuntar"
+                class="icon-button"
+                title="Adjuntar documento"
+            >
+                📎
+            </button>
+
+
+            <textarea
+                id="textoMensaje"
+                rows="1"
+                placeholder="Escribe un mensaje..."
+            ></textarea>
+
+
+            <button
+                id="enviarTexto"
+                class="primary"
+                title="Enviar mensaje"
+            >
+                ➤
+            </button>
+
+
+        </div>
+
+
+        <input
+            id="inputArchivo"
+            type="file"
+            accept=".pdf,.docx,.txt"
+            hidden
         >
-            ＋ Nueva conversación
-        </button>
-
-    </div>
 
 
-    <div class="grid">
+        <div class="controls">
 
 
-        <!-- =================================================
-             CHAT
-        ================================================== -->
-
-        <div class="panel">
-
-            <div class="panel-header">
-                💬 Conversación
-            </div>
-
-
-            <div
-                id="chat"
-                class="chat"
+            <button
+                id="conectar"
+                class="primary"
             >
-
-                <div class="sin-datos">
-                    Selecciona una conversación o inicia una nueva.
-                </div>
-
-            </div>
+                🎙 Iniciar agente
+            </button>
 
 
-            <div class="controles">
+            <button
+                id="desconectar"
+                class="danger"
+                disabled
+            >
+                ⏹ Finalizar
+            </button>
 
-                <button id="conectar">
-                    🎙️ Iniciar
-                </button>
 
-                <button
-                    id="desconectar"
-                    disabled
-                >
-                    ⏹ Finalizar
-                </button>
+            <button
+                id="limpiar"
+                class="secondary"
+            >
+                🧹 Limpiar
+            </button>
 
-                <button id="limpiar">
-                    🧹 Limpiar vista
-                </button>
-
-            </div>
 
         </div>
 
 
-        <!-- =================================================
-             DERECHA
-        ================================================== -->
-
-        <div>
+    </div>
 
 
-            <div
-                class="panel"
-                style="margin-bottom:20px;"
-            >
-
-                <div class="panel-header">
-                    ⚙️ Capacidades
-                </div>
+</div>
 
 
-                <div class="capacidades">
+<!-- ============================================================
+     DERECHA
+============================================================ -->
 
-                    <div class="capacidad">
-                        <strong>
-                            🧠 Memoria
-                        </strong>
-                        <span class="activo">
-                            ● Activa
-                        </span>
-                    </div>
+<div class="right-column">
 
 
-                    <div class="capacidad">
-                        <strong>
-                            📚 RAG
-                        </strong>
-                        <span class="activo">
-                            ● Activo
-                        </span>
-                    </div>
+<!-- DOCUMENTOS -->
+
+<div class="panel glass right-panel">
 
 
-                    <div class="capacidad">
-                        <strong>
-                            ☁️ Drive
-                        </strong>
-                        <span class="activo">
-                            ● Solo lectura
-                        </span>
-                    </div>
+    <div class="panel-title">
+        Documentos / RAG
+    </div>
 
 
-                    <div class="capacidad">
-                        <strong>
-                            💾 Historial
-                        </strong>
-                        <span class="activo">
-                            ● Compartido
-                        </span>
-                    </div>
+    <div
+        id="dropZone"
+        class="drop-zone"
+    >
+
+        <strong>
+            📄 Subir documento
+        </strong>
+
+        <small>
+            Clic o arrastra PDF · DOCX · TXT
+        </small>
+
+    </div>
 
 
-                    <div class="capacidad">
-                        <strong>
-                            🔄 Continuidad
-                        </strong>
-                        <span class="activo">
-                            ● Activa
-                        </span>
-                    </div>
+    <div
+        id="uploadStatus"
+        class="upload-status"
+    ></div>
 
 
-                    <div class="capacidad">
-                        <strong>
-                            🎙️ Realtime
-                        </strong>
-                        <span class="activo">
-                            ● Voz
-                        </span>
-                    </div>
-
-                </div>
-
-            </div>
+    <div
+        id="progress"
+        class="progress"
+    ></div>
 
 
-            <div
-                class="panel"
-                style="margin-bottom:20px;"
-            >
+    <div
+        id="fileList"
+        class="file-list"
+    >
 
-                <div class="panel-header">
-                    🔎 Fuentes utilizadas
-                </div>
-
-
-                <div
-                    id="fuentes"
-                    class="fuentes"
-                >
-
-                    <div class="sin-datos">
-                        Todavía no se han consultado fuentes.
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="panel">
-
-                <div class="panel-header">
-                    🛠 Actividad
-                </div>
-
-
-                <div
-                    id="actividad"
-                    class="actividad"
-                >
-
-                    <div class="evento">
-                        Sistema preparado.
-                    </div>
-
-                </div>
-
-            </div>
-
+        <div class="empty">
+            Cargando documentos...
         </div>
 
     </div>
+
+
+</div>
+
+
+<!-- FUENTES -->
+
+<div class="panel glass right-panel">
+
+
+    <div class="panel-title">
+        Fuentes utilizadas
+    </div>
+
+
+    <div
+        id="fuentes"
+        class="source-list"
+    >
+
+        <div class="empty">
+            Sin fuentes consultadas.
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ACTIVIDAD -->
+
+<div class="panel glass right-panel">
+
+
+    <div class="panel-title">
+        Actividad
+    </div>
+
+
+    <div
+        id="actividad"
+        class="activity-list"
+    >
+
+        <div class="activity-event">
+            Sistema preparado.
+        </div>
+
+    </div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
 
 </div>
 
@@ -956,19 +2333,41 @@
 // ============================================================
 
 let pc = null;
+
 let dc = null;
+
 let localStream = null;
+
 let audioRemoto = null;
+
+
+let audioContext = null;
+
+let analyser = null;
+
+let analyserData = null;
+
+let analyserFrame = null;
+
 
 let conversacionId = null;
 
 let historialSeleccionado = [];
 
+
 let transcripcionUsuario = "";
+
 let transcripcionAsistente = "";
 
+
 let mensajeUsuarioTemporal = null;
+
 let mensajeAsistenteTemporal = null;
+
+
+let archivoReciente = null;
+
+let conectando = false;
 
 
 // ============================================================
@@ -980,45 +2379,128 @@ const selectorConversacion =
         "selectorConversacion"
     );
 
+
 const botonNuevaConversacion =
     document.getElementById(
         "nuevaConversacion"
     );
+
 
 const botonConectar =
     document.getElementById(
         "conectar"
     );
 
+
 const botonDesconectar =
     document.getElementById(
         "desconectar"
     );
+
 
 const botonLimpiar =
     document.getElementById(
         "limpiar"
     );
 
+
+const botonEnviarTexto =
+    document.getElementById(
+        "enviarTexto"
+    );
+
+
+const textoMensaje =
+    document.getElementById(
+        "textoMensaje"
+    );
+
+
+const botonAdjuntar =
+    document.getElementById(
+        "adjuntar"
+    );
+
+
+const inputArchivo =
+    document.getElementById(
+        "inputArchivo"
+    );
+
+
+const dropZone =
+    document.getElementById(
+        "dropZone"
+    );
+
+
+const uploadStatus =
+    document.getElementById(
+        "uploadStatus"
+    );
+
+
+const progress =
+    document.getElementById(
+        "progress"
+    );
+
+
+const fileList =
+    document.getElementById(
+        "fileList"
+    );
+
+
 const estado =
     document.getElementById(
         "estado"
     );
 
-const indicador =
+
+const statusDot =
     document.getElementById(
-        "indicador"
+        "statusDot"
     );
+
+
+const avatar =
+    document.getElementById(
+        "avatar"
+    );
+
+
+const halo =
+    document.getElementById(
+        "halo"
+    );
+
+
+const avatarLabel =
+    document.getElementById(
+        "avatarLabel"
+    );
+
+
+const agentInfo =
+    document.getElementById(
+        "agentInfo"
+    );
+
+
+const waveBars =
+    Array.from(
+        document.querySelectorAll(
+            ".wave-bar"
+        )
+    );
+
 
 const chat =
     document.getElementById(
         "chat"
     );
 
-const actividad =
-    document.getElementById(
-        "actividad"
-    );
 
 const fuentes =
     document.getElementById(
@@ -1026,94 +2508,498 @@ const fuentes =
     );
 
 
+const actividad =
+    document.getElementById(
+        "actividad"
+    );
+
+
 // ============================================================
-// UI
+// ACTIVIDAD
 // ============================================================
 
 function registrarActividad(
-    mensaje
+    texto
 ) {
 
     const hora =
         new Date()
-            .toLocaleTimeString();
+        .toLocaleTimeString();
 
 
-    const evento =
+    const elemento =
         document.createElement(
             "div"
         );
 
 
-    evento.className =
-        "evento";
+    elemento.className =
+        "activity-event";
 
 
-    evento.innerHTML =
-        `<span class="hora">${hora}</span>${mensaje}`;
+    const horaSpan =
+        document.createElement(
+            "span"
+        );
+
+
+    horaSpan.className =
+        "activity-time";
+
+
+    horaSpan.textContent =
+        hora;
+
+
+    elemento.appendChild(
+        horaSpan
+    );
+
+
+    elemento.appendChild(
+        document.createTextNode(
+            texto
+        )
+    );
 
 
     actividad.prepend(
-        evento
+        elemento
     );
 }
 
 
-function cambiarEstado(
-    texto,
-    tipo=""
+// ============================================================
+// AVATAR
+// ============================================================
+
+function resetWave() {
+
+    waveBars.forEach(
+        barra => {
+
+            barra.style.height =
+                "6px";
+
+            barra.style.opacity =
+                "0.35";
+        }
+    );
+}
+
+
+function waveArtificial() {
+
+    waveBars.forEach(
+        barra => {
+
+            barra.style.height =
+                (
+                    8
+                    +
+                    Math.random()
+                    * 21
+                )
+                +
+                "px";
+
+
+            barra.style.opacity =
+                "0.8";
+        }
+    );
+}
+
+
+function estadoAvatar(
+    tipo
 ) {
 
-    estado.textContent =
-        texto;
+    avatar.classList.remove(
+        "speaking"
+    );
 
 
-    indicador.className =
-        "indicador";
+    statusDot.className =
+        "status-dot";
 
 
     if (
-        tipo ===
-        "conectado"
+        tipo === "idle"
     ) {
 
-        indicador.classList.add(
-            "estado-conectado"
-        );
+        estado.textContent =
+            "Desconectado";
+
+
+        avatarLabel.textContent =
+            "Esperando activación";
+
+
+        agentInfo.textContent =
+            "Sistema disponible";
+
+
+        halo.style.boxShadow =
+            "0 0 30px rgba(99,231,255,0.13)";
+
+
+        resetWave();
     }
 
 
     if (
-        tipo ===
-        "escuchando"
+        tipo === "connected"
     ) {
 
-        indicador.classList.add(
-            "estado-escuchando"
+        statusDot.classList.add(
+            "connected"
         );
+
+
+        estado.textContent =
+            "Conectado";
+
+
+        avatarLabel.textContent =
+            "Listo";
+
+
+        agentInfo.textContent =
+            "Sesión activa";
     }
 
 
     if (
-        tipo ===
-        "procesando"
+        tipo === "listening"
     ) {
 
-        indicador.classList.add(
-            "estado-procesando"
+        statusDot.classList.add(
+            "listening"
         );
+
+
+        estado.textContent =
+            "Escuchando";
+
+
+        avatarLabel.textContent =
+            "Te escucho";
+
+
+        agentInfo.textContent =
+            "Micrófono activo";
+
+
+        halo.style.boxShadow =
+            "0 0 42px rgba(255,211,92,0.28)";
     }
 
 
     if (
-        tipo ===
-        "error"
+        tipo === "processing"
     ) {
 
-        indicador.classList.add(
-            "estado-error"
+        statusDot.classList.add(
+            "processing"
+        );
+
+
+        estado.textContent =
+            "Procesando";
+
+
+        avatarLabel.textContent =
+            "Pensando...";
+
+
+        agentInfo.textContent =
+            "Analizando";
+
+
+        halo.style.boxShadow =
+            "0 0 42px rgba(92,157,255,0.30)";
+
+
+        waveArtificial();
+    }
+
+
+    if (
+        tipo === "speaking"
+    ) {
+
+        statusDot.classList.add(
+            "connected"
+        );
+
+
+        estado.textContent =
+            "Respondiendo";
+
+
+        avatarLabel.textContent =
+            "Hablando";
+
+
+        agentInfo.textContent =
+            "Respuesta en tiempo real";
+
+
+        avatar.classList.add(
+            "speaking"
+        );
+
+
+        halo.style.boxShadow =
+            "0 0 45px rgba(99,231,255,0.34)";
+
+
+        waveArtificial();
+    }
+
+
+    if (
+        tipo === "error"
+    ) {
+
+        statusDot.classList.add(
+            "error"
+        );
+
+
+        estado.textContent =
+            "Error";
+
+
+        avatarLabel.textContent =
+            "Problema detectado";
+
+
+        agentInfo.textContent =
+            "Revisa actividad";
+
+
+        halo.style.boxShadow =
+            "0 0 42px rgba(255,102,121,0.34)";
+
+
+        resetWave();
+    }
+}
+
+
+function parpadear() {
+
+    avatar.classList.remove(
+        "blink"
+    );
+
+
+    void avatar.offsetWidth;
+
+
+    avatar.classList.add(
+        "blink"
+    );
+
+
+    setTimeout(
+        () => {
+
+            avatar.classList.remove(
+                "blink"
+            );
+
+        },
+        250
+    );
+}
+
+
+setInterval(
+    () => {
+
+        if (
+            Math.random()
+            > 0.15
+        ) {
+
+            parpadear();
+        }
+
+    },
+    2800
+);
+
+
+// ============================================================
+// ANALIZADOR DEL MICRÓFONO
+// ============================================================
+
+function iniciarAnalizador() {
+
+    if (!localStream) {
+        return;
+    }
+
+
+    try {
+
+        audioContext =
+            new AudioContext();
+
+
+        analyser =
+            audioContext
+            .createAnalyser();
+
+
+        analyser.fftSize =
+            256;
+
+
+        analyserData =
+            new Uint8Array(
+                analyser.frequencyBinCount
+            );
+
+
+        const source =
+            audioContext
+            .createMediaStreamSource(
+                localStream
+            );
+
+
+        source.connect(
+            analyser
+        );
+
+
+        function actualizar() {
+
+            if (!analyser) {
+                return;
+            }
+
+
+            analyser.getByteFrequencyData(
+                analyserData
+            );
+
+
+            const paso =
+                Math.max(
+                    1,
+                    Math.floor(
+                        analyserData.length
+                        /
+                        waveBars.length
+                    )
+                );
+
+
+            waveBars.forEach(
+                (
+                    barra,
+                    indice
+                ) => {
+
+                    const valor =
+                        analyserData[
+                            indice
+                            *
+                            paso
+                        ]
+                        ||
+                        0;
+
+
+                    barra.style.height =
+                        (
+                            5
+                            +
+                            valor
+                            /
+                            255
+                            *
+                            26
+                        )
+                        +
+                        "px";
+
+
+                    barra.style.opacity =
+                        String(
+                            0.35
+                            +
+                            valor
+                            /
+                            255
+                            *
+                            0.65
+                        );
+                }
+            );
+
+
+            analyserFrame =
+                requestAnimationFrame(
+                    actualizar
+                );
+        }
+
+
+        actualizar();
+
+    }
+
+    catch(error) {
+
+        console.warn(
+            "Analizador de audio:",
+            error
         );
     }
+}
+
+
+function detenerAnalizador() {
+
+    if (
+        analyserFrame
+    ) {
+
+        cancelAnimationFrame(
+            analyserFrame
+        );
+
+
+        analyserFrame =
+            null;
+    }
+
+
+    analyser =
+        null;
+
+
+    if (
+        audioContext
+    ) {
+
+        audioContext
+            .close()
+            .catch(() => {});
+
+
+        audioContext =
+            null;
+    }
+
+
+    resetWave();
 }
 
 
@@ -1128,63 +3014,103 @@ function limpiarChat() {
 }
 
 
+function scrollChatAbajo() {
+
+    requestAnimationFrame(
+        () => {
+
+            chat.scrollTop =
+                chat.scrollHeight;
+        }
+    );
+}
+
+
 function crearMensaje(
-    rol,
+    role,
     texto,
     temporal=false
 ) {
 
-    const mensaje =
+    const elemento =
         document.createElement(
             "div"
         );
 
 
-    mensaje.className =
+    elemento.className =
         (
-            rol === "usuario"
+            role === "user"
             ?
-            "mensaje mensaje-usuario"
+            "message user"
             :
-            "mensaje mensaje-asistente"
+            "message assistant"
         );
 
 
-    if (temporal) {
+    if (
+        temporal
+    ) {
 
-        mensaje.classList.add(
-            "transcripcion-parcial"
+        elemento.classList.add(
+            "partial"
         );
     }
 
 
-    mensaje.innerHTML =
-        `
-        <span class="autor">
-            ${rol === "usuario" ? "Tú" : "Asistente"}
-        </span>
-        <span class="contenido"></span>
-        `;
+    const autor =
+        document.createElement(
+            "span"
+        );
 
 
-    mensaje
-        .querySelector(
-            ".contenido"
-        )
-        .textContent =
-            texto;
+    autor.className =
+        "message-author";
 
 
-    chat.appendChild(
-        mensaje
+    autor.textContent =
+        (
+            role === "user"
+            ?
+            "Tú"
+            :
+            "Agente"
+        );
+
+
+    const contenido =
+        document.createElement(
+            "span"
+        );
+
+
+    contenido.className =
+        "message-content";
+
+
+    contenido.textContent =
+        texto;
+
+
+    elemento.appendChild(
+        autor
     );
 
 
-    chat.scrollTop =
-        chat.scrollHeight;
+    elemento.appendChild(
+        contenido
+    );
 
 
-    return mensaje;
+    chat.appendChild(
+        elemento
+    );
+
+
+    scrollChatAbajo();
+
+
+    return elemento;
 }
 
 
@@ -1194,23 +3120,30 @@ function actualizarMensaje(
     temporal=true
 ) {
 
-    if (!elemento) {
+    if (
+        !elemento
+    ) {
+
         return;
     }
 
 
-    elemento
-        .querySelector(
-            ".contenido"
-        )
-        .textContent =
-            texto;
+    const contenido =
+        elemento.querySelector(
+            ".message-content"
+        );
 
 
-    if (temporal) {
+    contenido.textContent =
+        texto;
+
+
+    if (
+        temporal
+    ) {
 
         elemento.classList.add(
-            "transcripcion-parcial"
+            "partial"
         );
 
     }
@@ -1218,13 +3151,12 @@ function actualizarMensaje(
     else {
 
         elemento.classList.remove(
-            "transcripcion-parcial"
+            "partial"
         );
     }
 
 
-    chat.scrollTop =
-        chat.scrollHeight;
+    scrollChatAbajo();
 }
 
 
@@ -1236,6 +3168,10 @@ async function cargarListaConversaciones() {
 
     try {
 
+        const actual =
+            selectorConversacion.value;
+
+
         const respuesta =
             await fetch(
                 "/conversations"
@@ -1246,7 +3182,9 @@ async function cargarListaConversaciones() {
             await respuesta.json();
 
 
-        if (!respuesta.ok) {
+        if (
+            !respuesta.ok
+        ) {
 
             throw new Error(
                 JSON.stringify(
@@ -1257,65 +3195,89 @@ async function cargarListaConversaciones() {
 
 
         selectorConversacion.innerHTML =
-            `
-            <option value="">
-                Nueva conversación
-            </option>
-            `;
+            "";
 
 
-        const conversaciones =
-            datos.result || [];
+        const nueva =
+            document.createElement(
+                "option"
+            );
 
 
-        conversaciones.forEach(
-            conversacion => {
+        nueva.value =
+            "";
 
-                const option =
+
+        nueva.textContent =
+            "Nueva conversación";
+
+
+        selectorConversacion.appendChild(
+            nueva
+        );
+
+
+        (
+            datos.result
+            ||
+            []
+        )
+        .forEach(
+            item => {
+
+                const opcion =
                     document.createElement(
                         "option"
                     );
 
 
-                option.value =
-                    conversacion.id;
+                opcion.value =
+                    item.id;
 
 
-                option.textContent =
-                    conversacion.titulo
-                    ||
+                opcion.textContent =
                     (
-                        "Conversación "
-                        +
-                        conversacion.id
+                        item.titulo
+                        ||
+                        (
+                            "Conversación "
+                            +
+                            item.id
+                        )
                     );
 
 
                 selectorConversacion.appendChild(
-                    option
+                    opcion
                 );
             }
         );
 
 
+        if (
+            actual
+        ) {
+
+            selectorConversacion.value =
+                actual;
+        }
+
+
         registrarActividad(
-            "💬 Historial cargado: "
-            +
-            conversaciones.length
-            +
-            " conversaciones."
+            "💬 Historial sincronizado."
         );
 
     }
 
     catch(error) {
 
-        registrarActividad(
-            "⚠️ No se pudo cargar el historial."
-        );
-
         console.error(
             error
+        );
+
+
+        registrarActividad(
+            "⚠ Error cargando historial."
         );
     }
 }
@@ -1325,28 +3287,39 @@ async function cargarConversacion(
     id
 ) {
 
-    if (!id) {
+    if (
+        !id
+    ) {
 
         conversacionId =
             null;
 
+
         historialSeleccionado =
             [];
+
 
         limpiarChat();
 
 
-        chat.innerHTML =
-            `
-            <div class="sin-datos">
-                Se creará una nueva conversación al iniciar.
-            </div>
-            `;
+        const vacio =
+            document.createElement(
+                "div"
+            );
 
 
-        registrarActividad(
-            "＋ Nueva conversación seleccionada."
+        vacio.className =
+            "empty";
+
+
+        vacio.textContent =
+            "Se creará una nueva conversación al enviar un mensaje o iniciar voz.";
+
+
+        chat.appendChild(
+            vacio
         );
+
 
         return;
     }
@@ -1354,9 +3327,8 @@ async function cargarConversacion(
 
     try {
 
-        cambiarEstado(
-            "Cargando conversación...",
-            "procesando"
+        estadoAvatar(
+            "processing"
         );
 
 
@@ -1370,7 +3342,9 @@ async function cargarConversacion(
             await respuesta.json();
 
 
-        if (!respuesta.ok) {
+        if (
+            !respuesta.ok
+        ) {
 
             throw new Error(
                 JSON.stringify(
@@ -1381,77 +3355,60 @@ async function cargarConversacion(
 
 
         conversacionId =
-            Number(id);
+            Number(
+                id
+            );
 
 
         historialSeleccionado =
             datos.mensajes
-            || [];
+            ||
+            [];
 
 
         limpiarChat();
 
 
         historialSeleccionado.forEach(
-            mensaje => {
-
-                const rol =
-                    (
-                        mensaje.role ===
-                        "assistant"
-                    )
-                    ?
-                    "asistente"
-                    :
-                    "usuario";
-
+            item => {
 
                 crearMensaje(
-                    rol,
-                    mensaje.content,
+                    item.role,
+                    item.content,
                     false
                 );
             }
         );
 
 
-        registrarActividad(
-            "🔄 Conversación "
-            +
-            conversacionId
-            +
-            " cargada."
+        estadoAvatar(
+            "idle"
         );
 
 
         registrarActividad(
-            "💬 "
-            +
-            historialSeleccionado.length
-            +
-            " mensajes recuperados."
+            "🔄 Conversación cargada."
         );
 
 
-        cambiarEstado(
-            "Conversación cargada"
-        );
+        scrollChatAbajo();
 
     }
 
     catch(error) {
 
+        console.error(
+            error
+        );
+
+
         registrarActividad(
             "❌ Error cargando conversación."
         );
 
-        cambiarEstado(
-            "Error",
-            "error"
-        );
 
-        console.error(
-            error
+        estadoAvatar(
+            "error"
         );
     }
 }
@@ -1473,7 +3430,9 @@ async function crearConversacionPersistente() {
         await respuesta.json();
 
 
-    if (!respuesta.ok) {
+    if (
+        !respuesta.ok
+    ) {
 
         throw new Error(
             JSON.stringify(
@@ -1491,13 +3450,6 @@ async function crearConversacionPersistente() {
         [];
 
 
-    registrarActividad(
-        "💾 Nueva conversación: "
-        +
-        conversacionId
-    );
-
-
     await cargarListaConversaciones();
 
 
@@ -1505,6 +3457,11 @@ async function crearConversacionPersistente() {
         String(
             conversacionId
         );
+
+
+    registrarActividad(
+        "💾 Nueva conversación creada."
+    );
 }
 
 
@@ -1513,7 +3470,10 @@ async function guardarMensajePersistente(
     content
 ) {
 
-    if (!conversacionId) {
+    if (
+        !conversacionId
+    ) {
+
         return;
     }
 
@@ -1521,45 +3481,180 @@ async function guardarMensajePersistente(
     const texto =
         (
             content
-            || ""
-        )
-        .trim();
+            ||
+            ""
+        ).trim();
 
 
-    if (!texto) {
+    if (
+        !texto
+    ) {
+
         return;
     }
 
+
+    const respuesta =
+        await fetch(
+            "/conversation/message",
+            {
+
+                method:
+                    "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+
+                        conversacion_id:
+                            conversacionId,
+
+                        role:
+                            role,
+
+                        content:
+                            texto
+                    })
+            }
+        );
+
+
+    if (
+        !respuesta.ok
+    ) {
+
+        const datos =
+            await respuesta.json();
+
+
+        console.error(
+            datos
+        );
+
+
+        return;
+    }
+
+
+    historialSeleccionado.push({
+
+        role:
+            role,
+
+        content:
+            texto
+    });
+}
+
+
+// ============================================================
+// CONTEXTO
+// ============================================================
+
+function construirContextoHistorial() {
+
+    if (
+        !historialSeleccionado
+        ||
+        historialSeleccionado.length
+        === 0
+    ) {
+
+        return "";
+    }
+
+
+    const mensajes =
+        historialSeleccionado
+        .slice(
+            -20
+        );
+
+
+    let resultado =
+        "";
+
+
+    for (
+        const mensaje
+        of mensajes
+    ) {
+
+        resultado +=
+            (
+                mensaje.role
+                === "assistant"
+                ?
+                "ASISTENTE"
+                :
+                "USUARIO"
+            )
+            +
+            ": "
+            +
+            mensaje.content
+            +
+            "\n\n";
+    }
+
+
+    if (
+        resultado.length
+        >
+        12000
+    ) {
+
+        resultado =
+            resultado.slice(
+                -12000
+            );
+    }
+
+
+    return resultado;
+}
+
+
+// ============================================================
+// UPLOAD
+// ============================================================
+
+function mostrarEstadoUpload(
+    texto,
+    tipo=""
+) {
+
+    uploadStatus.className =
+        "upload-status visible";
+
+
+    if (
+        tipo
+    ) {
+
+        uploadStatus.classList.add(
+            tipo
+        );
+    }
+
+
+    uploadStatus.textContent =
+        texto;
+}
+
+
+async function cargarArchivosRag() {
 
     try {
 
         const respuesta =
             await fetch(
-                "/conversation/message",
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            conversacion_id:
-                                conversacionId,
-
-                            role:
-                                role,
-
-                            content:
-                                texto
-                        })
-                }
+                "/rag/files"
             );
 
 
@@ -1567,28 +3662,122 @@ async function guardarMensajePersistente(
             await respuesta.json();
 
 
-        if (!respuesta.ok) {
+        if (
+            !respuesta.ok
+        ) {
 
-            console.error(
-                datos
+            throw new Error(
+                datos.error
+                ||
+                "Error"
             );
+        }
+
+
+        fileList.innerHTML =
+            "";
+
+
+        const archivos =
+            datos.result
+            ||
+            [];
+
+
+        if (
+            archivos.length
+            === 0
+        ) {
+
+            const vacio =
+                document.createElement(
+                    "div"
+                );
+
+
+            vacio.className =
+                "empty";
+
+
+            vacio.textContent =
+                "No hay documentos indexados.";
+
+
+            fileList.appendChild(
+                vacio
+            );
+
 
             return;
         }
 
 
-        historialSeleccionado.push({
+        archivos
+        .slice(
+            -40
+        )
+        .reverse()
+        .forEach(
+            item => {
 
-            role:
-                role,
-
-            content:
-                texto
-        });
+                const card =
+                    document.createElement(
+                        "div"
+                    );
 
 
-        registrarActividad(
-            "💾 Mensaje guardado."
+                card.className =
+                    "file-card";
+
+
+                const nombre =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                nombre.className =
+                    "source-name";
+
+
+                nombre.textContent =
+                    item.archivo;
+
+
+                const detalle =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                detalle.className =
+                    "source-detail";
+
+
+                detalle.textContent =
+                    (
+                        item.fragmentos
+                        +
+                        " fragmentos · "
+                        +
+                        item.origen
+                    );
+
+
+                card.appendChild(
+                    nombre
+                );
+
+
+                card.appendChild(
+                    detalle
+                );
+
+
+                fileList.appendChild(
+                    card
+                );
+            }
         );
 
     }
@@ -1600,86 +3789,305 @@ async function guardarMensajePersistente(
         );
 
 
-        registrarActividad(
-            "⚠️ Error guardando mensaje."
+        fileList.innerHTML =
+            "";
+
+
+        const vacio =
+            document.createElement(
+                "div"
+            );
+
+
+        vacio.className =
+            "empty";
+
+
+        vacio.textContent =
+            "No fue posible cargar documentos.";
+
+
+        fileList.appendChild(
+            vacio
         );
     }
 }
 
 
-// ============================================================
-// CONTEXTO DE CONTINUIDAD
-// ============================================================
-
-function construirContextoHistorial() {
+async function subirArchivo(
+    archivo
+) {
 
     if (
-        !historialSeleccionado
-        ||
-        historialSeleccionado.length === 0
+        !archivo
     ) {
 
-        return "";
+        return;
     }
 
 
-    /*
-        Limitamos a los últimos 20 mensajes
-        y aproximadamente 12.000 caracteres
-        para no llenar innecesariamente
-        las instrucciones de sesión.
-    */
-
-    const ultimos =
-        historialSeleccionado
-        .slice(-20);
+    const nombre =
+        archivo.name
+        .toLowerCase();
 
 
-    let contexto =
-        "";
+    const permitido =
+        (
+            nombre.endsWith(
+                ".pdf"
+            )
+            ||
+            nombre.endsWith(
+                ".docx"
+            )
+            ||
+            nombre.endsWith(
+                ".txt"
+            )
+        );
 
 
-    for (
-        const mensaje
-        of ultimos
+    if (
+        !permitido
     ) {
 
-        const role =
+        mostrarEstadoUpload(
+            "Formato no admitido. Usa PDF, DOCX o TXT.",
+            "error"
+        );
+
+
+        registrarActividad(
+            "⚠ Formato de archivo no admitido."
+        );
+
+
+        return;
+    }
+
+
+    if (
+        archivo.size
+        >
+        25
+        *
+        1024
+        *
+        1024
+    ) {
+
+        mostrarEstadoUpload(
+            "El archivo supera los 25 MB.",
+            "error"
+        );
+
+
+        return;
+    }
+
+
+    progress.classList.add(
+        "active"
+    );
+
+
+    mostrarEstadoUpload(
+        "1/4 Subiendo archivo..."
+    );
+
+
+    estadoAvatar(
+        "processing"
+    );
+
+
+    registrarActividad(
+        "📎 Indexando "
+        +
+        archivo.name
+        +
+        "..."
+    );
+
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        "file",
+        archivo,
+        archivo.name
+    );
+
+
+    try {
+
+        mostrarEstadoUpload(
+            "2/4 Extrayendo contenido..."
+        );
+
+
+        const respuesta =
+            await fetch(
+                "/upload-rag",
+                {
+
+                    method:
+                        "POST",
+
+                    body:
+                        formData
+                }
+            );
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (
+            !respuesta.ok
+        ) {
+
+            throw new Error(
+                (
+                    datos.etapa
+                    ?
+                    "["
+                    +
+                    datos.etapa
+                    +
+                    "] "
+                    :
+                    ""
+                )
+                +
+                (
+                    datos.error
+                    ||
+                    "Error subiendo documento."
+                )
+            );
+        }
+
+
+        mostrarEstadoUpload(
+            "3/4 Indexando en RAG..."
+        );
+
+
+        archivoReciente =
+            datos.archivo;
+
+
+        await cargarArchivosRag();
+
+
+        agregarFuente(
+            "Archivo local",
+            datos.archivo,
             (
-                mensaje.role ===
-                "assistant"
+                datos.duplicado
+                ?
+                "Ya estaba indexado"
+                :
+                (
+                    datos.fragmentos_agregados
+                    +
+                    " fragmentos"
+                )
+            )
+        );
+
+
+        if (
+            dc
+            &&
+            dc.readyState
+            === "open"
+        ) {
+
+            configurarSesion();
+        }
+
+
+        mostrarEstadoUpload(
+            "4/4 Listo · "
+            +
+            datos.archivo,
+            "success"
+        );
+
+
+        registrarActividad(
+            datos.duplicado
+            ?
+            "✅ Documento ya estaba indexado."
+            :
+            (
+                "✅ Documento indexado: "
+                +
+                datos.fragmentos_agregados
+                +
+                " fragmentos."
+            )
+        );
+
+
+        estadoAvatar(
+            (
+                dc
+                &&
+                dc.readyState
+                === "open"
             )
             ?
-            "ASISTENTE"
+            "connected"
             :
-            "USUARIO";
+            "idle"
+        );
 
-
-        contexto +=
-            role
-            +
-            ": "
-            +
-            mensaje.content
-            +
-            "\n\n";
     }
 
+    catch(error) {
 
-    if (
-        contexto.length
-        > 12000
-    ) {
+        console.error(
+            error
+        );
 
-        contexto =
-            contexto.slice(
-                contexto.length
-                - 12000
-            );
+
+        mostrarEstadoUpload(
+            "Error: "
+            +
+            error.message,
+            "error"
+        );
+
+
+        registrarActividad(
+            "❌ "
+            +
+            error.message
+        );
+
+
+        estadoAvatar(
+            "error"
+        );
+
     }
 
+    finally {
 
-    return contexto;
+        progress.classList.remove(
+            "active"
+        );
+
+
+        inputArchivo.value =
+            "";
+    }
 }
 
 
@@ -1687,168 +4095,202 @@ function construirContextoHistorial() {
 // FUENTES
 // ============================================================
 
-function limpiarPlaceholderFuentes() {
-
-    const placeholder =
-        fuentes.querySelector(
-            ".sin-datos"
-        );
-
-
-    if (placeholder) {
-
-        placeholder.remove();
-    }
-}
-
-
 function agregarFuente(
     tipo,
     nombre,
     detalle=""
 ) {
 
-    limpiarPlaceholderFuentes();
+    const vacio =
+        fuentes.querySelector(
+            ".empty"
+        );
 
 
-    const tarjeta =
+    if (
+        vacio
+    ) {
+
+        vacio.remove();
+    }
+
+
+    const card =
         document.createElement(
             "div"
         );
 
 
-    tarjeta.className =
-        "fuente";
+    card.className =
+        "source-card";
 
 
-    tarjeta.innerHTML =
-        `
-        <div class="fuente-tipo"></div>
-        <div class="fuente-nombre"></div>
-        <div class="fuente-detalle"></div>
-        `;
+    const tipoElement =
+        document.createElement(
+            "div"
+        );
 
 
-    tarjeta
-        .querySelector(
-            ".fuente-tipo"
-        )
-        .textContent =
-            tipo;
+    tipoElement.className =
+        "source-type";
 
 
-    tarjeta
-        .querySelector(
-            ".fuente-nombre"
-        )
-        .textContent =
-            nombre;
+    tipoElement.textContent =
+        tipo;
 
 
-    tarjeta
-        .querySelector(
-            ".fuente-detalle"
-        )
-        .textContent =
-            detalle;
+    const nombreElement =
+        document.createElement(
+            "div"
+        );
+
+
+    nombreElement.className =
+        "source-name";
+
+
+    nombreElement.textContent =
+        nombre;
+
+
+    const detalleElement =
+        document.createElement(
+            "div"
+        );
+
+
+    detalleElement.className =
+        "source-detail";
+
+
+    detalleElement.textContent =
+        detalle;
+
+
+    card.appendChild(
+        tipoElement
+    );
+
+
+    card.appendChild(
+        nombreElement
+    );
+
+
+    card.appendChild(
+        detalleElement
+    );
 
 
     fuentes.prepend(
-        tarjeta
+        card
     );
 }
 
 
 function mostrarFuentesTool(
-    nombreTool,
+    nombre,
     resultado
 ) {
 
-    if (!resultado) {
+    if (
+        !resultado
+    ) {
+
         return;
     }
 
 
     if (
-        nombreTool ===
-        "buscar_drive"
-        ||
-        nombreTool ===
-        "listar_drive"
-    ) {
-
-        const archivos =
-            resultado.result
-            || [];
-
-
-        archivos
-            .slice(0, 8)
-            .forEach(
-                archivo => {
-
-                    agregarFuente(
-                        "Google Drive",
-                        archivo.nombre
-                            || "Archivo",
-                        archivo.tipo
-                            || ""
-                    );
-                }
-            );
-    }
-
-
-    if (
-        nombreTool ===
+        nombre
+        ===
         "buscar_documentos"
     ) {
 
-        const fragmentos =
+        (
             resultado.result
-            || [];
+            ||
+            []
+        )
+        .slice(
+            0,
+            6
+        )
+        .forEach(
+            item => {
 
-
-        fragmentos
-            .slice(0, 6)
-            .forEach(
-                item => {
-
-                    let detalle =
-                        "Fragmento";
-
-
-                    if (
+                agregarFuente(
+                    "RAG",
+                    item.archivo
+                    ||
+                    "Documento",
+                    (
                         typeof item.similitud
-                        === "number"
-                    ) {
-
-                        detalle =
-                            "Relevancia: "
+                        ===
+                        "number"
+                        ?
+                        (
+                            "Relevancia "
                             +
                             (
                                 item.similitud
-                                * 100
+                                *
+                                100
                             )
-                            .toFixed(1)
+                            .toFixed(
+                                1
+                            )
                             +
-                            "%";
-                    }
-
-
-                    agregarFuente(
-                        "RAG",
-                        item.archivo
-                            || "Documento",
-                        detalle
-                    );
-                }
-            );
+                            "%"
+                        )
+                        :
+                        "Documento"
+                    )
+                );
+            }
+        );
     }
 
 
     if (
-        nombreTool ===
+        nombre
+        ===
+        "buscar_drive"
+        ||
+        nombre
+        ===
+        "listar_drive"
+    ) {
+
+        (
+            resultado.result
+            ||
+            []
+        )
+        .slice(
+            0,
+            6
+        )
+        .forEach(
+            item => {
+
+                agregarFuente(
+                    "Google Drive",
+                    item.nombre
+                    ||
+                    "Archivo",
+                    item.tipo
+                    ||
+                    ""
+                );
+            }
+        );
+    }
+
+
+    if (
+        nombre
+        ===
         "analizar_archivo_drive"
     ) {
 
@@ -1859,72 +4301,86 @@ function mostrarFuentesTool(
             agregarFuente(
                 "Drive → RAG",
                 resultado
-                    .archivo
-                    .nombre
-                    || "Archivo",
-                "Archivo analizado"
+                .archivo
+                .nombre
+                ||
+                "Documento",
+                "Documento analizado"
             );
         }
     }
 
 
     if (
-        nombreTool ===
+        nombre
+        ===
         "buscar_memoria"
         ||
-        nombreTool ===
+        nombre
+        ===
         "ver_memorias"
     ) {
 
-        const memorias =
+        (
             resultado.result
-            || [];
+            ||
+            []
+        )
+        .slice(
+            0,
+            5
+        )
+        .forEach(
+            item => {
 
-
-        memorias
-            .slice(0, 5)
-            .forEach(
-                memoria => {
-
-                    agregarFuente(
-                        "Memoria",
-                        memoria.clave
-                            || "Recuerdo",
-                        memoria.categoria
-                            || ""
-                    );
-                }
-            );
+                agregarFuente(
+                    "Memoria",
+                    item.clave
+                    ||
+                    "Recuerdo",
+                    item.categoria
+                    ||
+                    ""
+                );
+            }
+        );
     }
 }
 
 
 // ============================================================
-// TOOLS
+// TOOLS REALTIME
 // ============================================================
 
 const TOOLS = [
 
     {
-        type: "function",
-        name: "buscar_memoria",
+        type:
+            "function",
+
+        name:
+            "buscar_memoria",
 
         description:
-            "Busca información guardada en la memoria persistente del usuario.",
+            "Busca información guardada en memoria persistente.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 consulta: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 limite: {
-                    type: "integer",
-                    default: 10
+                    type:
+                        "integer",
+                    default:
+                        10
                 }
             },
 
@@ -1936,35 +4392,46 @@ const TOOLS = [
 
 
     {
-        type: "function",
-        name: "recordar",
+        type:
+            "function",
+
+        name:
+            "recordar",
 
         description:
-            "Guarda información importante en memoria persistente.",
+            "Guarda información importante para futuras conversaciones.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 categoria: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 clave: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 contenido: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 importancia: {
-                    type: "integer",
-                    minimum: 1,
-                    maximum: 5,
-                    default: 3
+                    type:
+                        "integer",
+                    minimum:
+                        1,
+                    maximum:
+                        5,
+                    default:
+                        3
                 }
             },
 
@@ -1978,25 +4445,32 @@ const TOOLS = [
 
 
     {
-        type: "function",
-        name: "ver_memorias",
+        type:
+            "function",
+
+        name:
+            "ver_memorias",
 
         description:
             "Lista memorias persistentes activas.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 categoria: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 limite: {
-                    type: "integer",
-                    default: 20
+                    type:
+                        "integer",
+                    default:
+                        20
                 }
             }
         }
@@ -2004,27 +4478,41 @@ const TOOLS = [
 
 
     {
-        type: "function",
-        name: "buscar_documentos",
+        type:
+            "function",
+
+        name:
+            "buscar_documentos",
 
         description:
-            "Busca información dentro de documentos indexados mediante RAG.",
+            "Busca información dentro de documentos indexados mediante RAG. Si el usuario se refiere al último archivo subido, usa archivo con el nombre exacto.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 consulta: {
-                    type: "string"
+                    type:
+                        "string"
+                },
+
+                archivo: {
+                    type:
+                        "string"
                 },
 
                 limite: {
-                    type: "integer",
-                    minimum: 1,
-                    maximum: 8,
-                    default: 5
+                    type:
+                        "integer",
+                    minimum:
+                        1,
+                    maximum:
+                        8,
+                    default:
+                        5
                 }
             },
 
@@ -2036,27 +4524,32 @@ const TOOLS = [
 
 
     {
-        type: "function",
-        name: "buscar_drive",
+        type:
+            "function",
+
+        name:
+            "buscar_drive",
 
         description:
-            "Busca archivos en Google Drive por nombre.",
+            "Busca archivos de Google Drive por nombre.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 consulta: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 limite: {
-                    type: "integer",
-                    minimum: 1,
-                    maximum: 50,
-                    default: 10
+                    type:
+                        "integer",
+                    default:
+                        10
                 }
             },
 
@@ -2068,23 +4561,27 @@ const TOOLS = [
 
 
     {
-        type: "function",
-        name: "listar_drive",
+        type:
+            "function",
+
+        name:
+            "listar_drive",
 
         description:
             "Lista archivos recientes de Google Drive.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 limite: {
-                    type: "integer",
-                    minimum: 1,
-                    maximum: 50,
-                    default: 10
+                    type:
+                        "integer",
+                    default:
+                        10
                 }
             }
         }
@@ -2092,20 +4589,25 @@ const TOOLS = [
 
 
     {
-        type: "function",
-        name: "obtener_archivo_drive",
+        type:
+            "function",
+
+        name:
+            "obtener_archivo_drive",
 
         description:
-            "Obtiene metadatos de un archivo de Google Drive.",
+            "Obtiene metadatos de un archivo específico de Google Drive.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 file_id: {
-                    type: "string"
+                    type:
+                        "string"
                 }
             },
 
@@ -2117,24 +4619,30 @@ const TOOLS = [
 
 
     {
-        type: "function",
-        name: "indexar_drive",
+        type:
+            "function",
+
+        name:
+            "indexar_drive",
 
         description:
-            "Indexa un archivo de Drive cuando el usuario lo solicita expresamente.",
+            "Indexa un archivo específico de Google Drive cuando el usuario lo autoriza expresamente.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 file_id: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 usuario_autorizo_indexacion: {
-                    type: "boolean"
+                    type:
+                        "boolean"
                 }
             },
 
@@ -2147,35 +4655,42 @@ const TOOLS = [
 
 
     {
-        type: "function",
-        name: "analizar_archivo_drive",
+        type:
+            "function",
+
+        name:
+            "analizar_archivo_drive",
 
         description:
-            "Busca, indexa y analiza un archivo de Google Drive cuando el usuario pide explícitamente revisar su contenido.",
+            "Busca, indexa y analiza un archivo de Google Drive cuando el usuario solicita expresamente analizar su contenido.",
 
         parameters: {
 
-            type: "object",
+            type:
+                "object",
 
             properties: {
 
                 consulta_archivo: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 pregunta: {
-                    type: "string"
+                    type:
+                        "string"
                 },
 
                 usuario_autorizo_indexacion: {
-                    type: "boolean"
+                    type:
+                        "boolean"
                 },
 
                 limite: {
-                    type: "integer",
-                    minimum: 1,
-                    maximum: 8,
-                    default: 5
+                    type:
+                        "integer",
+                    default:
+                        5
                 }
             },
 
@@ -2191,7 +4706,7 @@ const TOOLS = [
 
 
 // ============================================================
-// CONFIGURAR SESIÓN
+// CONFIGURACIÓN REALTIME
 // ============================================================
 
 function configurarSesion() {
@@ -2199,7 +4714,8 @@ function configurarSesion() {
     if (
         !dc
         ||
-        dc.readyState !==
+        dc.readyState
+        !==
         "open"
     ) {
 
@@ -2212,128 +4728,111 @@ function configurarSesion() {
 
 
     let instrucciones =
-        "Eres un asistente personal profesional que conversa por voz en español. " +
+        "Eres un asistente personal profesional multimodal. " +
 
-        "Responde de manera clara, natural, precisa y concisa. " +
+        "Habla normalmente en español. " +
 
-        "MEMORIA: si el usuario pide guardar algo para futuras conversaciones, usa recordar. " +
+        "Puedes recibir voz y texto dentro de la misma conversación. " +
 
-        "Si pregunta qué recuerdas, usa buscar_memoria. " +
+        "Responde de forma clara, natural y precisa. " +
 
-        "RAG: si pregunta por documentos ya indexados, usa buscar_documentos. " +
+        "Si el usuario solicita recordar algo para futuras conversaciones, usa recordar. " +
 
-        "DRIVE: si solo quiere localizar archivos, usa buscar_drive. " +
+        "Si pregunta por recuerdos anteriores, usa buscar_memoria. " +
 
-        "Si solicita explícitamente analizar el contenido de un archivo de Drive, usa analizar_archivo_drive y establece usuario_autorizo_indexacion en true. " +
+        "Si pregunta por documentos indexados, usa buscar_documentos. " +
 
-        "No elijas arbitrariamente entre archivos similares. " +
+        "Si acaba de subir un archivo y dice 'este documento', 'este archivo' o equivalente, busca específicamente dentro de ese archivo. " +
 
-        "Google Drive es solo lectura. " +
+        "Para localizar archivos de Google Drive usa buscar_drive. " +
+
+        "Para analizar contenido de Drive usa analizar_archivo_drive cuando el usuario lo solicite expresamente. " +
 
         "No inventes resultados de memoria, RAG ni Drive. " +
 
-        "No almacenes contraseñas, claves API, tokens ni credenciales. ";
+        "Google Drive está configurado solo lectura. ";
 
 
-    if (historial) {
+    if (
+        archivoReciente
+    ) {
 
         instrucciones +=
-            "\n\nCONTEXTO DE LA CONVERSACIÓN ANTERIOR:\n" +
+            "\n\nARCHIVO RECIÉN SUBIDO:\n"
+            +
+            "El último documento subido se llama exactamente: "
+            +
+            archivoReciente
+            +
+            ". Si el usuario se refiere a este documento, usa buscar_documentos con archivo='"
+            +
+            archivoReciente
+            +
+            "'.";
+    }
 
-            "La siguiente transcripción corresponde a la conversación que el usuario ha decidido continuar. " +
 
-            "Úsala como contexto de continuidad. No la repitas salvo que sea necesario.\n\n" +
+    if (
+        historial
+    ) {
 
+        instrucciones +=
+            "\n\nCONTEXTO DE LA CONVERSACIÓN ANTERIOR:\n"
+            +
             historial;
     }
 
 
-    const evento = {
-
-        type:
-            "session.update",
-
-        session: {
+    dc.send(
+        JSON.stringify({
 
             type:
-                "realtime",
+                "session.update",
 
-            tools:
-                TOOLS,
+            session: {
 
-            tool_choice:
-                "auto",
+                type:
+                    "realtime",
 
-            audio: {
+                tools:
+                    TOOLS,
 
-                input: {
+                tool_choice:
+                    "auto",
 
-                    transcription: {
+                audio: {
 
-                        model:
-                            "gpt-4o-mini-transcribe",
+                    input: {
 
-                        language:
-                            "es"
+                        transcription: {
+
+                            model:
+                                "gpt-4o-mini-transcribe",
+
+                            language:
+                                "es"
+                        }
                     }
-                }
-            },
+                },
 
-            instructions:
-                instrucciones
-        }
-    };
-
-
-    dc.send(
-        JSON.stringify(
-            evento
-        )
+                instructions:
+                    instrucciones
+            }
+        })
     );
-
-
-    registrarActividad(
-        "🛠 Herramientas activadas."
-    );
-
-
-    if (historial) {
-
-        registrarActividad(
-            "🔄 Contexto anterior enviado a Realtime."
-        );
-
-    }
-
-    else {
-
-        registrarActividad(
-            "✨ Sesión sin contexto previo."
-        );
-    }
 }
 
 
 // ============================================================
-// EJECUTAR TOOL
+// TOOL EXECUTION
 // ============================================================
 
 async function ejecutarTool(
     functionCall
 ) {
 
-    const nombre =
-        functionCall.name;
-
-
-    registrarActividad(
-        "🛠 "
-        +
-        nombre
-    );
-
-
-    let argumentos = {};
+    let argumentos =
+        {};
 
 
     try {
@@ -2341,7 +4840,8 @@ async function ejecutarTool(
         argumentos =
             JSON.parse(
                 functionCall.arguments
-                || "{}"
+                ||
+                "{}"
             );
 
     }
@@ -2356,13 +4856,15 @@ async function ejecutarTool(
     }
 
 
-    cambiarEstado(
-        "Usando "
+    estadoAvatar(
+        "processing"
+    );
+
+
+    registrarActividad(
+        "🛠 "
         +
-        nombre
-        +
-        "...",
-        "procesando"
+        functionCall.name
     );
 
 
@@ -2386,7 +4888,7 @@ async function ejecutarTool(
                         JSON.stringify({
 
                             name:
-                                nombre,
+                                functionCall.name,
 
                             arguments:
                                 argumentos
@@ -2399,9 +4901,13 @@ async function ejecutarTool(
             await respuesta.json();
 
 
-        if (!respuesta.ok) {
+        if (
+            !respuesta.ok
+        ) {
 
             throw new Error(
+                resultado.error
+                ||
                 JSON.stringify(
                     resultado
                 )
@@ -2409,17 +4915,8 @@ async function ejecutarTool(
         }
 
 
-        registrarActividad(
-            "✅ "
-            +
-            nombre
-            +
-            " completada."
-        );
-
-
         mostrarFuentesTool(
-            nombre,
+            functionCall.name,
             resultado
         );
 
@@ -2456,9 +4953,8 @@ async function ejecutarTool(
         );
 
 
-        cambiarEstado(
-            "Generando respuesta...",
-            "procesando"
+        registrarActividad(
+            "✅ Herramienta completada."
         );
 
     }
@@ -2468,16 +4964,11 @@ async function ejecutarTool(
         registrarActividad(
             "❌ "
             +
-            nombre
-            +
-            ": "
-            +
             error.message
         );
 
 
-        cambiarEstado(
-            "Error",
+        estadoAvatar(
             "error"
         );
     }
@@ -2489,40 +4980,29 @@ async function ejecutarTool(
 // ============================================================
 
 async function procesarEvento(
-    eventoAPI
+    evento
 ) {
 
-
     if (
-        eventoAPI.type ===
-        "session.created"
-    ) {
-
-        registrarActividad(
-            "Sesión Realtime creada."
-        );
-    }
-
-
-    if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "session.updated"
     ) {
 
-        registrarActividad(
-            "✅ Sesión configurada."
+        estadoAvatar(
+            "connected"
         );
     }
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "input_audio_buffer.speech_started"
     ) {
 
-        cambiarEstado(
-            "Escuchando...",
-            "escuchando"
+        estadoAvatar(
+            "listening"
         );
 
 
@@ -2532,7 +5012,7 @@ async function procesarEvento(
 
         mensajeUsuarioTemporal =
             crearMensaje(
-                "usuario",
+                "user",
                 "Escuchando...",
                 true
             );
@@ -2540,25 +5020,27 @@ async function procesarEvento(
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "input_audio_buffer.speech_stopped"
     ) {
 
-        cambiarEstado(
-            "Procesando...",
-            "procesando"
+        estadoAvatar(
+            "processing"
         );
     }
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "conversation.item.input_audio_transcription.delta"
     ) {
 
         transcripcionUsuario +=
-            eventoAPI.delta
-            || "";
+            evento.delta
+            ||
+            "";
 
 
         actualizarMensaje(
@@ -2570,12 +5052,13 @@ async function procesarEvento(
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "conversation.item.input_audio_transcription.completed"
     ) {
 
         const texto =
-            eventoAPI.transcript
+            evento.transcript
             ||
             transcripcionUsuario;
 
@@ -2599,11 +5082,17 @@ async function procesarEvento(
 
         transcripcionUsuario =
             "";
+
+
+        estadoAvatar(
+            "processing"
+        );
     }
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "response.output_audio_transcript.delta"
     ) {
 
@@ -2617,7 +5106,7 @@ async function procesarEvento(
 
             mensajeAsistenteTemporal =
                 crearMensaje(
-                    "asistente",
+                    "assistant",
                     "",
                     true
                 );
@@ -2625,8 +5114,9 @@ async function procesarEvento(
 
 
         transcripcionAsistente +=
-            eventoAPI.delta
-            || "";
+            evento.delta
+            ||
+            "";
 
 
         actualizarMensaje(
@@ -2634,16 +5124,22 @@ async function procesarEvento(
             transcripcionAsistente,
             true
         );
+
+
+        estadoAvatar(
+            "speaking"
+        );
     }
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "response.output_audio_transcript.done"
     ) {
 
         const texto =
-            eventoAPI.transcript
+            evento.transcript
             ||
             transcripcionAsistente;
 
@@ -2667,22 +5163,29 @@ async function procesarEvento(
 
         transcripcionAsistente =
             "";
+
+
+        estadoAvatar(
+            "listening"
+        );
     }
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "response.output_item.done"
     ) {
 
         const item =
-            eventoAPI.item;
+            evento.item;
 
 
         if (
             item
             &&
-            item.type ===
+            item.type
+            ===
             "function_call"
         ) {
 
@@ -2690,42 +5193,120 @@ async function procesarEvento(
                 item
             );
 
+
             return;
         }
     }
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "response.done"
     ) {
 
-        cambiarEstado(
-            "Escuchando",
-            "escuchando"
-        );
+        if (
+            !mensajeAsistenteTemporal
+        ) {
+
+            estadoAvatar(
+                "listening"
+            );
+        }
     }
 
 
     if (
-        eventoAPI.type ===
+        evento.type
+        ===
         "error"
     ) {
 
+        console.error(
+            evento
+        );
+
+
         registrarActividad(
-            "❌ "
+            "❌ Error Realtime: "
             +
             JSON.stringify(
-                eventoAPI.error
+                evento.error
             )
         );
 
 
-        cambiarEstado(
-            "Error",
+        estadoAvatar(
             "error"
         );
     }
+}
+
+
+// ============================================================
+// ESPERA DE CANAL
+// ============================================================
+
+function esperarCanalAbierto(
+    timeout=12000
+) {
+
+    return new Promise(
+        (
+            resolve,
+            reject
+        ) => {
+
+            const inicio =
+                Date.now();
+
+
+            const comprobar =
+                () => {
+
+                    if (
+                        dc
+                        &&
+                        dc.readyState
+                        ===
+                        "open"
+                    ) {
+
+                        resolve();
+
+                        return;
+                    }
+
+
+                    if (
+                        Date.now()
+                        -
+                        inicio
+                        >
+                        timeout
+                    ) {
+
+                        reject(
+                            new Error(
+                                "El canal Realtime no abrió a tiempo."
+                            )
+                        );
+
+
+                        return;
+                    }
+
+
+                    setTimeout(
+                        comprobar,
+                        100
+                    );
+                };
+
+
+            comprobar();
+        }
+    );
 }
 
 
@@ -2734,6 +5315,32 @@ async function procesarEvento(
 // ============================================================
 
 async function conectar() {
+
+    if (
+        dc
+        &&
+        dc.readyState
+        ===
+        "open"
+    ) {
+
+        return true;
+    }
+
+
+    if (
+        conectando
+    ) {
+
+        await esperarCanalAbierto();
+
+        return true;
+    }
+
+
+    conectando =
+        true;
+
 
     try {
 
@@ -2749,25 +5356,17 @@ async function conectar() {
             true;
 
 
-        cambiarEstado(
-            "Conectando..."
+        estadoAvatar(
+            "processing"
         );
 
 
-        /*
-        Si el usuario seleccionó "Nueva conversación",
-        recién aquí creamos una.
-        */
-
-        if (!conversacionId) {
+        if (
+            !conversacionId
+        ) {
 
             await crearConversacionPersistente();
         }
-
-
-        registrarActividad(
-            "Solicitando sesión Realtime..."
-        );
 
 
         const tokenResponse =
@@ -2780,21 +5379,25 @@ async function conectar() {
             await tokenResponse.json();
 
 
-        if (!tokenResponse.ok) {
+        if (
+            !tokenResponse.ok
+        ) {
 
             throw new Error(
-                JSON.stringify(
-                    tokenData
-                )
+                tokenData.error
+                ||
+                "No se pudo crear sesión."
             );
         }
 
 
-        const ephemeralKey =
+        const key =
             tokenData.value;
 
 
-        if (!ephemeralKey) {
+        if (
+            !key
+        ) {
 
             throw new Error(
                 "No se recibió token efímero."
@@ -2817,37 +5420,32 @@ async function conectar() {
 
 
         pc.ontrack =
-            function(evento) {
+            evento => {
 
                 audioRemoto.srcObject =
                     evento.streams[0];
-
-
-                registrarActividad(
-                    "🔊 Audio conectado."
-                );
             };
 
 
         localStream =
             await navigator
-                .mediaDevices
-                .getUserMedia({
-                    audio: true
-                });
+            .mediaDevices
+            .getUserMedia({
+
+                audio:
+                    true
+            });
 
 
         pc.addTrack(
             localStream
-                .getAudioTracks()[0],
+            .getAudioTracks()[0],
 
             localStream
         );
 
 
-        registrarActividad(
-            "🎙️ Micrófono conectado."
-        );
+        iniciarAnalizador();
 
 
         dc =
@@ -2857,36 +5455,39 @@ async function conectar() {
 
 
         dc.onopen =
-            function() {
+            () => {
 
                 configurarSesion();
 
 
-                cambiarEstado(
-                    "Escuchando",
-                    "escuchando"
+                estadoAvatar(
+                    "listening"
+                );
+
+
+                botonDesconectar.disabled =
+                    false;
+
+
+                registrarActividad(
+                    "🎙 Agente conectado."
                 );
             };
 
 
         dc.onmessage =
-            async function(evento) {
+            async evento => {
 
                 try {
 
-                    const eventoAPI =
+                    const data =
                         JSON.parse(
                             evento.data
                         );
 
 
-                    console.log(
-                        eventoAPI
-                    );
-
-
                     await procesarEvento(
-                        eventoAPI
+                        data
                     );
 
                 }
@@ -2895,11 +5496,6 @@ async function conectar() {
 
                     console.error(
                         error
-                    );
-
-
-                    registrarActividad(
-                        "❌ Error procesando evento."
                     );
                 }
             };
@@ -2914,7 +5510,7 @@ async function conectar() {
         );
 
 
-        const respuestaSDP =
+        const respuesta =
             await fetch(
                 "https://api.openai.com/v1/realtime/calls",
                 {
@@ -2930,7 +5526,7 @@ async function conectar() {
                         "Authorization":
                             "Bearer "
                             +
-                            ephemeralKey,
+                            key,
 
                         "Content-Type":
                             "application/sdp"
@@ -2939,40 +5535,47 @@ async function conectar() {
             );
 
 
-        if (!respuestaSDP.ok) {
+        if (
+            !respuesta.ok
+        ) {
 
             throw new Error(
-                await respuestaSDP.text()
+                await respuesta.text()
             );
         }
 
 
-        const answer = {
+        await pc.setRemoteDescription({
 
             type:
                 "answer",
 
             sdp:
-                await respuestaSDP.text()
-        };
+                await respuesta.text()
+        });
 
 
-        await pc.setRemoteDescription(
-            answer
-        );
+        await esperarCanalAbierto();
 
 
-        botonDesconectar.disabled =
+        conectando =
             false;
 
 
-        registrarActividad(
-            "✅ Conexión establecida."
-        );
+        return true;
 
     }
 
     catch(error) {
+
+        conectando =
+            false;
+
+
+        console.error(
+            error
+        );
+
 
         registrarActividad(
             "❌ "
@@ -2981,8 +5584,7 @@ async function conectar() {
         );
 
 
-        cambiarEstado(
-            "Error",
+        estadoAvatar(
             "error"
         );
 
@@ -2997,6 +5599,157 @@ async function conectar() {
 
         botonNuevaConversacion.disabled =
             false;
+
+
+        return false;
+    }
+}
+
+
+// ============================================================
+// TEXTO
+// ============================================================
+
+async function enviarMensajeTexto() {
+
+    const texto =
+        textoMensaje.value
+        .trim();
+
+
+    if (
+        !texto
+    ) {
+
+        return;
+    }
+
+
+    botonEnviarTexto.disabled =
+        true;
+
+
+    try {
+
+        if (
+            !dc
+            ||
+            dc.readyState
+            !==
+            "open"
+        ) {
+
+            registrarActividad(
+                "⚡ Iniciando agente automáticamente..."
+            );
+
+
+            const conectado =
+                await conectar();
+
+
+            if (
+                !conectado
+            ) {
+
+                throw new Error(
+                    "No fue posible conectar el agente."
+                );
+            }
+        }
+
+
+        textoMensaje.value =
+            "";
+
+
+        textoMensaje.style.height =
+            "auto";
+
+
+        crearMensaje(
+            "user",
+            texto,
+            false
+        );
+
+
+        await guardarMensajePersistente(
+            "user",
+            texto
+        );
+
+
+        estadoAvatar(
+            "processing"
+        );
+
+
+        dc.send(
+            JSON.stringify({
+
+                type:
+                    "conversation.item.create",
+
+                item: {
+
+                    type:
+                        "message",
+
+                    role:
+                        "user",
+
+                    content: [
+
+                        {
+
+                            type:
+                                "input_text",
+
+                            text:
+                                texto
+                        }
+
+                    ]
+                }
+            })
+        );
+
+
+        dc.send(
+            JSON.stringify({
+
+                type:
+                    "response.create"
+            })
+        );
+
+
+        registrarActividad(
+            "⌨ Mensaje enviado."
+        );
+
+    }
+
+    catch(error) {
+
+        registrarActividad(
+            "❌ "
+            +
+            error.message
+        );
+
+
+        estadoAvatar(
+            "error"
+        );
+
+    }
+
+    finally {
+
+        botonEnviarTexto.disabled =
+            false;
     }
 }
 
@@ -3007,35 +5760,64 @@ async function conectar() {
 
 function desconectar() {
 
-    if (localStream) {
+    detenerAnalizador();
+
+
+    if (
+        localStream
+    ) {
 
         localStream
-            .getTracks()
-            .forEach(
-                track =>
-                    track.stop()
-            );
+        .getTracks()
+        .forEach(
+            track =>
+                track.stop()
+        );
     }
 
 
-    if (dc) {
-        dc.close();
+    if (
+        dc
+    ) {
+
+        try {
+
+            dc.close();
+
+        }
+
+        catch {}
     }
 
 
-    if (pc) {
-        pc.close();
+    if (
+        pc
+    ) {
+
+        try {
+
+            pc.close();
+
+        }
+
+        catch {}
     }
 
 
     pc =
         null;
 
+
     dc =
         null;
 
+
     localStream =
         null;
+
+
+    conectando =
+        false;
 
 
     botonConectar.disabled =
@@ -3054,8 +5836,8 @@ function desconectar() {
         false;
 
 
-    cambiarEstado(
-        "Desconectado"
+    estadoAvatar(
+        "idle"
     );
 
 
@@ -3069,7 +5851,7 @@ function desconectar() {
 
 
 // ============================================================
-// LIMPIAR SOLO LA VISTA
+// LIMPIAR
 // ============================================================
 
 function limpiarInterfaz() {
@@ -3077,24 +5859,45 @@ function limpiarInterfaz() {
     limpiarChat();
 
 
-    chat.innerHTML =
-        `
-        <div class="sin-datos">
-            Vista limpia. El historial no fue eliminado.
-        </div>
-        `;
+    const vacio =
+        document.createElement(
+            "div"
+        );
+
+
+    vacio.className =
+        "empty";
+
+
+    vacio.textContent =
+        "Vista limpia. El historial permanece guardado.";
+
+
+    chat.appendChild(
+        vacio
+    );
 
 
     fuentes.innerHTML =
-        `
-        <div class="sin-datos">
-            Todavía no se han consultado fuentes.
-        </div>
-        `;
+        "";
 
 
-    registrarActividad(
-        "🧹 Vista limpiada."
+    const fuenteVacia =
+        document.createElement(
+            "div"
+        );
+
+
+    fuenteVacia.className =
+        "empty";
+
+
+    fuenteVacia.textContent =
+        "Sin fuentes consultadas.";
+
+
+    fuentes.appendChild(
+        fuenteVacia
     );
 }
 
@@ -3104,78 +5907,258 @@ function limpiarInterfaz() {
 // ============================================================
 
 selectorConversacion
-    .addEventListener(
-        "change",
+.addEventListener(
+    "change",
 
-        async function() {
+    async function() {
 
-            if (
-                pc
-                ||
-                dc
-            ) {
+        if (
+            pc
+            ||
+            dc
+        ) {
 
-                return;
-            }
-
-
-            const id =
-                this.value;
-
-
-            await cargarConversacion(
-                id
-            );
+            return;
         }
-    );
+
+
+        await cargarConversacion(
+            this.value
+        );
+    }
+);
 
 
 botonNuevaConversacion
-    .addEventListener(
-        "click",
+.addEventListener(
+    "click",
 
-        async function() {
+    async () => {
 
-            if (
-                pc
-                ||
-                dc
-            ) {
+        if (
+            pc
+            ||
+            dc
+        ) {
 
-                return;
-            }
-
-
-            selectorConversacion.value =
-                "";
-
-
-            await cargarConversacion(
-                ""
-            );
+            return;
         }
-    );
+
+
+        selectorConversacion.value =
+            "";
+
+
+        await cargarConversacion(
+            ""
+        );
+    }
+);
 
 
 botonConectar
-    .addEventListener(
-        "click",
-        conectar
-    );
+.addEventListener(
+    "click",
+    conectar
+);
 
 
 botonDesconectar
-    .addEventListener(
-        "click",
-        desconectar
-    );
+.addEventListener(
+    "click",
+    desconectar
+);
 
 
 botonLimpiar
-    .addEventListener(
-        "click",
-        limpiarInterfaz
-    );
+.addEventListener(
+    "click",
+    limpiarInterfaz
+);
+
+
+botonEnviarTexto
+.addEventListener(
+    "click",
+    enviarMensajeTexto
+);
+
+
+textoMensaje
+.addEventListener(
+    "keydown",
+
+    evento => {
+
+        if (
+            evento.key
+            ===
+            "Enter"
+            &&
+            !evento.shiftKey
+        ) {
+
+            evento.preventDefault();
+
+
+            enviarMensajeTexto();
+        }
+    }
+);
+
+
+textoMensaje
+.addEventListener(
+    "input",
+
+    () => {
+
+        textoMensaje.style.height =
+            "auto";
+
+
+        textoMensaje.style.height =
+            Math.min(
+                textoMensaje.scrollHeight,
+                90
+            )
+            +
+            "px";
+    }
+);
+
+
+botonAdjuntar
+.addEventListener(
+    "click",
+
+    evento => {
+
+        evento.stopPropagation();
+
+
+        inputArchivo.click();
+    }
+);
+
+
+dropZone
+.addEventListener(
+    "click",
+
+    () => {
+
+        inputArchivo.click();
+    }
+);
+
+
+inputArchivo
+.addEventListener(
+    "change",
+
+    async () => {
+
+        const archivo =
+            inputArchivo.files[0];
+
+
+        if (
+            archivo
+        ) {
+
+            await subirArchivo(
+                archivo
+            );
+        }
+    }
+);
+
+
+// ============================================================
+// DRAG & DROP
+// ============================================================
+
+[
+    "dragenter",
+    "dragover"
+]
+.forEach(
+    tipo => {
+
+        dropZone
+        .addEventListener(
+            tipo,
+
+            evento => {
+
+                evento.preventDefault();
+
+                evento.stopPropagation();
+
+
+                dropZone.classList.add(
+                    "drag"
+                );
+            }
+        );
+    }
+);
+
+
+[
+    "dragleave",
+    "drop"
+]
+.forEach(
+    tipo => {
+
+        dropZone
+        .addEventListener(
+            tipo,
+
+            evento => {
+
+                evento.preventDefault();
+
+                evento.stopPropagation();
+
+
+                dropZone.classList.remove(
+                    "drag"
+                );
+            }
+        );
+    }
+);
+
+
+dropZone
+.addEventListener(
+    "drop",
+
+    async evento => {
+
+        const archivos =
+            evento
+            .dataTransfer
+            .files;
+
+
+        if (
+            archivos
+            &&
+            archivos.length
+            >
+            0
+        ) {
+
+            await subirArchivo(
+                archivos[0]
+            );
+        }
+    }
+);
 
 
 // ============================================================
@@ -3185,13 +6168,25 @@ botonLimpiar
 window.addEventListener(
     "DOMContentLoaded",
 
-    async function() {
+    async () => {
 
-        await cargarListaConversaciones();
+        estadoAvatar(
+            "idle"
+        );
+
+
+        await Promise.all([
+
+            cargarListaConversaciones(),
+
+            cargarArchivosRag()
+
+        ]);
     }
 );
 
 </script>
 
 </body>
+
 </html>
