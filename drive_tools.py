@@ -1,4 +1,5 @@
 from pathlib import Path
+from file_safety import ruta_archivo_segura
 import io
 
 from google.oauth2.credentials import Credentials
@@ -167,10 +168,7 @@ def descargar_archivo_drive(file_id, nombre=None):
             or nombre_original
         )
 
-    ruta_salida = (
-        CARPETA_DESCARGAS
-        / nombre_salida
-    )
+    ruta_salida = ruta_archivo_segura(CARPETA_DESCARGAS, nombre_salida)
 
     archivo_temporal = io.BytesIO()
 

@@ -77,3 +77,33 @@ de ausencia de secretos embebidos en cualquier contenido histórico.
 No publicar, hacer push ni modificar Calendar/Drive durante esta auditoría.
 Los commits se preparan localmente para revisión. Cambiar visibilidad del repo,
 sanear historia o publicar la rama requiere confirmación explícita.
+
+## Primer incremento implementado y verificado
+
+- `file_safety.py`: nombres portables, sin rutas absolutas/relativas, escapes,
+  dispositivos Windows ni enlaces simbólicos; extensión permitida para RAG local.
+- Aplicado a upload, reindexación local y escritura de descargas Drive. Se
+  conserva la reindexación Drive por ID, incluso con título sin extensión.
+- `.gitignore`: variantes `.env`, auxiliares SQLite WAL/SHM, temporales del índice
+  y carpeta de backups. No se retiró el índice ya versionado ni se alteró historia.
+- 12 pruebas Python y 3 escenarios JS aprobados; sintaxis de todos los Python
+  y del script HTML válida; `git diff --check` sin errores.
+- Pruebas Python de funciones originales compiladas de su AST, con colaboradores
+  simulados para evitar imports faltantes y OAuth. Prueba RAG con índice sintético
+  y embeddings fijos. JS ejecuta funciones originales en VM con confirmación y
+  HTTP simulados. **No equivalen a importar/arrancar FastAPI ni probar Windows,
+  SQLite real, OCR real, APIs externas o audio WebRTC.**
+- No se cambió `realtime.html`, `indice.json`, el formato SQLite ni el archivo de
+  dependencias. La etiqueta de producto sigue en V2.3: V2.4 está en desarrollo.
+- Persisten los riesgos documentados fuera de este incremento, incluyendo
+  concurrencia, autenticación, confirmación del backend e instalación incompleta.
+
+Ejecución desde la raíz (Python con NumPy instalado y Node.js):
+
+```powershell
+python -m unittest discover -s tests -v
+node tests/calendar_confirmation.cjs
+```
+
+Para desbloquear la siguiente etapa hacen falta los originales V2.3 de
+`memoria.py`, `memoria_largo_plazo.py` y `rag_drive.py`, sin credenciales ni BD.

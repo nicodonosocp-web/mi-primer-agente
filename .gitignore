@@ -11,3 +11,12 @@ memoria.db
 memoria.db-journal
 __pycache__/
 *.pyc
+.env.*
+!.env.example
+memoria.db-wal
+memoria.db-shm
+*.db.bak
+indice.tmp
+indice_*.json.tmp
+.pytest_cache/
+backups/

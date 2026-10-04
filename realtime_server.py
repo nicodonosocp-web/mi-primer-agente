@@ -4,6 +4,7 @@ import json
 import os
 import re
 from pathlib import Path
+from file_safety import ruta_archivo_segura
 
 import fitz
 import requests
@@ -1517,22 +1518,14 @@ async def upload_rag(
                     0,
             }
 
-        ruta = (
-            UPLOAD_DIR
-            /
-            nombre
-        )
+        ruta = ruta_archivo_segura(UPLOAD_DIR, nombre, EXTENSIONES_PERMITIDAS)
 
         if ruta.exists():
 
-            ruta = (
-                UPLOAD_DIR
-                /
-                (
-                    f"{ruta.stem}_"
-                    f"{sha256[:8]}"
-                    f"{ruta.suffix}"
-                )
+            ruta = ruta_archivo_segura(
+                UPLOAD_DIR,
+                f"{ruta.stem}_{sha256[:8]}{ruta.suffix}",
+                EXTENSIONES_PERMITIDAS,
             )
 
         ruta.write_bytes(
@@ -1992,11 +1985,18 @@ def reindexar_documento_rag(
         archivo
     )
 
-    ruta_local = (
-        UPLOAD_DIR
-        /
-        archivo
-    )
+    # Rechazar antes de restauración: entradas inválidas no escriben el índice.
+    ruta_local = None
+    if not (info and info.get("origen") == "drive"):
+        try:
+            ruta_local = ruta_archivo_segura(
+                UPLOAD_DIR, archivo, EXTENSIONES_PERMITIDAS,
+            )
+        except ValueError:
+            return JSONResponse(
+                status_code=400,
+                content={"ok": False, "error": "Nombre de documento local inválido."},
+            )
 
     try:
 
