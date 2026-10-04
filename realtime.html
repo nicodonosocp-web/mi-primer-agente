@@ -10,17 +10,50 @@
     content="width=device-width, initial-scale=1.0"
 >
 
-<title>Mi Agente IA</title>
+<title>Mi Agente IA V2.3</title>
 
 <style>
-
-/* ============================================================
-   RESET
-============================================================ */
 
 * {
     box-sizing: border-box;
 }
+
+:root {
+
+    --bg:
+        #05080d;
+
+    --panel:
+        rgba(13,20,30,0.86);
+
+    --panel2:
+        rgba(255,255,255,0.04);
+
+    --border:
+        rgba(255,255,255,0.09);
+
+    --text:
+        #f4f7fb;
+
+    --muted:
+        #8997aa;
+
+    --green:
+        #36e3a3;
+
+    --cyan:
+        #64e8ff;
+
+    --blue:
+        #619cff;
+
+    --yellow:
+        #ffd45c;
+
+    --red:
+        #ff6679;
+}
+
 
 html,
 body {
@@ -31,124 +64,43 @@ body {
 
     height: 100%;
 
-    min-height: 100%;
-
     overflow: hidden;
 
     font-family:
         Inter,
         Arial,
-        Helvetica,
         sans-serif;
 
-    color: #f4f7fb;
+    color:
+        var(--text);
 
     background:
+
         radial-gradient(
-            circle at 10% 10%,
-            rgba(56, 112, 255, 0.18),
-            transparent 28%
+            circle at 8% 10%,
+            rgba(49,103,255,0.18),
+            transparent 25%
         ),
+
         radial-gradient(
             circle at 88% 15%,
-            rgba(47, 224, 181, 0.11),
+            rgba(52,226,162,0.10),
             transparent 24%
         ),
-        radial-gradient(
-            circle at 55% 90%,
-            rgba(131, 92, 255, 0.12),
-            transparent 26%
-        ),
+
         linear-gradient(
             145deg,
             #04070b,
-            #09111a
+            #09111b
         );
 }
 
-
-body::before {
-
-    content: "";
-
-    position: fixed;
-
-    inset: 0;
-
-    pointer-events: none;
-
-    background-image:
-        linear-gradient(
-            rgba(255,255,255,0.018)
-            1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(255,255,255,0.018)
-            1px,
-            transparent 1px
-        );
-
-    background-size:
-        42px 42px;
-
-    opacity: 0.75;
-}
-
-
-/* ============================================================
-   VARIABLES
-============================================================ */
-
-:root {
-
-    --panel:
-        rgba(14, 21, 31, 0.80);
-
-    --panel-soft:
-        rgba(255,255,255,0.04);
-
-    --border:
-        rgba(255,255,255,0.09);
-
-    --text:
-        #f4f7fb;
-
-    --muted:
-        #8d9aac;
-
-    --green:
-        #34e2a2;
-
-    --cyan:
-        #63e7ff;
-
-    --blue:
-        #5c9dff;
-
-    --yellow:
-        #ffd35c;
-
-    --red:
-        #ff6679;
-}
-
-
-/* ============================================================
-   APP
-   TODA LA INTERFAZ QUEDA LIMITADA A UNA SOLA PANTALLA
-============================================================ */
 
 .app {
 
-    position: relative;
-
-    z-index: 1;
-
     width: 100%;
 
-    max-width: 1650px;
+    max-width: 1760px;
 
     height: 100vh;
 
@@ -156,16 +108,17 @@ body::before {
 
     margin: 0 auto;
 
-    padding: 14px 18px;
+    padding:
+        12px 16px;
 
     display: grid;
 
     grid-template-rows:
         auto
         auto
-        minmax(0, 1fr);
+        minmax(0,1fr);
 
-    gap: 11px;
+    gap: 9px;
 
     overflow: hidden;
 }
@@ -183,30 +136,21 @@ body::before {
     backdrop-filter:
         blur(18px);
 
-    -webkit-backdrop-filter:
-        blur(18px);
-
     box-shadow:
-        0 20px 50px
+        0 20px 55px
         rgba(0,0,0,0.30);
 }
 
 
-/* ============================================================
-   TOPBAR
-============================================================ */
-
 .topbar {
-
-    min-height: 50px;
 
     display: flex;
 
-    justify-content: space-between;
+    justify-content:
+        space-between;
 
-    align-items: center;
-
-    gap: 18px;
+    align-items:
+        center;
 }
 
 
@@ -216,21 +160,17 @@ body::before {
 
     align-items: center;
 
-    gap: 12px;
-
-    min-width: 0;
+    gap: 11px;
 }
 
 
 .brand-logo {
 
-    flex: 0 0 auto;
+    width: 43px;
 
-    width: 46px;
+    height: 43px;
 
-    height: 46px;
-
-    border-radius: 15px;
+    border-radius: 14px;
 
     display: flex;
 
@@ -238,28 +178,31 @@ body::before {
 
     justify-content: center;
 
-    font-size: 21px;
-
     background:
-        linear-gradient(
-            135deg,
-            rgba(52,226,162,0.24),
-            rgba(99,231,255,0.14)
-        );
+        rgba(100,232,255,0.08);
 
     border:
         1px solid
-        rgba(99,231,255,0.18);
-
-    box-shadow:
-        0 0 24px
-        rgba(99,231,255,0.09);
+        rgba(100,232,255,0.2);
 }
 
 
-.brand-text {
+.brand-logo::after {
 
-    min-width: 0;
+    content: "";
+
+    width: 11px;
+
+    height: 11px;
+
+    border-radius: 50%;
+
+    background:
+        var(--cyan);
+
+    box-shadow:
+        0 0 12px
+        var(--cyan);
 }
 
 
@@ -267,32 +210,23 @@ body::before {
 
     margin: 0;
 
-    font-size: 21px;
-
-    line-height: 1.1;
+    font-size: 20px;
 }
 
 
 .brand p {
 
-    margin: 4px 0 0;
+    margin:
+        4px 0 0;
 
     color:
         var(--muted);
 
-    font-size: 12px;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
+    font-size: 10px;
 }
 
 
 .status-pill {
-
-    flex: 0 0 auto;
 
     display: flex;
 
@@ -300,30 +234,30 @@ body::before {
 
     gap: 8px;
 
-    padding: 9px 13px;
-
-    border-radius: 999px;
+    padding:
+        8px 11px;
 
     border:
         1px solid
         var(--border);
 
-    background:
-        rgba(255,255,255,0.035);
+    border-radius:
+        999px;
 
-    font-size: 13px;
+    font-size: 11px;
 }
 
 
 .status-dot {
 
-    width: 9px;
+    width: 8px;
 
-    height: 9px;
+    height: 8px;
 
     border-radius: 50%;
 
-    background: #66717e;
+    background:
+        #67727e;
 }
 
 
@@ -333,7 +267,7 @@ body::before {
         var(--green);
 
     box-shadow:
-        0 0 13px
+        0 0 12px
         var(--green);
 }
 
@@ -342,20 +276,12 @@ body::before {
 
     background:
         var(--yellow);
-
-    box-shadow:
-        0 0 13px
-        var(--yellow);
 }
 
 
 .status-dot.processing {
 
     background:
-        var(--blue);
-
-    box-shadow:
-        0 0 13px
         var(--blue);
 }
 
@@ -364,59 +290,50 @@ body::before {
 
     background:
         var(--red);
-
-    box-shadow:
-        0 0 13px
-        var(--red);
 }
 
 
-/* ============================================================
-   SELECTOR DE CONVERSACIÓN
-============================================================ */
-
 .conversation-bar {
+
+    padding: 7px;
 
     display: grid;
 
     grid-template-columns:
-        minmax(0, 1fr)
+        minmax(0,1fr)
         auto;
 
-    gap: 9px;
+    gap: 7px;
 
-    padding: 9px;
-
-    border-radius: 16px;
+    border-radius: 14px;
 }
 
 
-select {
+select,
+input,
+textarea {
 
-    min-width: 0;
+    color: white;
 
-    width: 100%;
-
-    height: 42px;
+    background:
+        rgba(255,255,255,0.04);
 
     border:
         1px solid
         var(--border);
 
-    border-radius: 11px;
+    outline: none;
+}
 
-    background:
-        rgba(255,255,255,0.04);
 
-    color:
-        white;
+select {
+
+    height: 38px;
+
+    border-radius: 9px;
 
     padding:
-        0 12px;
-
-    outline: none;
-
-    font-size: 13px;
+        0 10px;
 }
 
 
@@ -424,61 +341,40 @@ select option {
 
     background:
         #111821;
-
-    color:
-        white;
 }
 
-
-/* ============================================================
-   BOTONES
-============================================================ */
 
 button {
 
     border: 0;
 
-    border-radius: 11px;
+    border-radius: 9px;
 
-    min-height: 42px;
+    min-height: 38px;
 
     padding:
-        0 13px;
+        0 11px;
 
-    color:
-        white;
-
-    font-weight: 700;
+    color: white;
 
     cursor: pointer;
 
-    transition:
-        transform 0.15s ease,
-        opacity 0.15s ease,
-        border-color 0.15s ease;
-}
-
-
-button:hover:not(:disabled) {
-
-    transform:
-        translateY(-1px);
+    font-weight: 700;
 }
 
 
 button:disabled {
 
-    opacity: 0.42;
+    opacity: 0.4;
 
     cursor: not-allowed;
-
-    transform: none;
 }
 
 
 .primary {
 
-    color: #04110c;
+    color:
+        #04110c;
 
     background:
         linear-gradient(
@@ -503,37 +399,13 @@ button:disabled {
 .danger {
 
     background:
-        rgba(255,102,121,0.13);
+        rgba(255,102,121,0.12);
 
     border:
         1px solid
-        rgba(255,102,121,0.18);
+        rgba(255,102,121,0.2);
 }
 
-
-.icon-button {
-
-    width: 46px;
-
-    min-width: 46px;
-
-    padding: 0;
-
-    font-size: 18px;
-
-    background:
-        rgba(255,255,255,0.06);
-
-    border:
-        1px solid
-        var(--border);
-}
-
-
-/* ============================================================
-   GRID PRINCIPAL
-   NUNCA PUEDE CRECER MÁS QUE EL ESPACIO DISPONIBLE
-============================================================ */
 
 .main-grid {
 
@@ -541,20 +413,18 @@ button:disabled {
 
     min-height: 0;
 
-    width: 100%;
-
     height: 100%;
-
-    overflow: hidden;
 
     display: grid;
 
     grid-template-columns:
-        245px
-        minmax(430px, 1fr)
-        320px;
+        210px
+        minmax(420px,1fr)
+        430px;
 
-    gap: 12px;
+    gap: 10px;
+
+    overflow: hidden;
 }
 
 
@@ -564,7 +434,7 @@ button:disabled {
 
     min-height: 0;
 
-    border-radius: 19px;
+    border-radius: 17px;
 
     overflow: hidden;
 }
@@ -572,28 +442,31 @@ button:disabled {
 
 .panel-title {
 
-    flex: 0 0 auto;
-
-    height: 43px;
+    height: 39px;
 
     display: flex;
 
     align-items: center;
 
+    justify-content:
+        space-between;
+
     padding:
-        0 14px;
+        0 12px;
 
     border-bottom:
         1px solid
         var(--border);
 
-    color: #ccd5df;
+    color:
+        #cdd6df;
 
-    font-size: 10px;
+    font-size: 9px;
 
     font-weight: 800;
 
-    letter-spacing: 0.08em;
+    letter-spacing:
+        0.09em;
 
     text-transform: uppercase;
 }
@@ -607,36 +480,25 @@ button:disabled {
 
     height: 100%;
 
-    min-height: 0;
-
-    max-height: 100%;
-
     display: flex;
 
     flex-direction: column;
-
-    overflow: hidden;
 }
 
 
 .avatar-area {
 
-    flex:
-        1 1 auto;
+    flex: 1;
 
     min-height: 0;
-
-    overflow: hidden;
 
     display: flex;
 
     flex-direction: column;
 
-    align-items: center;
-
     justify-content: center;
 
-    padding: 10px;
+    align-items: center;
 }
 
 
@@ -644,61 +506,34 @@ button:disabled {
 
     position: relative;
 
-    flex: 0 0 auto;
+    width: 185px;
 
-    width: 205px;
-
-    height: 215px;
+    height: 205px;
 
     display: flex;
 
-    justify-content: center;
-
     align-items: center;
+
+    justify-content: center;
 }
 
 
-.ring {
+.orbit {
 
     position: absolute;
 
-    width: 195px;
+    width: 175px;
 
-    height: 195px;
+    height: 175px;
 
     border-radius: 50%;
 
     border:
         1px dashed
-        rgba(99,231,255,0.16);
+        rgba(100,232,255,0.18);
 
     animation:
         spin 18s linear infinite;
-}
-
-
-.ring::after {
-
-    content: "";
-
-    position: absolute;
-
-    top: 17px;
-
-    left: 45px;
-
-    width: 8px;
-
-    height: 8px;
-
-    border-radius: 50%;
-
-    background:
-        var(--cyan);
-
-    box-shadow:
-        0 0 12px
-        var(--cyan);
 }
 
 
@@ -711,75 +546,24 @@ button:disabled {
 }
 
 
-.halo {
-
-    position: absolute;
-
-    width: 164px;
-
-    height: 164px;
-
-    border-radius: 50%;
-
-    border:
-        1px solid
-        rgba(99,231,255,0.12);
-
-    box-shadow:
-        0 0 30px
-        rgba(99,231,255,0.13);
-
-    animation:
-        breathe
-        4s ease-in-out infinite;
-}
-
-
-@keyframes breathe {
-
-    0%,
-    100% {
-
-        transform:
-            scale(1);
-    }
-
-    50% {
-
-        transform:
-            scale(1.045);
-    }
-}
-
-
 .avatar {
+
+    width: 106px;
+
+    height: 136px;
 
     position: relative;
 
-    width: 120px;
-
-    height: 150px;
-
     animation:
-        floatAvatar
-        4.5s
-        ease-in-out infinite;
+        float 4s ease-in-out infinite;
 }
 
 
-@keyframes floatAvatar {
-
-    0%,
-    100% {
-
-        transform:
-            translateY(0);
-    }
+@keyframes float {
 
     50% {
-
         transform:
-            translateY(-6px);
+            translateY(-5px);
     }
 }
 
@@ -791,29 +575,19 @@ button:disabled {
     inset: 0;
 
     border-radius:
-        44% 44% 49% 49%
+        45% 45% 50% 50%
         /
-        37% 37% 58% 58%;
-
-    background:
-        radial-gradient(
-            circle at 50% 18%,
-            rgba(255,255,255,0.15),
-            transparent 30%
-        ),
-        linear-gradient(
-            180deg,
-            rgba(99,231,255,0.11),
-            rgba(92,157,255,0.06)
-        );
+        38% 38% 58% 58%;
 
     border:
         1px solid
-        rgba(99,231,255,0.19);
+        rgba(100,232,255,0.22);
 
-    box-shadow:
-        0 0 25px
-        rgba(99,231,255,0.13);
+    background:
+        linear-gradient(
+            rgba(100,232,255,0.11),
+            rgba(97,156,255,0.04)
+        );
 }
 
 
@@ -821,41 +595,47 @@ button:disabled {
 
     position: absolute;
 
-    top: 50px;
+    top: 47px;
 
-    width: 19px;
+    width: 18px;
 
-    height: 19px;
+    height: 16px;
 
     border-radius: 50%;
 
-    background: #071019;
+    background:
+        #071019;
 
     border:
         1px solid
-        rgba(99,231,255,0.26);
-
-    overflow: hidden;
+        rgba(100,232,255,0.22);
 }
 
 
 .eye.left {
-    left: 28px;
+    left: 25px;
 }
 
 
 .eye.right {
-    right: 28px;
+    right: 25px;
 }
 
 
-.eye::before {
-
-    content: "";
+.pupil {
 
     position: absolute;
 
-    inset: 5px;
+    left: 50%;
+
+    top: 50%;
+
+    width: 7px;
+
+    height: 7px;
+
+    margin:
+        -3.5px;
 
     border-radius: 50%;
 
@@ -863,57 +643,8 @@ button:disabled {
         var(--cyan);
 
     box-shadow:
-        0 0 11px
+        0 0 9px
         var(--cyan);
-}
-
-
-.eyelid {
-
-    position: absolute;
-
-    inset: 0;
-
-    z-index: 3;
-
-    background: #09111b;
-
-    transform:
-        scaleY(0);
-
-    transform-origin:
-        top;
-}
-
-
-.avatar.blink
-.eyelid {
-
-    animation:
-        blink
-        0.22s ease;
-}
-
-
-@keyframes blink {
-
-    0% {
-
-        transform:
-            scaleY(0);
-    }
-
-    50% {
-
-        transform:
-            scaleY(1);
-    }
-
-    100% {
-
-        transform:
-            scaleY(0);
-    }
 }
 
 
@@ -923,145 +654,72 @@ button:disabled {
 
     left: 50%;
 
-    bottom: 37px;
+    bottom: 32px;
 
     transform:
         translateX(-50%);
 
-    width: 27px;
+    width: 26px;
 
-    height: 8px;
+    height: 7px;
 
     border-bottom:
         2px solid
         var(--cyan);
-
-    border-radius: 50%;
 }
 
 
 .avatar.speaking
 .mouth {
 
-    animation:
-        speak
-        0.28s infinite ease-in-out;
+    height: 14px;
+
+    border:
+        2px solid
+        var(--cyan);
 }
 
 
-@keyframes speak {
-
-    0%,
-    100% {
-
-        width: 19px;
-
-        height: 7px;
-    }
-
-    50% {
-
-        width: 26px;
-
-        height: 17px;
-
-        border:
-            2px solid
-            var(--cyan);
-
-        border-radius: 50%;
-    }
-}
-
-
-.avatar-label {
-
-    flex: 0 0 auto;
+.avatar-state {
 
     color:
         var(--muted);
 
-    font-size: 12px;
-
-    min-height: 18px;
-
-    text-align: center;
-}
-
-
-.wave {
-
-    flex: 0 0 auto;
-
-    height: 31px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 4px;
-
-    margin-top: 3px;
-}
-
-
-.wave-bar {
-
-    width: 5px;
-
-    height: 6px;
-
-    border-radius: 99px;
-
-    background:
-        linear-gradient(
-            var(--cyan),
-            var(--blue)
-        );
-
-    opacity: 0.35;
-
-    transition:
-        height 60ms linear;
+    font-size: 11px;
 }
 
 
 .agent-info {
 
-    flex: 0 0 auto;
-
-    margin-top: 5px;
+    margin-top: 8px;
 
     padding:
-        7px 10px;
+        6px 9px;
 
     border:
         1px solid
         var(--border);
 
-    border-radius: 999px;
+    border-radius:
+        999px;
 
     color:
         var(--muted);
 
-    font-size: 10px;
+    font-size: 9px;
 }
 
 
 .capabilities {
 
-    flex: 0 0 auto;
-
-    padding: 9px;
+    padding: 8px;
 
     display: grid;
 
     grid-template-columns:
         1fr 1fr;
 
-    gap: 6px;
+    gap: 5px;
 
     border-top:
         1px solid
@@ -1071,18 +729,18 @@ button:disabled {
 
 .cap {
 
-    padding: 7px;
+    padding: 6px;
 
     border:
         1px solid
         var(--border);
 
-    border-radius: 9px;
+    border-radius: 8px;
+
+    font-size: 8px;
 
     background:
-        var(--panel-soft);
-
-    font-size: 10px;
+        var(--panel2);
 }
 
 
@@ -1095,7 +753,6 @@ button:disabled {
 
 /* ============================================================
    CHAT
-   ESTA ES LA PARTE PRINCIPAL DE LA CORRECCIÓN
 ============================================================ */
 
 .chat-panel {
@@ -1104,22 +761,13 @@ button:disabled {
 
     min-height: 0;
 
-    max-height: 100%;
-
     display: flex;
 
     flex-direction: column;
-
-    overflow: hidden;
 }
 
 
 .chat {
-
-    /*
-       height: 0 + flex: 1
-       evita que los mensajes aumenten el tamaño del panel.
-    */
 
     flex:
         1 1 0;
@@ -1128,121 +776,67 @@ button:disabled {
 
     min-height: 0;
 
-    min-width: 0;
+    padding: 14px;
 
     overflow-y: auto;
-
-    overflow-x: hidden;
-
-    overscroll-behavior: contain;
-
-    padding: 16px;
 
     display: flex;
 
     flex-direction: column;
 
-    gap: 12px;
-
-    scroll-behavior: smooth;
-
-    scrollbar-gutter: stable;
-}
-
-
-.chat::-webkit-scrollbar {
-
-    width: 8px;
-}
-
-
-.chat::-webkit-scrollbar-track {
-
-    background:
-        transparent;
-}
-
-
-.chat::-webkit-scrollbar-thumb {
-
-    background:
-        rgba(255,255,255,0.11);
-
-    border-radius: 999px;
+    gap: 10px;
 }
 
 
 .message {
 
-    flex:
-        0 0 auto;
-
-    width: fit-content;
+    width:
+        fit-content;
 
     max-width: 84%;
 
     padding:
-        11px 13px;
+        10px 12px;
 
-    border-radius: 16px;
+    border-radius: 14px;
 
-    line-height: 1.48;
+    white-space:
+        pre-wrap;
 
-    white-space: pre-wrap;
+    overflow-wrap:
+        anywhere;
 
-    overflow-wrap: anywhere;
+    font-size: 12px;
 
-    word-break: break-word;
-
-    animation:
-        messageIn
-        0.18s ease;
-}
-
-
-@keyframes messageIn {
-
-    from {
-
-        opacity: 0;
-
-        transform:
-            translateY(5px);
-    }
-
-    to {
-
-        opacity: 1;
-
-        transform:
-            translateY(0);
-    }
+    line-height: 1.45;
 }
 
 
 .message.user {
 
-    align-self: flex-end;
+    align-self:
+        flex-end;
 
     background:
-        rgba(52,226,162,0.13);
+        rgba(54,227,163,0.12);
 
     border:
         1px solid
-        rgba(52,226,162,0.21);
+        rgba(54,227,163,0.2);
 }
 
 
 .message.assistant {
 
-    align-self: flex-start;
+    align-self:
+        flex-start;
 
     background:
-        rgba(92,157,255,0.11);
+        rgba(97,156,255,0.10);
 
     border:
         1px solid
-        rgba(92,157,255,0.16);
+        rgba(97,156,255,0.17);
 }
 
 
@@ -1250,43 +844,30 @@ button:disabled {
 
     display: block;
 
+    margin-bottom: 4px;
+
     color:
         var(--muted);
 
-    font-size: 10px;
+    font-size: 8px;
 
     font-weight: 800;
-
-    margin-bottom: 5px;
 }
 
 
 .partial {
 
     opacity: 0.65;
-
-    font-style: italic;
 }
 
 
-/* ============================================================
-   COMPOSER
-============================================================ */
-
 .composer-wrap {
 
-    flex: 0 0 auto;
-
-    min-height: 0;
-
-    padding: 10px;
+    padding: 8px;
 
     border-top:
         1px solid
         var(--border);
-
-    background:
-        rgba(7,11,17,0.18);
 }
 
 
@@ -1295,13 +876,11 @@ button:disabled {
     display: grid;
 
     grid-template-columns:
-        46px
+        42px
         minmax(0,1fr)
-        48px;
+        44px;
 
-    gap: 7px;
-
-    align-items: end;
+    gap: 6px;
 }
 
 
@@ -1309,50 +888,40 @@ textarea {
 
     resize: none;
 
-    width: 100%;
+    min-height: 39px;
 
-    min-width: 0;
+    max-height: 82px;
 
-    min-height: 42px;
+    padding:
+        9px 10px;
 
-    max-height: 90px;
+    border-radius: 9px;
+}
 
-    border-radius: 11px;
+
+.icon-button {
+
+    padding: 0;
+
+    background:
+        rgba(255,255,255,0.06);
 
     border:
         1px solid
         var(--border);
-
-    background:
-        rgba(255,255,255,0.04);
-
-    color: white;
-
-    padding:
-        10px 12px;
-
-    outline: none;
-
-    font: inherit;
-
-    font-size: 13px;
-
-    line-height: 1.4;
-
-    overflow-y: auto;
 }
 
 
 .controls {
+
+    margin-top: 6px;
 
     display: grid;
 
     grid-template-columns:
         1fr 1fr 1fr;
 
-    gap: 7px;
-
-    margin-top: 7px;
+    gap: 6px;
 }
 
 
@@ -1360,229 +929,176 @@ textarea {
    PANEL DERECHO
 ============================================================ */
 
-.right-column {
+.right-panel {
 
     height: 100%;
 
     min-height: 0;
 
-    max-height: 100%;
-
-    overflow-y: auto;
-
-    overflow-x: hidden;
-
-    overscroll-behavior: contain;
-
     display: flex;
 
     flex-direction: column;
-
-    gap: 11px;
-
-    padding-right: 2px;
-
-    scrollbar-gutter: stable;
 }
 
 
-.right-column::-webkit-scrollbar {
+.tabs {
 
-    width: 7px;
+    display: grid;
+
+    grid-template-columns:
+        repeat(5,1fr);
+
+    gap: 3px;
+
+    padding: 6px;
+
+    border-bottom:
+        1px solid
+        var(--border);
 }
 
 
-.right-column::-webkit-scrollbar-thumb {
+.tab {
+
+    min-height: 31px;
+
+    padding:
+        0 4px;
 
     background:
-        rgba(255,255,255,0.09);
-
-    border-radius: 999px;
-}
-
-
-.right-panel {
-
-    flex: 0 0 auto;
-
-    min-height: 0;
-}
-
-
-/* ============================================================
-   UPLOAD
-============================================================ */
-
-.drop-zone {
-
-    margin: 9px;
-
-    padding: 13px;
-
-    text-align: center;
-
-    border:
-        1px dashed
-        rgba(99,231,255,0.28);
-
-    border-radius: 12px;
-
-    background:
-        rgba(99,231,255,0.025);
-
-    cursor: pointer;
-
-    transition:
-        0.18s ease;
-}
-
-
-.drop-zone:hover,
-.drop-zone.drag {
-
-    border-color:
-        var(--cyan);
-
-    background:
-        rgba(99,231,255,0.07);
-}
-
-
-.drop-zone strong {
-
-    display: block;
-
-    font-size: 11px;
-}
-
-
-.drop-zone small {
-
-    display: block;
-
-    margin-top: 4px;
+        transparent;
 
     color:
         var(--muted);
 
-    font-size: 9px;
+    border:
+        1px solid
+        transparent;
+
+    font-size: 8px;
 }
 
 
-.upload-status {
+.tab.active {
 
-    margin:
-        0 9px 9px;
+    color:
+        var(--cyan);
 
-    padding:
-        8px 9px;
-
-    border-radius: 10px;
+    border-color:
+        rgba(100,232,255,0.18);
 
     background:
-        var(--panel-soft);
+        rgba(100,232,255,0.05);
+}
+
+
+.tab-content {
+
+    flex:
+        1 1 0;
+
+    height: 0;
+
+    display: none;
+
+    min-height: 0;
+
+    overflow: hidden;
+}
+
+
+.tab-content.active {
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.scroll-area {
+
+    flex:
+        1 1 0;
+
+    min-height: 0;
+
+    overflow-y: auto;
+}
+
+
+/* ============================================================
+   AGENDA
+============================================================ */
+
+.agenda-toolbar {
+
+    padding: 7px;
+
+    display: flex;
+
+    gap: 6px;
+
+    border-bottom:
+        1px solid
+        var(--border);
+}
+
+
+.agenda-toolbar button {
+
+    flex: 1;
+
+    min-height: 33px;
+
+    font-size: 8px;
+}
+
+
+.event-card {
+
+    margin:
+        6px 7px;
+
+    padding: 9px;
 
     border:
         1px solid
         var(--border);
 
-    color:
-        var(--muted);
+    border-radius: 9px;
+
+    background:
+        var(--panel2);
+}
+
+
+.event-title {
 
     font-size: 10px;
 
-    display: none;
-
-    overflow-wrap: anywhere;
+    font-weight: 800;
 }
 
 
-.upload-status.visible {
+.event-time {
 
-    display: block;
-}
-
-
-.upload-status.success {
+    margin-top: 4px;
 
     color:
-        var(--green);
+        var(--cyan);
 
-    border-color:
-        rgba(52,226,162,0.25);
+    font-size: 8px;
 }
 
 
-.upload-status.error {
+.event-location {
+
+    margin-top: 3px;
 
     color:
-        var(--red);
+        var(--muted);
 
-    border-color:
-        rgba(255,102,121,0.25);
-}
-
-
-.progress {
-
-    height: 4px;
-
-    margin:
-        0 9px 9px;
-
-    border-radius: 999px;
-
-    overflow: hidden;
-
-    background:
-        rgba(255,255,255,0.05);
-
-    display: none;
-}
-
-
-.progress.active {
-
-    display: block;
-}
-
-
-.progress::before {
-
-    content: "";
-
-    display: block;
-
-    width: 35%;
-
-    height: 100%;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--green),
-            var(--cyan)
-        );
-
-    animation:
-        load
-        1.1s linear infinite;
-}
-
-
-@keyframes load {
-
-    from {
-
-        transform:
-            translateX(-120%);
-    }
-
-    to {
-
-        transform:
-            translateX(320%);
-    }
+    font-size: 8px;
 }
 
 
@@ -1590,282 +1106,221 @@ textarea {
    DOCUMENTOS / FUENTES / ACTIVIDAD
 ============================================================ */
 
-.file-list,
-.source-list,
-.activity-list {
+.library-toolbar,
+.search-row {
 
-    padding: 9px;
+    padding: 7px;
 
-    max-height: 185px;
+    display: grid;
 
-    overflow-y: auto;
+    grid-template-columns:
+        minmax(0,1fr)
+        auto;
 
-    overflow-x: hidden;
+    gap: 5px;
 
-    overscroll-behavior: contain;
+    border-bottom:
+        1px solid
+        var(--border);
 }
 
 
-.file-list::-webkit-scrollbar,
-.source-list::-webkit-scrollbar,
-.activity-list::-webkit-scrollbar {
+.library-toolbar input,
+.search-row input {
 
-    width: 6px;
-}
+    height: 34px;
 
+    padding:
+        0 8px;
 
-.file-list::-webkit-scrollbar-thumb,
-.source-list::-webkit-scrollbar-thumb,
-.activity-list::-webkit-scrollbar-thumb {
-
-    background:
-        rgba(255,255,255,0.08);
-
-    border-radius: 999px;
+    border-radius: 8px;
 }
 
 
 .file-card,
-.source-card {
+.source-card,
+.result-item {
+
+    margin:
+        6px 7px;
 
     padding: 8px;
-
-    margin-bottom: 6px;
 
     border:
         1px solid
         var(--border);
 
-    border-radius: 10px;
+    border-radius: 9px;
 
     background:
-        var(--panel-soft);
+        var(--panel2);
 }
 
 
-.source-type {
+.file-card {
 
-    color:
-        var(--muted);
-
-    font-size: 8px;
-
-    text-transform: uppercase;
-
-    letter-spacing: 0.08em;
-
-    margin-bottom: 4px;
+    cursor: pointer;
 }
 
 
-.source-name {
+.file-card.active {
 
-    font-size: 10px;
+    border-color:
+        var(--green);
+
+    background:
+        rgba(54,227,163,0.06);
+}
+
+
+.file-name,
+.source-name,
+.result-name {
+
+    font-size: 9px;
 
     font-weight: 800;
-
-    overflow-wrap: anywhere;
 }
 
 
-.source-detail {
+.file-meta,
+.source-detail,
+.result-detail {
 
     margin-top: 4px;
 
     color:
         var(--muted);
 
+    font-size: 7px;
+}
+
+
+.active-document {
+
+    margin: 7px;
+
+    padding: 8px;
+
+    border:
+        1px solid
+        rgba(54,227,163,0.2);
+
+    border-radius: 9px;
+}
+
+
+.active-document strong {
+
+    display: block;
+
+    margin-top: 3px;
+
     font-size: 9px;
+}
+
+
+.document-actions {
+
+    margin:
+        0 7px 7px;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 5px;
+}
+
+
+.document-actions button {
+
+    min-height: 31px;
+
+    font-size: 8px;
+}
+
+
+.drop-zone {
+
+    margin:
+        0 7px 7px;
+
+    padding: 9px;
+
+    text-align: center;
+
+    border:
+        1px dashed
+        rgba(100,232,255,0.26);
+
+    border-radius: 9px;
+
+    font-size: 9px;
+
+    cursor: pointer;
+}
+
+
+.preview-fragment {
+
+    margin:
+        6px 7px;
+
+    padding: 8px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 9px;
+
+    font-size: 8px;
+
+    line-height: 1.4;
+
+    white-space:
+        pre-wrap;
 }
 
 
 .activity-event {
 
-    padding:
-        6px 0;
+    padding: 7px;
+
+    margin:
+        0 7px;
 
     border-bottom:
         1px solid
         rgba(255,255,255,0.05);
 
-    font-size: 9px;
-
-    line-height: 1.4;
-
-    overflow-wrap: anywhere;
-}
-
-
-.activity-time {
-
-    color:
-        var(--muted);
-
-    margin-right: 5px;
+    font-size: 8px;
 }
 
 
 .empty {
 
+    padding: 9px;
+
     color:
         var(--muted);
 
-    font-size: 10px;
-
-    padding: 5px;
+    font-size: 8px;
 }
 
 
-/* ============================================================
-   RESOLUCIONES DE ESCRITORIO MÁS PEQUEÑAS
-   MANTIENE SIEMPRE UNA SOLA VISTA
-============================================================ */
-
 @media (
-    max-width: 1250px
+    max-width: 1200px
 ) {
 
     .main-grid {
 
         grid-template-columns:
-            215px
-            minmax(400px,1fr)
-            280px;
-    }
-
-
-    .brand p {
-
-        max-width: 500px;
-    }
-}
-
-
-@media (
-    max-width: 1050px
-) {
-
-    .main-grid {
-
-        grid-template-columns:
-            190px
-            minmax(380px,1fr)
-            250px;
-    }
-
-
-    .avatar-scene {
-
-        transform:
-            scale(0.85);
-    }
-
-
-    .capabilities {
-
-        grid-template-columns:
-            1fr;
-    }
-}
-
-
-/*
-   En móviles sí permitimos una interfaz diferente,
-   pero en escritorio queda completamente fija.
-*/
-
-@media (
-    max-width: 760px
-) {
-
-    html,
-    body {
-
-        overflow:
-            auto;
-    }
-
-
-    .app {
-
-        height:
-            auto;
-
-        min-height:
-            100dvh;
-
-        overflow:
-            visible;
-
-        display:
-            flex;
-
-        flex-direction:
-            column;
-    }
-
-
-    .topbar {
-
-        align-items:
-            flex-start;
-
-        flex-direction:
-            column;
-    }
-
-
-    .conversation-bar {
-
-        grid-template-columns:
-            1fr;
-    }
-
-
-    .main-grid {
-
-        display:
-            flex;
-
-        flex-direction:
-            column;
-
-        height:
-            auto;
-
-        overflow:
-            visible;
-    }
-
-
-    .avatar-panel {
-
-        height:
-            440px;
-    }
-
-
-    .chat-panel {
-
-        height:
-            650px;
-    }
-
-
-    .right-column {
-
-        height:
-            auto;
-
-        overflow:
-            visible;
-    }
-
-
-    .controls {
-
-        grid-template-columns:
-            1fr;
+            185px
+            minmax(390px,1fr)
+            380px;
     }
 }
 
@@ -1873,34 +1328,25 @@ textarea {
 
 </head>
 
-
 <body>
-
 
 <div class="app">
 
-
-<!-- ============================================================
-     TOPBAR
-============================================================ -->
 
 <div class="topbar">
 
     <div class="brand">
 
-        <div class="brand-logo">
-            ◉
-        </div>
+        <div class="brand-logo"></div>
 
-
-        <div class="brand-text">
+        <div>
 
             <h1>
                 Mi Agente IA
             </h1>
 
             <p>
-                Voz · Texto · Documentos · RAG · Memoria · Google Drive
+                Realtime · RAG · OCR · Drive · Calendar · Memoria
             </p>
 
         </div>
@@ -1924,10 +1370,6 @@ textarea {
 </div>
 
 
-<!-- ============================================================
-     SELECTOR DE CONVERSACIÓN
-============================================================ -->
-
 <div class="conversation-bar glass">
 
     <select id="selectorConversacion">
@@ -1938,50 +1380,34 @@ textarea {
 
     </select>
 
-
     <button
         id="nuevaConversacion"
         class="secondary"
     >
-        ＋ Nueva conversación
+        ＋ Nueva
     </button>
 
 </div>
 
 
-<!-- ============================================================
-     GRID PRINCIPAL
-============================================================ -->
-
 <div class="main-grid">
 
 
-<!-- ============================================================
-     AVATAR
-============================================================ -->
+<!-- AVATAR -->
 
 <div class="panel glass avatar-panel">
 
-
     <div class="panel-title">
-        Agente
+        <span>Agente</span>
+        <span>V2.3</span>
     </div>
 
 
     <div class="avatar-area">
 
-
         <div class="avatar-scene">
 
-
-            <div class="ring"></div>
-
-
-            <div
-                id="halo"
-                class="halo"
-            ></div>
-
+            <div class="orbit"></div>
 
             <div
                 id="avatar"
@@ -1990,52 +1416,28 @@ textarea {
 
                 <div class="face">
 
-
                     <div class="eye left">
-
-                        <div class="eyelid"></div>
-
+                        <div class="pupil"></div>
                     </div>
-
 
                     <div class="eye right">
-
-                        <div class="eyelid"></div>
-
+                        <div class="pupil"></div>
                     </div>
 
-
                     <div class="mouth"></div>
-
 
                 </div>
 
             </div>
-
 
         </div>
 
 
         <div
             id="avatarLabel"
-            class="avatar-label"
+            class="avatar-state"
         >
             Esperando activación
-        </div>
-
-
-        <div
-            class="wave"
-        >
-
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-
         </div>
 
 
@@ -2046,72 +1448,50 @@ textarea {
             Sistema disponible
         </div>
 
-
     </div>
 
 
     <div class="capabilities">
 
-
         <div class="cap">
-
             🧠 Memoria<br>
-
-            <span>
-                ● Activa
-            </span>
-
+            <span>● Activa</span>
         </div>
 
-
         <div class="cap">
-
             📚 RAG<br>
-
-            <span>
-                ● Activo
-            </span>
-
+            <span>● Activo</span>
         </div>
-
 
         <div class="cap">
-
-            ☁️ Drive<br>
-
-            <span>
-                ● Activo
-            </span>
-
+            ☁ Drive<br>
+            <span>● Lectura</span>
         </div>
-
 
         <div class="cap">
-
-            💾 Historial<br>
-
-            <span>
-                ● Activo
-            </span>
-
+            📅 Calendar<br>
+            <span>● Activo</span>
         </div>
-
 
     </div>
-
 
 </div>
 
 
-<!-- ============================================================
-     CHAT
-============================================================ -->
+<!-- CHAT -->
 
 <div class="panel glass chat-panel">
 
-
     <div class="panel-title">
-        Conversación
+
+        <span>
+            Conversación
+        </span>
+
+        <span id="chatDocumentIndicator">
+            Sin documento activo
+        </span>
+
     </div>
 
 
@@ -2121,7 +1501,7 @@ textarea {
     >
 
         <div class="empty">
-            Selecciona una conversación o inicia una nueva.
+            Inicia una conversación.
         </div>
 
     </div>
@@ -2129,34 +1509,26 @@ textarea {
 
     <div class="composer-wrap">
 
-
         <div class="composer">
-
 
             <button
                 id="adjuntar"
                 class="icon-button"
-                title="Adjuntar documento"
             >
                 📎
             </button>
 
-
             <textarea
                 id="textoMensaje"
-                rows="1"
                 placeholder="Escribe un mensaje..."
             ></textarea>
-
 
             <button
                 id="enviarTexto"
                 class="primary"
-                title="Enviar mensaje"
             >
                 ➤
             </button>
-
 
         </div>
 
@@ -2171,14 +1543,12 @@ textarea {
 
         <div class="controls">
 
-
             <button
                 id="conectar"
                 class="primary"
             >
-                🎙 Iniciar agente
+                🎙 Iniciar
             </button>
-
 
             <button
                 id="desconectar"
@@ -2188,7 +1558,6 @@ textarea {
                 ⏹ Finalizar
             </button>
 
-
             <button
                 id="limpiar"
                 class="secondary"
@@ -2196,140 +1565,266 @@ textarea {
                 🧹 Limpiar
             </button>
 
-
         </div>
 
-
     </div>
-
 
 </div>
 
 
-<!-- ============================================================
-     DERECHA
-============================================================ -->
-
-<div class="right-column">
-
-
-<!-- DOCUMENTOS -->
+<!-- PANEL DERECHO -->
 
 <div class="panel glass right-panel">
 
-
     <div class="panel-title">
-        Documentos / RAG
-    </div>
 
+        <span>
+            Centro operativo
+        </span>
 
-    <div
-        id="dropZone"
-        class="drop-zone"
-    >
-
-        <strong>
-            📄 Subir documento
-        </strong>
-
-        <small>
-            Clic o arrastra PDF · DOCX · TXT
-        </small>
+        <span>
+            V2.3
+        </span>
 
     </div>
 
 
+    <div class="tabs">
+
+        <button
+            class="tab active"
+            data-tab="agenda"
+        >
+            Agenda
+        </button>
+
+        <button
+            class="tab"
+            data-tab="biblioteca"
+        >
+            Docs
+        </button>
+
+        <button
+            class="tab"
+            data-tab="resultados"
+        >
+            Buscar
+        </button>
+
+        <button
+            class="tab"
+            data-tab="fuentes"
+        >
+            Fuentes
+        </button>
+
+        <button
+            class="tab"
+            data-tab="actividad"
+        >
+            Actividad
+        </button>
+
+    </div>
+
+
+    <!-- AGENDA -->
+
     <div
-        id="uploadStatus"
-        class="upload-status"
-    ></div>
-
-
-    <div
-        id="progress"
-        class="progress"
-    ></div>
-
-
-    <div
-        id="fileList"
-        class="file-list"
+        id="tab-agenda"
+        class="tab-content active"
     >
 
-        <div class="empty">
-            Cargando documentos...
+        <div class="agenda-toolbar">
+
+            <button
+                id="refrescarAgenda"
+                class="secondary"
+            >
+                ↻ Actualizar agenda
+            </button>
+
+        </div>
+
+        <div
+            id="agendaLista"
+            class="scroll-area"
+        >
+
+            <div class="empty">
+                Cargando agenda...
+            </div>
+
         </div>
 
     </div>
 
 
-</div>
+    <!-- BIBLIOTECA -->
+
+    <div
+        id="tab-biblioteca"
+        class="tab-content"
+    >
+
+        <div class="library-toolbar">
+
+            <input
+                id="filtroBiblioteca"
+                placeholder="Filtrar documentos..."
+            >
+
+            <button
+                id="refrescarBiblioteca"
+                class="secondary"
+            >
+                ↻
+            </button>
+
+        </div>
 
 
-<!-- FUENTES -->
+        <div class="active-document">
 
-<div class="panel glass right-panel">
+            Documento activo:
+
+            <strong
+                id="documentActiveName"
+            >
+                Ninguno
+            </strong>
+
+        </div>
 
 
-    <div class="panel-title">
-        Fuentes utilizadas
+        <div class="document-actions">
+
+            <button
+                id="reindexarDocumento"
+                class="secondary"
+                disabled
+            >
+                🔄 Indexar
+            </button>
+
+            <button
+                id="eliminarDocumento"
+                class="danger"
+                disabled
+            >
+                🗑 Quitar RAG
+            </button>
+
+        </div>
+
+
+        <div
+            id="dropZone"
+            class="drop-zone"
+        >
+            📄 Subir PDF · DOCX · TXT
+        </div>
+
+
+        <div
+            id="fileList"
+            class="scroll-area"
+        ></div>
+
     </div>
 
 
+    <!-- RESULTADOS -->
+
     <div
-        id="fuentes"
-        class="source-list"
+        id="tab-resultados"
+        class="tab-content"
     >
 
-        <div class="empty">
-            Sin fuentes consultadas.
+        <div class="search-row">
+
+            <input
+                id="busquedaGlobal"
+                placeholder="Buscar RAG + local + Drive..."
+            >
+
+            <button
+                id="botonBusquedaGlobal"
+                class="primary"
+            >
+                Buscar
+            </button>
+
+        </div>
+
+        <div
+            id="resultadosBusqueda"
+            class="scroll-area"
+        >
+
+            <div class="empty">
+                Sin búsqueda.
+            </div>
+
         </div>
 
     </div>
 
 
-</div>
-
-
-<!-- ACTIVIDAD -->
-
-<div class="panel glass right-panel">
-
-
-    <div class="panel-title">
-        Actividad
-    </div>
-
+    <!-- FUENTES -->
 
     <div
-        id="actividad"
-        class="activity-list"
+        id="tab-fuentes"
+        class="tab-content"
     >
 
-        <div class="activity-event">
-            Sistema preparado.
+        <div
+            id="fuentes"
+            class="scroll-area"
+        >
+
+            <div class="empty">
+                Sin fuentes.
+            </div>
+
         </div>
 
     </div>
 
 
+    <!-- ACTIVIDAD -->
+
+    <div
+        id="tab-actividad"
+        class="tab-content"
+    >
+
+        <div
+            id="actividad"
+            class="scroll-area"
+        >
+
+            <div class="activity-event">
+                Sistema preparado.
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 
 </div>
-
-
-</div>
-
 
 </div>
 
 
 <script>
 
-
 // ============================================================
-// ESTADO GLOBAL
+// ESTADO
 // ============================================================
 
 let pc = null;
@@ -2340,177 +1835,241 @@ let localStream = null;
 
 let audioRemoto = null;
 
-
-let audioContext = null;
-
-let analyser = null;
-
-let analyserData = null;
-
-let analyserFrame = null;
-
-
 let conversacionId = null;
 
 let historialSeleccionado = [];
 
+let archivoActivo = null;
+
+let datosArchivoActivo = null;
+
+let bibliotecaActual = [];
+
+let conectando = false;
+
+let mensajeUsuarioTemporal = null;
+
+let mensajeAsistenteTemporal = null;
 
 let transcripcionUsuario = "";
 
 let transcripcionAsistente = "";
 
 
-let mensajeUsuarioTemporal = null;
-
-let mensajeAsistenteTemporal = null;
-
-
-let archivoReciente = null;
-
-let conectando = false;
-
-
 // ============================================================
-// ELEMENTOS
+// DOM
 // ============================================================
-
-const selectorConversacion =
-    document.getElementById(
-        "selectorConversacion"
-    );
-
-
-const botonNuevaConversacion =
-    document.getElementById(
-        "nuevaConversacion"
-    );
-
-
-const botonConectar =
-    document.getElementById(
-        "conectar"
-    );
-
-
-const botonDesconectar =
-    document.getElementById(
-        "desconectar"
-    );
-
-
-const botonLimpiar =
-    document.getElementById(
-        "limpiar"
-    );
-
-
-const botonEnviarTexto =
-    document.getElementById(
-        "enviarTexto"
-    );
-
-
-const textoMensaje =
-    document.getElementById(
-        "textoMensaje"
-    );
-
-
-const botonAdjuntar =
-    document.getElementById(
-        "adjuntar"
-    );
-
-
-const inputArchivo =
-    document.getElementById(
-        "inputArchivo"
-    );
-
-
-const dropZone =
-    document.getElementById(
-        "dropZone"
-    );
-
-
-const uploadStatus =
-    document.getElementById(
-        "uploadStatus"
-    );
-
-
-const progress =
-    document.getElementById(
-        "progress"
-    );
-
-
-const fileList =
-    document.getElementById(
-        "fileList"
-    );
-
-
-const estado =
-    document.getElementById(
-        "estado"
-    );
-
-
-const statusDot =
-    document.getElementById(
-        "statusDot"
-    );
-
-
-const avatar =
-    document.getElementById(
-        "avatar"
-    );
-
-
-const halo =
-    document.getElementById(
-        "halo"
-    );
-
-
-const avatarLabel =
-    document.getElementById(
-        "avatarLabel"
-    );
-
-
-const agentInfo =
-    document.getElementById(
-        "agentInfo"
-    );
-
-
-const waveBars =
-    Array.from(
-        document.querySelectorAll(
-            ".wave-bar"
-        )
-    );
-
 
 const chat =
     document.getElementById(
         "chat"
     );
 
+const actividad =
+    document.getElementById(
+        "actividad"
+    );
 
 const fuentes =
     document.getElementById(
         "fuentes"
     );
 
-
-const actividad =
+const estado =
     document.getElementById(
-        "actividad"
+        "estado"
+    );
+
+const statusDot =
+    document.getElementById(
+        "statusDot"
+    );
+
+const avatar =
+    document.getElementById(
+        "avatar"
+    );
+
+const avatarLabel =
+    document.getElementById(
+        "avatarLabel"
+    );
+
+const agentInfo =
+    document.getElementById(
+        "agentInfo"
+    );
+
+const selectorConversacion =
+    document.getElementById(
+        "selectorConversacion"
+    );
+
+const botonNueva =
+    document.getElementById(
+        "nuevaConversacion"
+    );
+
+const botonConectar =
+    document.getElementById(
+        "conectar"
+    );
+
+const botonDesconectar =
+    document.getElementById(
+        "desconectar"
+    );
+
+const botonLimpiar =
+    document.getElementById(
+        "limpiar"
+    );
+
+const textoMensaje =
+    document.getElementById(
+        "textoMensaje"
+    );
+
+const botonEnviar =
+    document.getElementById(
+        "enviarTexto"
+    );
+
+const botonAdjuntar =
+    document.getElementById(
+        "adjuntar"
+    );
+
+const inputArchivo =
+    document.getElementById(
+        "inputArchivo"
+    );
+
+const dropZone =
+    document.getElementById(
+        "dropZone"
+    );
+
+const fileList =
+    document.getElementById(
+        "fileList"
+    );
+
+const documentActiveName =
+    document.getElementById(
+        "documentActiveName"
+    );
+
+const chatDocumentIndicator =
+    document.getElementById(
+        "chatDocumentIndicator"
+    );
+
+const eliminarDocumento =
+    document.getElementById(
+        "eliminarDocumento"
+    );
+
+const reindexarDocumento =
+    document.getElementById(
+        "reindexarDocumento"
+    );
+
+const filtroBiblioteca =
+    document.getElementById(
+        "filtroBiblioteca"
+    );
+
+const refrescarBiblioteca =
+    document.getElementById(
+        "refrescarBiblioteca"
+    );
+
+const agendaLista =
+    document.getElementById(
+        "agendaLista"
+    );
+
+const refrescarAgenda =
+    document.getElementById(
+        "refrescarAgenda"
+    );
+
+const busquedaGlobal =
+    document.getElementById(
+        "busquedaGlobal"
+    );
+
+const botonBusquedaGlobal =
+    document.getElementById(
+        "botonBusquedaGlobal"
+    );
+
+const resultadosBusqueda =
+    document.getElementById(
+        "resultadosBusqueda"
+    );
+
+
+// ============================================================
+// TABS
+// ============================================================
+
+function activarTab(
+    nombre
+) {
+
+    document
+        .querySelectorAll(
+            ".tab"
+        )
+        .forEach(
+            tab => {
+
+                tab.classList.toggle(
+                    "active",
+                    tab.dataset.tab
+                    ===
+                    nombre
+                );
+            }
+        );
+
+    document
+        .querySelectorAll(
+            ".tab-content"
+        )
+        .forEach(
+            panel => {
+
+                panel.classList.toggle(
+                    "active",
+                    panel.id
+                    ===
+                    "tab-"
+                    +
+                    nombre
+                );
+            }
+        );
+}
+
+
+document
+    .querySelectorAll(
+        ".tab"
+    )
+    .forEach(
+        tab => {
+
+            tab.onclick =
+                () => {
+
+                    activarTab(
+                        tab.dataset.tab
+                    );
+                };
+        }
     );
 
 
@@ -2522,46 +2081,23 @@ function registrarActividad(
     texto
 ) {
 
-    const hora =
-        new Date()
-        .toLocaleTimeString();
-
-
     const elemento =
         document.createElement(
             "div"
         );
 
-
     elemento.className =
         "activity-event";
 
-
-    const horaSpan =
-        document.createElement(
-            "span"
-        );
-
-
-    horaSpan.className =
-        "activity-time";
-
-
-    horaSpan.textContent =
-        hora;
-
-
-    elemento.appendChild(
-        horaSpan
-    );
-
-
-    elemento.appendChild(
-        document.createTextNode(
+    elemento.textContent =
+        (
+            new Date()
+            .toLocaleTimeString()
+            +
+            "  "
+            +
             texto
-        )
-    );
-
+        );
 
     actividad.prepend(
         elemento
@@ -2573,44 +2109,6 @@ function registrarActividad(
 // AVATAR
 // ============================================================
 
-function resetWave() {
-
-    waveBars.forEach(
-        barra => {
-
-            barra.style.height =
-                "6px";
-
-            barra.style.opacity =
-                "0.35";
-        }
-    );
-}
-
-
-function waveArtificial() {
-
-    waveBars.forEach(
-        barra => {
-
-            barra.style.height =
-                (
-                    8
-                    +
-                    Math.random()
-                    * 21
-                )
-                +
-                "px";
-
-
-            barra.style.opacity =
-                "0.8";
-        }
-    );
-}
-
-
 function estadoAvatar(
     tipo
 ) {
@@ -2619,387 +2117,107 @@ function estadoAvatar(
         "speaking"
     );
 
-
     statusDot.className =
         "status-dot";
 
 
-    if (
-        tipo === "idle"
-    ) {
+    if (tipo === "idle") {
 
         estado.textContent =
             "Desconectado";
 
-
         avatarLabel.textContent =
             "Esperando activación";
 
-
         agentInfo.textContent =
             "Sistema disponible";
-
-
-        halo.style.boxShadow =
-            "0 0 30px rgba(99,231,255,0.13)";
-
-
-        resetWave();
     }
 
 
-    if (
-        tipo === "connected"
-    ) {
+    if (tipo === "listening") {
+
+        statusDot.classList.add(
+            "listening"
+        );
+
+        estado.textContent =
+            "Escuchando";
+
+        avatarLabel.textContent =
+            "Te escucho";
+
+        agentInfo.textContent =
+            "Micrófono activo";
+    }
+
+
+    if (tipo === "processing") {
+
+        statusDot.classList.add(
+            "processing"
+        );
+
+        estado.textContent =
+            "Procesando";
+
+        avatarLabel.textContent =
+            "Analizando...";
+
+        agentInfo.textContent =
+            "Procesando información";
+    }
+
+
+    if (tipo === "speaking") {
 
         statusDot.classList.add(
             "connected"
         );
 
+        avatar.classList.add(
+            "speaking"
+        );
+
+        estado.textContent =
+            "Respondiendo";
+
+        avatarLabel.textContent =
+            "Hablando";
+
+        agentInfo.textContent =
+            "Realtime activo";
+    }
+
+
+    if (tipo === "connected") {
+
+        statusDot.classList.add(
+            "connected"
+        );
 
         estado.textContent =
             "Conectado";
 
-
         avatarLabel.textContent =
             "Listo";
-
 
         agentInfo.textContent =
             "Sesión activa";
     }
 
 
-    if (
-        tipo === "listening"
-    ) {
-
-        statusDot.classList.add(
-            "listening"
-        );
-
-
-        estado.textContent =
-            "Escuchando";
-
-
-        avatarLabel.textContent =
-            "Te escucho";
-
-
-        agentInfo.textContent =
-            "Micrófono activo";
-
-
-        halo.style.boxShadow =
-            "0 0 42px rgba(255,211,92,0.28)";
-    }
-
-
-    if (
-        tipo === "processing"
-    ) {
-
-        statusDot.classList.add(
-            "processing"
-        );
-
-
-        estado.textContent =
-            "Procesando";
-
-
-        avatarLabel.textContent =
-            "Pensando...";
-
-
-        agentInfo.textContent =
-            "Analizando";
-
-
-        halo.style.boxShadow =
-            "0 0 42px rgba(92,157,255,0.30)";
-
-
-        waveArtificial();
-    }
-
-
-    if (
-        tipo === "speaking"
-    ) {
-
-        statusDot.classList.add(
-            "connected"
-        );
-
-
-        estado.textContent =
-            "Respondiendo";
-
-
-        avatarLabel.textContent =
-            "Hablando";
-
-
-        agentInfo.textContent =
-            "Respuesta en tiempo real";
-
-
-        avatar.classList.add(
-            "speaking"
-        );
-
-
-        halo.style.boxShadow =
-            "0 0 45px rgba(99,231,255,0.34)";
-
-
-        waveArtificial();
-    }
-
-
-    if (
-        tipo === "error"
-    ) {
+    if (tipo === "error") {
 
         statusDot.classList.add(
             "error"
         );
 
-
         estado.textContent =
             "Error";
 
-
         avatarLabel.textContent =
             "Problema detectado";
-
-
-        agentInfo.textContent =
-            "Revisa actividad";
-
-
-        halo.style.boxShadow =
-            "0 0 42px rgba(255,102,121,0.34)";
-
-
-        resetWave();
     }
-}
-
-
-function parpadear() {
-
-    avatar.classList.remove(
-        "blink"
-    );
-
-
-    void avatar.offsetWidth;
-
-
-    avatar.classList.add(
-        "blink"
-    );
-
-
-    setTimeout(
-        () => {
-
-            avatar.classList.remove(
-                "blink"
-            );
-
-        },
-        250
-    );
-}
-
-
-setInterval(
-    () => {
-
-        if (
-            Math.random()
-            > 0.15
-        ) {
-
-            parpadear();
-        }
-
-    },
-    2800
-);
-
-
-// ============================================================
-// ANALIZADOR DEL MICRÓFONO
-// ============================================================
-
-function iniciarAnalizador() {
-
-    if (!localStream) {
-        return;
-    }
-
-
-    try {
-
-        audioContext =
-            new AudioContext();
-
-
-        analyser =
-            audioContext
-            .createAnalyser();
-
-
-        analyser.fftSize =
-            256;
-
-
-        analyserData =
-            new Uint8Array(
-                analyser.frequencyBinCount
-            );
-
-
-        const source =
-            audioContext
-            .createMediaStreamSource(
-                localStream
-            );
-
-
-        source.connect(
-            analyser
-        );
-
-
-        function actualizar() {
-
-            if (!analyser) {
-                return;
-            }
-
-
-            analyser.getByteFrequencyData(
-                analyserData
-            );
-
-
-            const paso =
-                Math.max(
-                    1,
-                    Math.floor(
-                        analyserData.length
-                        /
-                        waveBars.length
-                    )
-                );
-
-
-            waveBars.forEach(
-                (
-                    barra,
-                    indice
-                ) => {
-
-                    const valor =
-                        analyserData[
-                            indice
-                            *
-                            paso
-                        ]
-                        ||
-                        0;
-
-
-                    barra.style.height =
-                        (
-                            5
-                            +
-                            valor
-                            /
-                            255
-                            *
-                            26
-                        )
-                        +
-                        "px";
-
-
-                    barra.style.opacity =
-                        String(
-                            0.35
-                            +
-                            valor
-                            /
-                            255
-                            *
-                            0.65
-                        );
-                }
-            );
-
-
-            analyserFrame =
-                requestAnimationFrame(
-                    actualizar
-                );
-        }
-
-
-        actualizar();
-
-    }
-
-    catch(error) {
-
-        console.warn(
-            "Analizador de audio:",
-            error
-        );
-    }
-}
-
-
-function detenerAnalizador() {
-
-    if (
-        analyserFrame
-    ) {
-
-        cancelAnimationFrame(
-            analyserFrame
-        );
-
-
-        analyserFrame =
-            null;
-    }
-
-
-    analyser =
-        null;
-
-
-    if (
-        audioContext
-    ) {
-
-        audioContext
-            .close()
-            .catch(() => {});
-
-
-        audioContext =
-            null;
-    }
-
-
-    resetWave();
 }
 
 
@@ -3007,14 +2225,7 @@ function detenerAnalizador() {
 // CHAT
 // ============================================================
 
-function limpiarChat() {
-
-    chat.innerHTML =
-        "";
-}
-
-
-function scrollChatAbajo() {
+function scrollChat() {
 
     requestAnimationFrame(
         () => {
@@ -3032,13 +2243,12 @@ function crearMensaje(
     temporal=false
 ) {
 
-    const elemento =
+    const mensaje =
         document.createElement(
             "div"
         );
 
-
-    elemento.className =
+    mensaje.className =
         (
             role === "user"
             ?
@@ -3047,12 +2257,9 @@ function crearMensaje(
             "message assistant"
         );
 
+    if (temporal) {
 
-    if (
-        temporal
-    ) {
-
-        elemento.classList.add(
+        mensaje.classList.add(
             "partial"
         );
     }
@@ -3063,10 +2270,8 @@ function crearMensaje(
             "span"
         );
 
-
     autor.className =
         "message-author";
-
 
     autor.textContent =
         (
@@ -3083,80 +2288,53 @@ function crearMensaje(
             "span"
         );
 
-
     contenido.className =
         "message-content";
-
 
     contenido.textContent =
         texto;
 
 
-    elemento.appendChild(
+    mensaje.appendChild(
         autor
     );
 
-
-    elemento.appendChild(
+    mensaje.appendChild(
         contenido
     );
 
-
     chat.appendChild(
-        elemento
+        mensaje
     );
 
+    scrollChat();
 
-    scrollChatAbajo();
-
-
-    return elemento;
+    return mensaje;
 }
 
 
 function actualizarMensaje(
     elemento,
     texto,
-    temporal=true
+    temporal
 ) {
 
-    if (
-        !elemento
-    ) {
-
+    if (!elemento)
         return;
-    }
 
-
-    const contenido =
-        elemento.querySelector(
+    elemento
+        .querySelector(
             ".message-content"
-        );
+        )
+        .textContent =
+            texto;
 
-
-    contenido.textContent =
-        texto;
-
-
-    if (
+    elemento.classList.toggle(
+        "partial",
         temporal
-    ) {
+    );
 
-        elemento.classList.add(
-            "partial"
-        );
-
-    }
-
-    else {
-
-        elemento.classList.remove(
-            "partial"
-        );
-    }
-
-
-    scrollChatAbajo();
+    scrollChat();
 }
 
 
@@ -3164,122 +2342,50 @@ function actualizarMensaje(
 // CONVERSACIONES
 // ============================================================
 
-async function cargarListaConversaciones() {
+async function cargarConversaciones() {
 
-    try {
-
-        const actual =
-            selectorConversacion.value;
-
-
-        const respuesta =
-            await fetch(
-                "/conversations"
-            );
-
-
-        const datos =
-            await respuesta.json();
-
-
-        if (
-            !respuesta.ok
-        ) {
-
-            throw new Error(
-                JSON.stringify(
-                    datos
-                )
-            );
-        }
-
-
-        selectorConversacion.innerHTML =
-            "";
-
-
-        const nueva =
-            document.createElement(
-                "option"
-            );
-
-
-        nueva.value =
-            "";
-
-
-        nueva.textContent =
-            "Nueva conversación";
-
-
-        selectorConversacion.appendChild(
-            nueva
+    const respuesta =
+        await fetch(
+            "/conversations"
         );
 
+    const datos =
+        await respuesta.json();
 
-        (
-            datos.result
-            ||
-            []
-        )
-        .forEach(
-            item => {
+    selectorConversacion.innerHTML =
+        `<option value="">Nueva conversación</option>`;
 
-                const opcion =
-                    document.createElement(
-                        "option"
-                    );
+    (
+        datos.result
+        ||
+        []
+    )
+    .forEach(
+        item => {
 
+            const opcion =
+                document.createElement(
+                    "option"
+                );
 
-                opcion.value =
-                    item.id;
+            opcion.value =
+                item.id;
 
+            opcion.textContent =
+                item.titulo
+                ||
+                (
+                    "Conversación "
+                    +
+                    item.id
+                );
 
-                opcion.textContent =
-                    (
-                        item.titulo
-                        ||
-                        (
-                            "Conversación "
-                            +
-                            item.id
-                        )
-                    );
-
-
-                selectorConversacion.appendChild(
+            selectorConversacion
+                .appendChild(
                     opcion
                 );
-            }
-        );
-
-
-        if (
-            actual
-        ) {
-
-            selectorConversacion.value =
-                actual;
         }
-
-
-        registrarActividad(
-            "💬 Historial sincronizado."
-        );
-
-    }
-
-    catch(error) {
-
-        console.error(
-            error
-        );
-
-
-        registrarActividad(
-            "⚠ Error cargando historial."
-        );
-    }
+    );
 }
 
 
@@ -3287,134 +2393,56 @@ async function cargarConversacion(
     id
 ) {
 
-    if (
-        !id
-    ) {
+    chat.innerHTML =
+        "";
+
+    if (!id) {
 
         conversacionId =
             null;
 
-
         historialSeleccionado =
             [];
 
-
-        limpiarChat();
-
-
-        const vacio =
-            document.createElement(
-                "div"
-            );
-
-
-        vacio.className =
-            "empty";
-
-
-        vacio.textContent =
-            "Se creará una nueva conversación al enviar un mensaje o iniciar voz.";
-
-
-        chat.appendChild(
-            vacio
-        );
-
+        chat.innerHTML =
+            `<div class="empty">Nueva conversación.</div>`;
 
         return;
     }
 
-
-    try {
-
-        estadoAvatar(
-            "processing"
+    const respuesta =
+        await fetch(
+            `/conversation/${id}`
         );
 
+    const datos =
+        await respuesta.json();
 
-        const respuesta =
-            await fetch(
-                `/conversation/${id}`
-            );
+    conversacionId =
+        Number(id);
 
+    historialSeleccionado =
+        datos.mensajes
+        ||
+        [];
 
-        const datos =
-            await respuesta.json();
-
-
-        if (
-            !respuesta.ok
-        ) {
-
-            throw new Error(
-                JSON.stringify(
-                    datos
-                )
-            );
-        }
-
-
-        conversacionId =
-            Number(
-                id
-            );
-
-
-        historialSeleccionado =
-            datos.mensajes
-            ||
-            [];
-
-
-        limpiarChat();
-
-
-        historialSeleccionado.forEach(
-            item => {
+    historialSeleccionado
+        .forEach(
+            mensaje => {
 
                 crearMensaje(
-                    item.role,
-                    item.content,
-                    false
+                    mensaje.role,
+                    mensaje.content
                 );
             }
         );
-
-
-        estadoAvatar(
-            "idle"
-        );
-
-
-        registrarActividad(
-            "🔄 Conversación cargada."
-        );
-
-
-        scrollChatAbajo();
-
-    }
-
-    catch(error) {
-
-        console.error(
-            error
-        );
-
-
-        registrarActividad(
-            "❌ Error cargando conversación."
-        );
-
-
-        estadoAvatar(
-            "error"
-        );
-    }
 }
 
 
-async function crearConversacionPersistente() {
+async function asegurarConversacion() {
+
+    if (conversacionId)
+        return;
 
     const respuesta =
         await fetch(
@@ -3425,669 +2453,665 @@ async function crearConversacionPersistente() {
             }
         );
 
-
     const datos =
         await respuesta.json();
-
-
-    if (
-        !respuesta.ok
-    ) {
-
-        throw new Error(
-            JSON.stringify(
-                datos
-            )
-        );
-    }
-
 
     conversacionId =
         datos.conversacion_id;
 
-
-    historialSeleccionado =
-        [];
-
-
-    await cargarListaConversaciones();
-
+    await cargarConversaciones();
 
     selectorConversacion.value =
         String(
             conversacionId
         );
-
-
-    registrarActividad(
-        "💾 Nueva conversación creada."
-    );
 }
 
 
-async function guardarMensajePersistente(
+async function guardarMensaje(
     role,
     content
 ) {
 
-    if (
-        !conversacionId
-    ) {
-
+    if (!conversacionId)
         return;
-    }
 
+    await fetch(
+        "/conversation/message",
+        {
+            method:
+                "POST",
 
-    const texto =
-        (
-            content
-            ||
-            ""
-        ).trim();
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
 
+            body:
+                JSON.stringify({
+                    conversacion_id:
+                        conversacionId,
+                    role:
+                        role,
+                    content:
+                        content
+                })
+        }
+    );
 
-    if (
-        !texto
-    ) {
+    historialSeleccionado.push(
+        {
+            role:
+                role,
 
-        return;
-    }
-
-
-    const respuesta =
-        await fetch(
-            "/conversation/message",
-            {
-
-                method:
-                    "POST",
-
-                headers: {
-
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body:
-                    JSON.stringify({
-
-                        conversacion_id:
-                            conversacionId,
-
-                        role:
-                            role,
-
-                        content:
-                            texto
-                    })
-            }
-        );
-
-
-    if (
-        !respuesta.ok
-    ) {
-
-        const datos =
-            await respuesta.json();
-
-
-        console.error(
-            datos
-        );
-
-
-        return;
-    }
-
-
-    historialSeleccionado.push({
-
-        role:
-            role,
-
-        content:
-            texto
-    });
+            content:
+                content
+        }
+    );
 }
 
 
 // ============================================================
-// CONTEXTO
+// AGENDA
 // ============================================================
 
-function construirContextoHistorial() {
-
-    if (
-        !historialSeleccionado
-        ||
-        historialSeleccionado.length
-        === 0
-    ) {
-
-        return "";
-    }
-
-
-    const mensajes =
-        historialSeleccionado
-        .slice(
-            -20
-        );
-
-
-    let resultado =
-        "";
-
-
-    for (
-        const mensaje
-        of mensajes
-    ) {
-
-        resultado +=
-            (
-                mensaje.role
-                === "assistant"
-                ?
-                "ASISTENTE"
-                :
-                "USUARIO"
-            )
-            +
-            ": "
-            +
-            mensaje.content
-            +
-            "\n\n";
-    }
-
-
-    if (
-        resultado.length
-        >
-        12000
-    ) {
-
-        resultado =
-            resultado.slice(
-                -12000
-            );
-    }
-
-
-    return resultado;
-}
-
-
-// ============================================================
-// UPLOAD
-// ============================================================
-
-function mostrarEstadoUpload(
-    texto,
-    tipo=""
+function formatearFechaEvento(
+    valor
 ) {
 
-    uploadStatus.className =
-        "upload-status visible";
+    if (!valor)
+        return "";
 
+    try {
 
-    if (
-        tipo
-    ) {
+        const fecha =
+            new Date(
+                valor
+            );
 
-        uploadStatus.classList.add(
-            tipo
-        );
+        if (
+            Number.isNaN(
+                fecha.getTime()
+            )
+        ) {
+
+            return valor;
+        }
+
+        return fecha
+            .toLocaleString(
+                "es-CL",
+                {
+                    weekday:
+                        "short",
+
+                    day:
+                        "2-digit",
+
+                    month:
+                        "short",
+
+                    hour:
+                        "2-digit",
+
+                    minute:
+                        "2-digit",
+                }
+            );
+
+    } catch {
+
+        return valor;
     }
-
-
-    uploadStatus.textContent =
-        texto;
 }
 
 
-async function cargarArchivosRag() {
+async function cargarAgenda() {
+
+    agendaLista.innerHTML =
+        `<div class="empty">Cargando agenda...</div>`;
 
     try {
 
         const respuesta =
             await fetch(
-                "/rag/files"
+                "/calendar/events?limite=12"
             );
-
 
         const datos =
             await respuesta.json();
 
-
-        if (
-            !respuesta.ok
-        ) {
+        if (!respuesta.ok) {
 
             throw new Error(
                 datos.error
                 ||
-                "Error"
+                "Error Calendar"
             );
         }
 
-
-        fileList.innerHTML =
+        agendaLista.innerHTML =
             "";
 
-
-        const archivos =
-            datos.result
-            ||
-            [];
-
-
         if (
-            archivos.length
+            !datos.result
+            ||
+            datos.result.length
             === 0
         ) {
 
-            const vacio =
-                document.createElement(
-                    "div"
-                );
-
-
-            vacio.className =
-                "empty";
-
-
-            vacio.textContent =
-                "No hay documentos indexados.";
-
-
-            fileList.appendChild(
-                vacio
-            );
-
+            agendaLista.innerHTML =
+                `<div class="empty">No hay próximos eventos.</div>`;
 
             return;
         }
 
-
-        archivos
-        .slice(
-            -40
-        )
-        .reverse()
-        .forEach(
-            item => {
+        datos.result.forEach(
+            evento => {
 
                 const card =
                     document.createElement(
                         "div"
                     );
 
-
                 card.className =
-                    "file-card";
+                    "event-card";
 
 
-                const nombre =
+                const titulo =
                     document.createElement(
                         "div"
                     );
 
+                titulo.className =
+                    "event-title";
 
-                nombre.className =
-                    "source-name";
-
-
-                nombre.textContent =
-                    item.archivo;
+                titulo.textContent =
+                    evento.titulo;
 
 
-                const detalle =
+                const fecha =
                     document.createElement(
                         "div"
                     );
 
+                fecha.className =
+                    "event-time";
 
-                detalle.className =
-                    "source-detail";
-
-
-                detalle.textContent =
+                fecha.textContent =
                     (
-                        item.fragmentos
+                        formatearFechaEvento(
+                            evento.inicio
+                        )
                         +
-                        " fragmentos · "
+                        " → "
                         +
-                        item.origen
+                        formatearFechaEvento(
+                            evento.fin
+                        )
                     );
 
 
                 card.appendChild(
-                    nombre
+                    titulo
                 );
-
 
                 card.appendChild(
-                    detalle
+                    fecha
                 );
 
 
-                fileList.appendChild(
+                if (
+                    evento.ubicacion
+                ) {
+
+                    const ubicacion =
+                        document.createElement(
+                            "div"
+                        );
+
+                    ubicacion.className =
+                        "event-location";
+
+                    ubicacion.textContent =
+                        (
+                            "📍 "
+                            +
+                            evento.ubicacion
+                        );
+
+                    card.appendChild(
+                        ubicacion
+                    );
+                }
+
+
+                agendaLista.appendChild(
                     card
                 );
             }
         );
 
-    }
-
-    catch(error) {
-
-        console.error(
-            error
+        registrarActividad(
+            "📅 Agenda actualizada."
         );
 
+    } catch(error) {
 
-        fileList.innerHTML =
+        agendaLista.innerHTML =
             "";
-
 
         const vacio =
             document.createElement(
                 "div"
             );
 
-
         vacio.className =
             "empty";
 
-
         vacio.textContent =
-            "No fue posible cargar documentos.";
+            (
+                "Error Calendar: "
+                +
+                error.message
+            );
 
-
-        fileList.appendChild(
+        agendaLista.appendChild(
             vacio
         );
     }
 }
 
 
+// ============================================================
+// BIBLIOTECA
+// ============================================================
+
+async function cargarBiblioteca() {
+
+    const respuesta =
+        await fetch(
+            "/library"
+        );
+
+    const datos =
+        await respuesta.json();
+
+    bibliotecaActual =
+        datos.documentos
+        ||
+        [];
+
+    renderBiblioteca();
+}
+
+
+function renderBiblioteca() {
+
+    const filtro =
+        filtroBiblioteca.value
+        .trim()
+        .toLowerCase();
+
+    fileList.innerHTML =
+        "";
+
+    const lista =
+        bibliotecaActual.filter(
+            item =>
+                (
+                    !filtro
+                    ||
+                    item.archivo
+                    .toLowerCase()
+                    .includes(
+                        filtro
+                    )
+                )
+        );
+
+    if (!lista.length) {
+
+        fileList.innerHTML =
+            `<div class="empty">Sin documentos.</div>`;
+
+        return;
+    }
+
+    lista.forEach(
+        documento => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+            card.className =
+                "file-card";
+
+            if (
+                documento.archivo
+                ===
+                archivoActivo
+            ) {
+
+                card.classList.add(
+                    "active"
+                );
+            }
+
+
+            const nombre =
+                document.createElement(
+                    "div"
+                );
+
+            nombre.className =
+                "file-name";
+
+            nombre.textContent =
+                documento.archivo;
+
+
+            const meta =
+                document.createElement(
+                    "div"
+                );
+
+            meta.className =
+                "file-meta";
+
+            meta.textContent =
+                (
+                    documento.origen
+                    +
+                    " · "
+                    +
+                    (
+                        documento.indexado
+                        ?
+                        documento.fragmentos
+                        +
+                        " fragmentos"
+                        :
+                        "sin indexar"
+                    )
+                );
+
+
+            card.appendChild(
+                nombre
+            );
+
+            card.appendChild(
+                meta
+            );
+
+
+            card.onclick =
+                () => {
+
+                    seleccionarDocumento(
+                        documento
+                    );
+                };
+
+
+            fileList.appendChild(
+                card
+            );
+        }
+    );
+}
+
+
+async function seleccionarDocumento(
+    documento
+) {
+
+    archivoActivo =
+        documento.archivo;
+
+    datosArchivoActivo =
+        documento;
+
+    documentActiveName.textContent =
+        archivoActivo;
+
+    chatDocumentIndicator.textContent =
+        (
+            "Activo: "
+            +
+            archivoActivo
+        );
+
+    reindexarDocumento.disabled =
+        false;
+
+    eliminarDocumento.disabled =
+        !documento.indexado;
+
+    renderBiblioteca();
+
+    if (
+        dc
+        &&
+        dc.readyState
+        ===
+        "open"
+    ) {
+
+        configurarSesion();
+    }
+
+    registrarActividad(
+        "📄 Documento activo: "
+        +
+        archivoActivo
+    );
+}
+
+
+// ============================================================
+// SUBIDA DOCUMENTO
+// ============================================================
+
 async function subirArchivo(
     archivo
 ) {
 
-    if (
-        !archivo
-    ) {
-
+    if (!archivo)
         return;
-    }
-
-
-    const nombre =
-        archivo.name
-        .toLowerCase();
-
-
-    const permitido =
-        (
-            nombre.endsWith(
-                ".pdf"
-            )
-            ||
-            nombre.endsWith(
-                ".docx"
-            )
-            ||
-            nombre.endsWith(
-                ".txt"
-            )
-        );
-
-
-    if (
-        !permitido
-    ) {
-
-        mostrarEstadoUpload(
-            "Formato no admitido. Usa PDF, DOCX o TXT.",
-            "error"
-        );
-
-
-        registrarActividad(
-            "⚠ Formato de archivo no admitido."
-        );
-
-
-        return;
-    }
-
-
-    if (
-        archivo.size
-        >
-        25
-        *
-        1024
-        *
-        1024
-    ) {
-
-        mostrarEstadoUpload(
-            "El archivo supera los 25 MB.",
-            "error"
-        );
-
-
-        return;
-    }
-
-
-    progress.classList.add(
-        "active"
-    );
-
-
-    mostrarEstadoUpload(
-        "1/4 Subiendo archivo..."
-    );
-
 
     estadoAvatar(
         "processing"
     );
 
-
     registrarActividad(
-        "📎 Indexando "
+        "📎 Procesando "
         +
         archivo.name
-        +
-        "..."
     );
 
-
-    const formData =
+    const formulario =
         new FormData();
 
-
-    formData.append(
+    formulario.append(
         "file",
-        archivo,
-        archivo.name
+        archivo
     );
 
+    const respuesta =
+        await fetch(
+            "/upload-rag",
+            {
+                method:
+                    "POST",
 
-    try {
-
-        mostrarEstadoUpload(
-            "2/4 Extrayendo contenido..."
+                body:
+                    formulario
+            }
         );
 
+    const datos =
+        await respuesta.json();
 
-        const respuesta =
-            await fetch(
-                "/upload-rag",
-                {
-
-                    method:
-                        "POST",
-
-                    body:
-                        formData
-                }
-            );
-
-
-        const datos =
-            await respuesta.json();
-
-
-        if (
-            !respuesta.ok
-        ) {
-
-            throw new Error(
-                (
-                    datos.etapa
-                    ?
-                    "["
-                    +
-                    datos.etapa
-                    +
-                    "] "
-                    :
-                    ""
-                )
-                +
-                (
-                    datos.error
-                    ||
-                    "Error subiendo documento."
-                )
-            );
-        }
-
-
-        mostrarEstadoUpload(
-            "3/4 Indexando en RAG..."
-        );
-
-
-        archivoReciente =
-            datos.archivo;
-
-
-        await cargarArchivosRag();
-
-
-        agregarFuente(
-            "Archivo local",
-            datos.archivo,
-            (
-                datos.duplicado
-                ?
-                "Ya estaba indexado"
-                :
-                (
-                    datos.fragmentos_agregados
-                    +
-                    " fragmentos"
-                )
-            )
-        );
-
-
-        if (
-            dc
-            &&
-            dc.readyState
-            === "open"
-        ) {
-
-            configurarSesion();
-        }
-
-
-        mostrarEstadoUpload(
-            "4/4 Listo · "
-            +
-            datos.archivo,
-            "success"
-        );
-
-
-        registrarActividad(
-            datos.duplicado
-            ?
-            "✅ Documento ya estaba indexado."
-            :
-            (
-                "✅ Documento indexado: "
-                +
-                datos.fragmentos_agregados
-                +
-                " fragmentos."
-            )
-        );
-
-
-        estadoAvatar(
-            (
-                dc
-                &&
-                dc.readyState
-                === "open"
-            )
-            ?
-            "connected"
-            :
-            "idle"
-        );
-
-    }
-
-    catch(error) {
-
-        console.error(
-            error
-        );
-
-
-        mostrarEstadoUpload(
-            "Error: "
-            +
-            error.message,
-            "error"
-        );
-
+    if (!respuesta.ok) {
 
         registrarActividad(
             "❌ "
             +
-            error.message
+            datos.error
         );
-
 
         estadoAvatar(
             "error"
         );
 
+        return;
     }
 
-    finally {
+    await cargarBiblioteca();
 
-        progress.classList.remove(
-            "active"
+    const documento =
+        bibliotecaActual.find(
+            item =>
+                item.archivo
+                ===
+                datos.archivo
         );
 
+    if (documento) {
 
-        inputArchivo.value =
-            "";
+        seleccionarDocumento(
+            documento
+        );
     }
+
+    registrarActividad(
+        "✅ Documento incorporado."
+    );
+
+    estadoAvatar(
+        dc
+        ?
+        "connected"
+        :
+        "idle"
+    );
+}
+
+
+// ============================================================
+// INDEXAR / ELIMINAR
+// ============================================================
+
+async function reindexarActivo() {
+
+    if (!archivoActivo)
+        return;
+
+    const respuesta =
+        await fetch(
+            "/rag/reindex",
+            {
+                method:
+                    "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+                        archivo:
+                            archivoActivo
+                    })
+            }
+        );
+
+    const datos =
+        await respuesta.json();
+
+    if (!respuesta.ok) {
+
+        registrarActividad(
+            "❌ "
+            +
+            datos.error
+        );
+
+        return;
+    }
+
+    await cargarBiblioteca();
+
+    registrarActividad(
+        "✅ Documento indexado."
+    );
+}
+
+
+async function quitarDocumentoRag() {
+
+    if (!archivoActivo)
+        return;
+
+    if (
+        !confirm(
+            (
+                "¿Quitar del RAG?\n\n"
+                +
+                archivoActivo
+                +
+                "\n\nEl archivo físico NO se borrará."
+            )
+        )
+    ) {
+
+        return;
+    }
+
+    const respuesta =
+        await fetch(
+            "/rag/delete",
+            {
+                method:
+                    "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+                        archivo:
+                            archivoActivo
+                    })
+            }
+        );
+
+    const datos =
+        await respuesta.json();
+
+    if (!respuesta.ok) {
+
+        registrarActividad(
+            "❌ "
+            +
+            datos.error
+        );
+
+        return;
+    }
+
+    await cargarBiblioteca();
+
+    registrarActividad(
+        "🗑 Documento retirado del RAG."
+    );
 }
 
 
@@ -4106,81 +3130,55 @@ function agregarFuente(
             ".empty"
         );
 
-
-    if (
-        vacio
-    ) {
-
+    if (vacio)
         vacio.remove();
-    }
-
 
     const card =
         document.createElement(
             "div"
         );
 
-
     card.className =
         "source-card";
 
 
-    const tipoElement =
+    const nombreEl =
         document.createElement(
             "div"
         );
 
-
-    tipoElement.className =
-        "source-type";
-
-
-    tipoElement.textContent =
-        tipo;
-
-
-    const nombreElement =
-        document.createElement(
-            "div"
-        );
-
-
-    nombreElement.className =
+    nombreEl.className =
         "source-name";
 
+    nombreEl.textContent =
+        (
+            tipo
+            +
+            " · "
+            +
+            nombre
+        );
 
-    nombreElement.textContent =
-        nombre;
 
-
-    const detalleElement =
+    const detalleEl =
         document.createElement(
             "div"
         );
 
-
-    detalleElement.className =
+    detalleEl.className =
         "source-detail";
 
-
-    detalleElement.textContent =
+    detalleEl.textContent =
         detalle;
 
 
     card.appendChild(
-        tipoElement
+        nombreEl
     );
-
 
     card.appendChild(
-        nombreElement
+        detalleEl
     );
-
-
-    card.appendChild(
-        detalleElement
-    );
-
 
     fuentes.prepend(
         card
@@ -4188,168 +3186,202 @@ function agregarFuente(
 }
 
 
-function mostrarFuentesTool(
-    nombre,
-    resultado
-) {
+// ============================================================
+// BÚSQUEDA GLOBAL
+// ============================================================
 
-    if (
-        !resultado
-    ) {
+async function ejecutarBusquedaGlobal() {
 
+    const consulta =
+        busquedaGlobal.value
+        .trim();
+
+    if (!consulta)
         return;
-    }
 
+    activarTab(
+        "resultados"
+    );
 
-    if (
-        nombre
-        ===
-        "buscar_documentos"
-    ) {
+    resultadosBusqueda.innerHTML =
+        `<div class="empty">Buscando...</div>`;
 
-        (
-            resultado.result
+    const respuesta =
+        await fetch(
+            "/search/unified",
+            {
+                method:
+                    "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+                        consulta:
+                            consulta,
+
+                        limite_rag:
+                            6,
+
+                        limite_drive:
+                            8,
+
+                        incluir_drive:
+                            true
+                    })
+            }
+        );
+
+    const datos =
+        await respuesta.json();
+
+    resultadosBusqueda.innerHTML =
+        "";
+
+    const bloques = [
+        [
+            "RAG",
+            datos.rag
             ||
             []
-        )
-        .slice(
-            0,
-            6
-        )
-        .forEach(
-            item => {
+        ],
+        [
+            "Local",
+            datos.local
+            ||
+            []
+        ],
+        [
+            "Drive",
+            datos.drive
+            ||
+            []
+        ]
+    ];
 
-                agregarFuente(
-                    "RAG",
-                    item.archivo
-                    ||
-                    "Documento",
-                    (
-                        typeof item.similitud
-                        ===
-                        "number"
-                        ?
+    bloques.forEach(
+        (
+            [
+                titulo,
+                items
+            ]
+        ) => {
+
+            const encabezado =
+                document.createElement(
+                    "div"
+                );
+
+            encabezado.className =
+                "result-item";
+
+            encabezado.innerHTML =
+                `<strong>${titulo}</strong>`;
+
+            resultadosBusqueda.appendChild(
+                encabezado
+            );
+
+
+            if (!items.length) {
+
+                const vacio =
+                    document.createElement(
+                        "div"
+                    );
+
+                vacio.className =
+                    "empty";
+
+                vacio.textContent =
+                    "Sin coincidencias.";
+
+                resultadosBusqueda.appendChild(
+                    vacio
+                );
+
+                return;
+            }
+
+
+            items.forEach(
+                item => {
+
+                    const fila =
+                        document.createElement(
+                            "div"
+                        );
+
+                    fila.className =
+                        "result-item";
+
+
+                    const nombre =
+                        document.createElement(
+                            "div"
+                        );
+
+                    nombre.className =
+                        "result-name";
+
+                    nombre.textContent =
                         (
-                            "Relevancia "
-                            +
+                            item.archivo
+                            ||
+                            item.nombre
+                        );
+
+
+                    const detalle =
+                        document.createElement(
+                            "div"
+                        );
+
+                    detalle.className =
+                        "result-detail";
+
+                    detalle.textContent =
+                        (
+                            item.fragmento
+                            ?
                             (
-                                item.similitud
-                                *
-                                100
+                                "Fragmento "
+                                +
+                                item.fragmento
                             )
-                            .toFixed(
-                                1
+                            :
+                            (
+                                item.tipo
+                                ||
+                                ""
                             )
-                            +
-                            "%"
-                        )
-                        :
-                        "Documento"
-                    )
-                );
-            }
-        );
-    }
+                        );
 
 
-    if (
-        nombre
-        ===
-        "buscar_drive"
-        ||
-        nombre
-        ===
-        "listar_drive"
-    ) {
+                    fila.appendChild(
+                        nombre
+                    );
 
-        (
-            resultado.result
-            ||
-            []
-        )
-        .slice(
-            0,
-            6
-        )
-        .forEach(
-            item => {
+                    fila.appendChild(
+                        detalle
+                    );
 
-                agregarFuente(
-                    "Google Drive",
-                    item.nombre
-                    ||
-                    "Archivo",
-                    item.tipo
-                    ||
-                    ""
-                );
-            }
-        );
-    }
-
-
-    if (
-        nombre
-        ===
-        "analizar_archivo_drive"
-    ) {
-
-        if (
-            resultado.archivo
-        ) {
-
-            agregarFuente(
-                "Drive → RAG",
-                resultado
-                .archivo
-                .nombre
-                ||
-                "Documento",
-                "Documento analizado"
+                    resultadosBusqueda
+                        .appendChild(
+                            fila
+                        );
+                }
             );
         }
-    }
-
-
-    if (
-        nombre
-        ===
-        "buscar_memoria"
-        ||
-        nombre
-        ===
-        "ver_memorias"
-    ) {
-
-        (
-            resultado.result
-            ||
-            []
-        )
-        .slice(
-            0,
-            5
-        )
-        .forEach(
-            item => {
-
-                agregarFuente(
-                    "Memoria",
-                    item.clave
-                    ||
-                    "Recuerdo",
-                    item.categoria
-                    ||
-                    ""
-                );
-            }
-        );
-    }
+    );
 }
 
 
 // ============================================================
-// TOOLS REALTIME
+// REALTIME TOOLS
 // ============================================================
 
 const TOOLS = [
@@ -4365,12 +3397,10 @@ const TOOLS = [
             "Busca información guardada en memoria persistente.",
 
         parameters: {
-
             type:
                 "object",
 
             properties: {
-
                 consulta: {
                     type:
                         "string"
@@ -4378,9 +3408,7 @@ const TOOLS = [
 
                 limite: {
                     type:
-                        "integer",
-                    default:
-                        10
+                        "integer"
                 }
             },
 
@@ -4399,15 +3427,13 @@ const TOOLS = [
             "recordar",
 
         description:
-            "Guarda información importante para futuras conversaciones.",
+            "Guarda información importante en memoria persistente.",
 
         parameters: {
-
             type:
                 "object",
 
             properties: {
-
                 categoria: {
                     type:
                         "string"
@@ -4425,13 +3451,7 @@ const TOOLS = [
 
                 importancia: {
                     type:
-                        "integer",
-                    minimum:
-                        1,
-                    maximum:
-                        5,
-                    default:
-                        3
+                        "integer"
                 }
             },
 
@@ -4449,51 +3469,16 @@ const TOOLS = [
             "function",
 
         name:
-            "ver_memorias",
-
-        description:
-            "Lista memorias persistentes activas.",
-
-        parameters: {
-
-            type:
-                "object",
-
-            properties: {
-
-                categoria: {
-                    type:
-                        "string"
-                },
-
-                limite: {
-                    type:
-                        "integer",
-                    default:
-                        20
-                }
-            }
-        }
-    },
-
-
-    {
-        type:
-            "function",
-
-        name:
             "buscar_documentos",
 
         description:
-            "Busca información dentro de documentos indexados mediante RAG. Si el usuario se refiere al último archivo subido, usa archivo con el nombre exacto.",
+            "Busca información en documentos indexados.",
 
         parameters: {
-
             type:
                 "object",
 
             properties: {
-
                 consulta: {
                     type:
                         "string"
@@ -4506,13 +3491,7 @@ const TOOLS = [
 
                 limite: {
                     type:
-                        "integer",
-                    minimum:
-                        1,
-                    maximum:
-                        8,
-                    default:
-                        5
+                        "integer"
                 }
             },
 
@@ -4531,15 +3510,13 @@ const TOOLS = [
             "buscar_drive",
 
         description:
-            "Busca archivos de Google Drive por nombre.",
+            "Busca archivos en Google Drive.",
 
         parameters: {
-
             type:
                 "object",
 
             properties: {
-
                 consulta: {
                     type:
                         "string"
@@ -4547,9 +3524,7 @@ const TOOLS = [
 
                 limite: {
                     type:
-                        "integer",
-                    default:
-                        10
+                        "integer"
                 }
             },
 
@@ -4565,23 +3540,19 @@ const TOOLS = [
             "function",
 
         name:
-            "listar_drive",
+            "listar_eventos_calendar",
 
         description:
-            "Lista archivos recientes de Google Drive.",
+            "Obtiene los próximos eventos del calendario del usuario.",
 
         parameters: {
-
             type:
                 "object",
 
             properties: {
-
                 limite: {
                     type:
-                        "integer",
-                    default:
-                        10
+                        "integer"
                 }
             }
         }
@@ -4593,111 +3564,161 @@ const TOOLS = [
             "function",
 
         name:
-            "obtener_archivo_drive",
+            "buscar_eventos_calendar",
 
         description:
-            "Obtiene metadatos de un archivo específico de Google Drive.",
+            "Busca eventos del calendario por texto.",
 
         parameters: {
-
             type:
                 "object",
 
             properties: {
-
-                file_id: {
+                consulta: {
                     type:
                         "string"
-                }
-            },
-
-            required: [
-                "file_id"
-            ]
-        }
-    },
-
-
-    {
-        type:
-            "function",
-
-        name:
-            "indexar_drive",
-
-        description:
-            "Indexa un archivo específico de Google Drive cuando el usuario lo autoriza expresamente.",
-
-        parameters: {
-
-            type:
-                "object",
-
-            properties: {
-
-                file_id: {
-                    type:
-                        "string"
-                },
-
-                usuario_autorizo_indexacion: {
-                    type:
-                        "boolean"
-                }
-            },
-
-            required: [
-                "file_id",
-                "usuario_autorizo_indexacion"
-            ]
-        }
-    },
-
-
-    {
-        type:
-            "function",
-
-        name:
-            "analizar_archivo_drive",
-
-        description:
-            "Busca, indexa y analiza un archivo de Google Drive cuando el usuario solicita expresamente analizar su contenido.",
-
-        parameters: {
-
-            type:
-                "object",
-
-            properties: {
-
-                consulta_archivo: {
-                    type:
-                        "string"
-                },
-
-                pregunta: {
-                    type:
-                        "string"
-                },
-
-                usuario_autorizo_indexacion: {
-                    type:
-                        "boolean"
                 },
 
                 limite: {
                     type:
-                        "integer",
-                    default:
-                        5
+                        "integer"
                 }
             },
 
             required: [
-                "consulta_archivo",
-                "pregunta",
-                "usuario_autorizo_indexacion"
+                "consulta"
+            ]
+        }
+    },
+
+
+    {
+        type:
+            "function",
+
+        name:
+            "eventos_entre_calendar",
+
+        description:
+            "Busca eventos existentes dentro de un rango de fechas ISO.",
+
+        parameters: {
+            type:
+                "object",
+
+            properties: {
+                inicio_iso: {
+                    type:
+                        "string"
+                },
+
+                fin_iso: {
+                    type:
+                        "string"
+                }
+            },
+
+            required: [
+                "inicio_iso",
+                "fin_iso"
+            ]
+        }
+    },
+
+
+    {
+        type:
+            "function",
+
+        name:
+            "consultar_disponibilidad_calendar",
+
+        description:
+            "Consulta si el calendario está libre u ocupado en un rango.",
+
+        parameters: {
+            type:
+                "object",
+
+            properties: {
+                inicio_iso: {
+                    type:
+                        "string"
+                },
+
+                fin_iso: {
+                    type:
+                        "string"
+                }
+            },
+
+            required: [
+                "inicio_iso",
+                "fin_iso"
+            ]
+        }
+    },
+
+
+    {
+        type:
+            "function",
+
+        name:
+            "crear_evento_calendar",
+
+        description:
+            (
+                "Crea un evento en Google Calendar. "
+                +
+                "Esta herramienta requiere confirmación explícita del usuario."
+            ),
+
+        parameters: {
+            type:
+                "object",
+
+            properties: {
+                titulo: {
+                    type:
+                        "string"
+                },
+
+                inicio_iso: {
+                    type:
+                        "string"
+                },
+
+                fin_iso: {
+                    type:
+                        "string"
+                },
+
+                descripcion: {
+                    type:
+                        "string"
+                },
+
+                ubicacion: {
+                    type:
+                        "string"
+                },
+
+                zona_horaria: {
+                    type:
+                        "string"
+                },
+
+                usuario_autorizo_creacion: {
+                    type:
+                        "boolean"
+                }
+            },
+
+            required: [
+                "titulo",
+                "inicio_iso",
+                "fin_iso"
             ]
         }
     }
@@ -4706,8 +3727,34 @@ const TOOLS = [
 
 
 // ============================================================
-// CONFIGURACIÓN REALTIME
+// CONTEXTO REALTIME
 // ============================================================
+
+function construirHistorial() {
+
+    return historialSeleccionado
+        .slice(-20)
+        .map(
+            item =>
+                (
+                    item.role
+                    ===
+                    "assistant"
+                    ?
+                    "ASISTENTE"
+                    :
+                    "USUARIO"
+                )
+                +
+                ": "
+                +
+                item.content
+        )
+        .join(
+            "\n\n"
+        );
+}
+
 
 function configurarSesion() {
 
@@ -4722,75 +3769,78 @@ function configurarSesion() {
         return;
     }
 
+    let instrucciones =
+        (
+            "Eres un asistente personal profesional multimodal. "
+            +
+            "Responde en español. "
+            +
+            "Tienes memoria persistente, RAG, Google Drive y Google Calendar. "
+            +
+            "Para consultar agenda usa las herramientas Calendar. "
+            +
+            "Para fechas y horas usa formato ISO 8601. "
+            +
+            "La zona horaria habitual del usuario es America/Santiago. "
+            +
+            "Nunca crees un evento sin confirmación explícita del usuario. "
+            +
+            "Si el usuario pide crear un evento, primero determina título, fecha, hora de inicio y fin. "
+            +
+            "Luego solicita confirmación si aún no la dio. "
+            +
+            "La interfaz también mostrará una confirmación final antes de ejecutar la creación. "
+        );
+
+    if (archivoActivo) {
+
+        instrucciones +=
+            (
+                "\n\nDOCUMENTO ACTIVO: "
+                +
+                archivoActivo
+                +
+                ". "
+            );
+
+        if (
+            datosArchivoActivo
+            &&
+            datosArchivoActivo.indexado
+        ) {
+
+            instrucciones +=
+                (
+                    "Cuando el usuario diga 'este documento', "
+                    +
+                    "usa buscar_documentos con archivo='"
+                    +
+                    archivoActivo
+                    +
+                    "'."
+                );
+        }
+    }
 
     const historial =
-        construirContextoHistorial();
+        construirHistorial();
 
-
-    let instrucciones =
-        "Eres un asistente personal profesional multimodal. " +
-
-        "Habla normalmente en español. " +
-
-        "Puedes recibir voz y texto dentro de la misma conversación. " +
-
-        "Responde de forma clara, natural y precisa. " +
-
-        "Si el usuario solicita recordar algo para futuras conversaciones, usa recordar. " +
-
-        "Si pregunta por recuerdos anteriores, usa buscar_memoria. " +
-
-        "Si pregunta por documentos indexados, usa buscar_documentos. " +
-
-        "Si acaba de subir un archivo y dice 'este documento', 'este archivo' o equivalente, busca específicamente dentro de ese archivo. " +
-
-        "Para localizar archivos de Google Drive usa buscar_drive. " +
-
-        "Para analizar contenido de Drive usa analizar_archivo_drive cuando el usuario lo solicite expresamente. " +
-
-        "No inventes resultados de memoria, RAG ni Drive. " +
-
-        "Google Drive está configurado solo lectura. ";
-
-
-    if (
-        archivoReciente
-    ) {
+    if (historial) {
 
         instrucciones +=
-            "\n\nARCHIVO RECIÉN SUBIDO:\n"
-            +
-            "El último documento subido se llama exactamente: "
-            +
-            archivoReciente
-            +
-            ". Si el usuario se refiere a este documento, usa buscar_documentos con archivo='"
-            +
-            archivoReciente
-            +
-            "'.";
+            (
+                "\n\nHISTORIAL RECIENTE:\n"
+                +
+                historial
+            );
     }
-
-
-    if (
-        historial
-    ) {
-
-        instrucciones +=
-            "\n\nCONTEXTO DE LA CONVERSACIÓN ANTERIOR:\n"
-            +
-            historial;
-    }
-
 
     dc.send(
         JSON.stringify({
-
             type:
                 "session.update",
 
             session: {
-
                 type:
                     "realtime",
 
@@ -4801,11 +3851,8 @@ function configurarSesion() {
                     "auto",
 
                 audio: {
-
                     input: {
-
                         transcription: {
-
                             model:
                                 "gpt-4o-mini-transcribe",
 
@@ -4824,35 +3871,137 @@ function configurarSesion() {
 
 
 // ============================================================
-// TOOL EXECUTION
+// CONFIRMACIÓN DE ACCIONES
+// ============================================================
+
+function confirmarCreacionEvento(
+    argumentos
+) {
+
+    const titulo =
+        argumentos.titulo
+        ||
+        "(Sin título)";
+
+    const inicio =
+        argumentos.inicio_iso
+        ||
+        "";
+
+    const fin =
+        argumentos.fin_iso
+        ||
+        "";
+
+    return confirm(
+        (
+            "CONFIRMAR CREACIÓN EN GOOGLE CALENDAR\n\n"
+            +
+            "Evento: "
+            +
+            titulo
+            +
+            "\n\nInicio: "
+            +
+            inicio
+            +
+            "\nFin: "
+            +
+            fin
+            +
+            "\n\n¿Deseas crear este evento?"
+        )
+    );
+}
+
+
+// ============================================================
+// EJECUTAR TOOL
 // ============================================================
 
 async function ejecutarTool(
-    functionCall
+    llamada
 ) {
 
     let argumentos =
         {};
 
-
     try {
 
         argumentos =
             JSON.parse(
-                functionCall.arguments
+                llamada.arguments
                 ||
                 "{}"
             );
 
-    }
-
-    catch(error) {
-
-        registrarActividad(
-            "❌ Argumentos inválidos."
-        );
+    } catch {
 
         return;
+    }
+
+
+    if (
+        llamada.name
+        ===
+        "crear_evento_calendar"
+    ) {
+
+        const autorizado =
+            confirmarCreacionEvento(
+                argumentos
+            );
+
+        if (!autorizado) {
+
+            const cancelado = {
+                ok:
+                    false,
+
+                cancelado_por_usuario:
+                    true,
+
+                message:
+                    "El usuario canceló la creación del evento."
+            };
+
+            dc.send(
+                JSON.stringify({
+                    type:
+                        "conversation.item.create",
+
+                    item: {
+                        type:
+                            "function_call_output",
+
+                        call_id:
+                            llamada.call_id,
+
+                        output:
+                            JSON.stringify(
+                                cancelado
+                            )
+                    }
+                })
+            );
+
+            dc.send(
+                JSON.stringify({
+                    type:
+                        "response.create"
+                })
+            );
+
+            registrarActividad(
+                "⛔ Creación de evento cancelada."
+            );
+
+            return;
+        }
+
+        argumentos[
+            "usuario_autorizo_creacion"
+        ] = true;
     }
 
 
@@ -4860,118 +4009,92 @@ async function ejecutarTool(
         "processing"
     );
 
-
     registrarActividad(
         "🛠 "
         +
-        functionCall.name
+        llamada.name
     );
 
 
-    try {
+    const respuesta =
+        await fetch(
+            "/tool",
+            {
+                method:
+                    "POST",
 
-        const respuesta =
-            await fetch(
-                "/tool",
-                {
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-                    method:
-                        "POST",
+                body:
+                    JSON.stringify({
+                        name:
+                            llamada.name,
 
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            name:
-                                functionCall.name,
-
-                            arguments:
-                                argumentos
-                        })
-                }
-            );
+                        arguments:
+                            argumentos
+                    })
+            }
+        );
 
 
-        const resultado =
-            await respuesta.json();
+    const resultado =
+        await respuesta.json();
 
+
+    if (
+        llamada.name
+        .includes(
+            "calendar"
+        )
+    ) {
+
+        activarTab(
+            "agenda"
+        );
 
         if (
-            !respuesta.ok
+            llamada.name
+            ===
+            "crear_evento_calendar"
+            &&
+            resultado.ok
         ) {
 
-            throw new Error(
-                resultado.error
-                ||
-                JSON.stringify(
-                    resultado
-                )
-            );
+            await cargarAgenda();
         }
-
-
-        mostrarFuentesTool(
-            functionCall.name,
-            resultado
-        );
-
-
-        dc.send(
-            JSON.stringify({
-
-                type:
-                    "conversation.item.create",
-
-                item: {
-
-                    type:
-                        "function_call_output",
-
-                    call_id:
-                        functionCall.call_id,
-
-                    output:
-                        JSON.stringify(
-                            resultado
-                        )
-                }
-            })
-        );
-
-
-        dc.send(
-            JSON.stringify({
-
-                type:
-                    "response.create"
-            })
-        );
-
-
-        registrarActividad(
-            "✅ Herramienta completada."
-        );
-
     }
 
-    catch(error) {
 
-        registrarActividad(
-            "❌ "
-            +
-            error.message
-        );
+    dc.send(
+        JSON.stringify({
+            type:
+                "conversation.item.create",
+
+            item: {
+                type:
+                    "function_call_output",
+
+                call_id:
+                    llamada.call_id,
+
+                output:
+                    JSON.stringify(
+                        resultado
+                    )
+            }
+        })
+    );
 
 
-        estadoAvatar(
-            "error"
-        );
-    }
+    dc.send(
+        JSON.stringify({
+            type:
+                "response.create"
+        })
+    );
 }
 
 
@@ -4986,18 +4109,6 @@ async function procesarEvento(
     if (
         evento.type
         ===
-        "session.updated"
-    ) {
-
-        estadoAvatar(
-            "connected"
-        );
-    }
-
-
-    if (
-        evento.type
-        ===
         "input_audio_buffer.speech_started"
     ) {
 
@@ -5005,10 +4116,8 @@ async function procesarEvento(
             "listening"
         );
 
-
         transcripcionUsuario =
             "";
-
 
         mensajeUsuarioTemporal =
             crearMensaje(
@@ -5022,18 +4131,6 @@ async function procesarEvento(
     if (
         evento.type
         ===
-        "input_audio_buffer.speech_stopped"
-    ) {
-
-        estadoAvatar(
-            "processing"
-        );
-    }
-
-
-    if (
-        evento.type
-        ===
         "conversation.item.input_audio_transcription.delta"
     ) {
 
@@ -5041,7 +4138,6 @@ async function procesarEvento(
             evento.delta
             ||
             "";
-
 
         actualizarMensaje(
             mensajeUsuarioTemporal,
@@ -5062,27 +4158,19 @@ async function procesarEvento(
             ||
             transcripcionUsuario;
 
-
         actualizarMensaje(
             mensajeUsuarioTemporal,
             texto,
             false
         );
 
-
-        await guardarMensajePersistente(
+        await guardarMensaje(
             "user",
             texto
         );
 
-
         mensajeUsuarioTemporal =
             null;
-
-
-        transcripcionUsuario =
-            "";
-
 
         estadoAvatar(
             "processing"
@@ -5103,7 +4191,6 @@ async function procesarEvento(
             transcripcionAsistente =
                 "";
 
-
             mensajeAsistenteTemporal =
                 crearMensaje(
                     "assistant",
@@ -5112,19 +4199,16 @@ async function procesarEvento(
                 );
         }
 
-
         transcripcionAsistente +=
             evento.delta
             ||
             "";
-
 
         actualizarMensaje(
             mensajeAsistenteTemporal,
             transcripcionAsistente,
             true
         );
-
 
         estadoAvatar(
             "speaking"
@@ -5143,27 +4227,22 @@ async function procesarEvento(
             ||
             transcripcionAsistente;
 
-
         actualizarMensaje(
             mensajeAsistenteTemporal,
             texto,
             false
         );
 
-
-        await guardarMensajePersistente(
+        await guardarMensaje(
             "assistant",
             texto
         );
 
-
         mensajeAsistenteTemporal =
             null;
 
-
         transcripcionAsistente =
             "";
-
 
         estadoAvatar(
             "listening"
@@ -5177,40 +4256,16 @@ async function procesarEvento(
         "response.output_item.done"
     ) {
 
-        const item =
-            evento.item;
-
-
         if (
-            item
+            evento.item
             &&
-            item.type
+            evento.item.type
             ===
             "function_call"
         ) {
 
             await ejecutarTool(
-                item
-            );
-
-
-            return;
-        }
-    }
-
-
-    if (
-        evento.type
-        ===
-        "response.done"
-    ) {
-
-        if (
-            !mensajeAsistenteTemporal
-        ) {
-
-            estadoAvatar(
-                "listening"
+                evento.item
             );
         }
     }
@@ -5226,15 +4281,9 @@ async function procesarEvento(
             evento
         );
 
-
         registrarActividad(
-            "❌ Error Realtime: "
-            +
-            JSON.stringify(
-                evento.error
-            )
+            "❌ Error Realtime."
         );
-
 
         estadoAvatar(
             "error"
@@ -5244,12 +4293,10 @@ async function procesarEvento(
 
 
 // ============================================================
-// ESPERA DE CANAL
+// CONECTAR
 // ============================================================
 
-function esperarCanalAbierto(
-    timeout=12000
-) {
+function esperarCanal() {
 
     return new Promise(
         (
@@ -5257,62 +4304,54 @@ function esperarCanalAbierto(
             reject
         ) => {
 
-            const inicio =
-                Date.now();
+            let intentos =
+                0;
 
+            const timer =
+                setInterval(
+                    () => {
 
-            const comprobar =
-                () => {
+                        intentos++;
 
-                    if (
-                        dc
-                        &&
-                        dc.readyState
-                        ===
-                        "open"
-                    ) {
+                        if (
+                            dc
+                            &&
+                            dc.readyState
+                            ===
+                            "open"
+                        ) {
 
-                        resolve();
+                            clearInterval(
+                                timer
+                            );
 
-                        return;
-                    }
+                            resolve();
+                        }
 
+                        if (
+                            intentos
+                            >
+                            120
+                        ) {
 
-                    if (
-                        Date.now()
-                        -
-                        inicio
-                        >
-                        timeout
-                    ) {
+                            clearInterval(
+                                timer
+                            );
 
-                        reject(
-                            new Error(
-                                "El canal Realtime no abrió a tiempo."
-                            )
-                        );
+                            reject(
+                                new Error(
+                                    "Realtime no abrió."
+                                )
+                            );
+                        }
 
-
-                        return;
-                    }
-
-
-                    setTimeout(
-                        comprobar,
-                        100
-                    );
-                };
-
-
-            comprobar();
+                    },
+                    100
+                );
         }
     );
 }
 
-
-// ============================================================
-// CONECTAR
-// ============================================================
 
 async function conectar() {
 
@@ -5327,97 +4366,42 @@ async function conectar() {
         return true;
     }
 
+    if (conectando) {
 
-    if (
-        conectando
-    ) {
-
-        await esperarCanalAbierto();
+        await esperarCanal();
 
         return true;
     }
 
-
     conectando =
         true;
 
-
     try {
 
-        botonConectar.disabled =
-            true;
-
-
-        selectorConversacion.disabled =
-            true;
-
-
-        botonNuevaConversacion.disabled =
-            true;
-
+        await asegurarConversacion();
 
         estadoAvatar(
             "processing"
         );
-
-
-        if (
-            !conversacionId
-        ) {
-
-            await crearConversacionPersistente();
-        }
-
 
         const tokenResponse =
             await fetch(
                 "/token"
             );
 
-
         const tokenData =
             await tokenResponse.json();
 
-
-        if (
-            !tokenResponse.ok
-        ) {
-
-            throw new Error(
-                tokenData.error
-                ||
-                "No se pudo crear sesión."
-            );
-        }
-
-
-        const key =
-            tokenData.value;
-
-
-        if (
-            !key
-        ) {
-
-            throw new Error(
-                "No se recibió token efímero."
-            );
-        }
-
-
         pc =
             new RTCPeerConnection();
-
 
         audioRemoto =
             document.createElement(
                 "audio"
             );
 
-
         audioRemoto.autoplay =
             true;
-
 
         pc.ontrack =
             evento => {
@@ -5426,95 +4410,63 @@ async function conectar() {
                     evento.streams[0];
             };
 
-
         localStream =
             await navigator
             .mediaDevices
             .getUserMedia({
-
                 audio:
                     true
             });
 
-
         pc.addTrack(
             localStream
             .getAudioTracks()[0],
-
             localStream
         );
-
-
-        iniciarAnalizador();
-
 
         dc =
             pc.createDataChannel(
                 "oai-events"
             );
 
-
         dc.onopen =
             () => {
 
                 configurarSesion();
 
-
                 estadoAvatar(
                     "listening"
                 );
 
-
                 botonDesconectar.disabled =
                     false;
-
 
                 registrarActividad(
                     "🎙 Agente conectado."
                 );
             };
 
-
         dc.onmessage =
             async evento => {
 
-                try {
-
-                    const data =
-                        JSON.parse(
-                            evento.data
-                        );
-
-
-                    await procesarEvento(
-                        data
-                    );
-
-                }
-
-                catch(error) {
-
-                    console.error(
-                        error
-                    );
-                }
+                await procesarEvento(
+                    JSON.parse(
+                        evento.data
+                    )
+                );
             };
-
 
         const oferta =
             await pc.createOffer();
-
 
         await pc.setLocalDescription(
             oferta
         );
 
-
         const respuesta =
             await fetch(
                 "https://api.openai.com/v1/realtime/calls",
                 {
-
                     method:
                         "POST",
 
@@ -5522,11 +4474,10 @@ async function conectar() {
                         oferta.sdp,
 
                     headers: {
-
                         "Authorization":
                             "Bearer "
                             +
-                            key,
+                            tokenData.value,
 
                         "Content-Type":
                             "application/sdp"
@@ -5534,19 +4485,7 @@ async function conectar() {
                 }
             );
 
-
-        if (
-            !respuesta.ok
-        ) {
-
-            throw new Error(
-                await respuesta.text()
-            );
-        }
-
-
         await pc.setRemoteDescription({
-
             type:
                 "answer",
 
@@ -5554,28 +4493,17 @@ async function conectar() {
                 await respuesta.text()
         });
 
-
-        await esperarCanalAbierto();
-
+        await esperarCanal();
 
         conectando =
             false;
-
 
         return true;
 
-    }
-
-    catch(error) {
+    } catch(error) {
 
         conectando =
             false;
-
-
-        console.error(
-            error
-        );
-
 
         registrarActividad(
             "❌ "
@@ -5583,23 +4511,9 @@ async function conectar() {
             error.message
         );
 
-
         estadoAvatar(
             "error"
         );
-
-
-        botonConectar.disabled =
-            false;
-
-
-        selectorConversacion.disabled =
-            false;
-
-
-        botonNuevaConversacion.disabled =
-            false;
-
 
         return false;
     }
@@ -5607,150 +4521,72 @@ async function conectar() {
 
 
 // ============================================================
-// TEXTO
+// ENVIAR TEXTO
 // ============================================================
 
-async function enviarMensajeTexto() {
+async function enviarTexto() {
 
     const texto =
         textoMensaje.value
         .trim();
 
-
-    if (
-        !texto
-    ) {
-
+    if (!texto)
         return;
-    }
 
+    const conectado =
+        await conectar();
 
-    botonEnviarTexto.disabled =
-        true;
+    if (!conectado)
+        return;
 
+    textoMensaje.value =
+        "";
 
-    try {
+    crearMensaje(
+        "user",
+        texto
+    );
 
-        if (
-            !dc
-            ||
-            dc.readyState
-            !==
-            "open"
-        ) {
+    await guardarMensaje(
+        "user",
+        texto
+    );
 
-            registrarActividad(
-                "⚡ Iniciando agente automáticamente..."
-            );
+    estadoAvatar(
+        "processing"
+    );
 
+    dc.send(
+        JSON.stringify({
+            type:
+                "conversation.item.create",
 
-            const conectado =
-                await conectar();
+            item: {
+                type:
+                    "message",
 
+                role:
+                    "user",
 
-            if (
-                !conectado
-            ) {
+                content: [
+                    {
+                        type:
+                            "input_text",
 
-                throw new Error(
-                    "No fue posible conectar el agente."
-                );
+                        text:
+                            texto
+                    }
+                ]
             }
-        }
+        })
+    );
 
-
-        textoMensaje.value =
-            "";
-
-
-        textoMensaje.style.height =
-            "auto";
-
-
-        crearMensaje(
-            "user",
-            texto,
-            false
-        );
-
-
-        await guardarMensajePersistente(
-            "user",
-            texto
-        );
-
-
-        estadoAvatar(
-            "processing"
-        );
-
-
-        dc.send(
-            JSON.stringify({
-
-                type:
-                    "conversation.item.create",
-
-                item: {
-
-                    type:
-                        "message",
-
-                    role:
-                        "user",
-
-                    content: [
-
-                        {
-
-                            type:
-                                "input_text",
-
-                            text:
-                                texto
-                        }
-
-                    ]
-                }
-            })
-        );
-
-
-        dc.send(
-            JSON.stringify({
-
-                type:
-                    "response.create"
-            })
-        );
-
-
-        registrarActividad(
-            "⌨ Mensaje enviado."
-        );
-
-    }
-
-    catch(error) {
-
-        registrarActividad(
-            "❌ "
-            +
-            error.message
-        );
-
-
-        estadoAvatar(
-            "error"
-        );
-
-    }
-
-    finally {
-
-        botonEnviarTexto.disabled =
-            false;
-    }
+    dc.send(
+        JSON.stringify({
+            type:
+                "response.create"
+        })
+    );
 }
 
 
@@ -5760,144 +4596,41 @@ async function enviarMensajeTexto() {
 
 function desconectar() {
 
-    detenerAnalizador();
-
-
-    if (
-        localStream
-    ) {
+    if (localStream) {
 
         localStream
-        .getTracks()
-        .forEach(
-            track =>
-                track.stop()
-        );
+            .getTracks()
+            .forEach(
+                track =>
+                    track.stop()
+            );
     }
 
+    try {
+        dc?.close();
+    } catch {}
 
-    if (
-        dc
-    ) {
+    try {
+        pc?.close();
+    } catch {}
 
-        try {
+    dc = null;
 
-            dc.close();
+    pc = null;
 
-        }
+    localStream = null;
 
-        catch {}
-    }
-
-
-    if (
-        pc
-    ) {
-
-        try {
-
-            pc.close();
-
-        }
-
-        catch {}
-    }
-
-
-    pc =
-        null;
-
-
-    dc =
-        null;
-
-
-    localStream =
-        null;
-
-
-    conectando =
-        false;
-
-
-    botonConectar.disabled =
-        false;
-
+    conectando = false;
 
     botonDesconectar.disabled =
         true;
-
-
-    selectorConversacion.disabled =
-        false;
-
-
-    botonNuevaConversacion.disabled =
-        false;
-
 
     estadoAvatar(
         "idle"
     );
 
-
     registrarActividad(
         "Sesión finalizada."
-    );
-
-
-    cargarListaConversaciones();
-}
-
-
-// ============================================================
-// LIMPIAR
-// ============================================================
-
-function limpiarInterfaz() {
-
-    limpiarChat();
-
-
-    const vacio =
-        document.createElement(
-            "div"
-        );
-
-
-    vacio.className =
-        "empty";
-
-
-    vacio.textContent =
-        "Vista limpia. El historial permanece guardado.";
-
-
-    chat.appendChild(
-        vacio
-    );
-
-
-    fuentes.innerHTML =
-        "";
-
-
-    const fuenteVacia =
-        document.createElement(
-            "div"
-        );
-
-
-    fuenteVacia.className =
-        "empty";
-
-
-    fuenteVacia.textContent =
-        "Sin fuentes consultadas.";
-
-
-    fuentes.appendChild(
-        fuenteVacia
     );
 }
 
@@ -5906,88 +4639,18 @@ function limpiarInterfaz() {
 // EVENTOS UI
 // ============================================================
 
-selectorConversacion
-.addEventListener(
-    "change",
+botonConectar.onclick =
+    conectar;
 
-    async function() {
+botonDesconectar.onclick =
+    desconectar;
 
-        if (
-            pc
-            ||
-            dc
-        ) {
-
-            return;
-        }
+botonEnviar.onclick =
+    enviarTexto;
 
 
-        await cargarConversacion(
-            this.value
-        );
-    }
-);
-
-
-botonNuevaConversacion
-.addEventListener(
-    "click",
-
-    async () => {
-
-        if (
-            pc
-            ||
-            dc
-        ) {
-
-            return;
-        }
-
-
-        selectorConversacion.value =
-            "";
-
-
-        await cargarConversacion(
-            ""
-        );
-    }
-);
-
-
-botonConectar
-.addEventListener(
-    "click",
-    conectar
-);
-
-
-botonDesconectar
-.addEventListener(
-    "click",
-    desconectar
-);
-
-
-botonLimpiar
-.addEventListener(
-    "click",
-    limpiarInterfaz
-);
-
-
-botonEnviarTexto
-.addEventListener(
-    "click",
-    enviarMensajeTexto
-);
-
-
-textoMensaje
-.addEventListener(
+textoMensaje.addEventListener(
     "keydown",
-
     evento => {
 
         if (
@@ -6000,188 +4663,134 @@ textoMensaje
 
             evento.preventDefault();
 
-
-            enviarMensajeTexto();
+            enviarTexto();
         }
     }
 );
 
 
-textoMensaje
-.addEventListener(
-    "input",
-
+selectorConversacion.onchange =
     () => {
 
-        textoMensaje.style.height =
-            "auto";
+        if (!pc) {
+
+            cargarConversacion(
+                selectorConversacion.value
+            );
+        }
+    };
 
 
-        textoMensaje.style.height =
-            Math.min(
-                textoMensaje.scrollHeight,
-                90
-            )
-            +
-            "px";
-    }
-);
+botonNueva.onclick =
+    () => {
+
+        if (!pc) {
+
+            selectorConversacion.value =
+                "";
+
+            cargarConversacion(
+                ""
+            );
+        }
+    };
 
 
-botonAdjuntar
-.addEventListener(
-    "click",
+botonAdjuntar.onclick =
+    () => {
 
+        inputArchivo.click();
+    };
+
+
+dropZone.onclick =
+    () => {
+
+        inputArchivo.click();
+    };
+
+
+inputArchivo.onchange =
+    () => {
+
+        subirArchivo(
+            inputArchivo.files[0]
+        );
+    };
+
+
+filtroBiblioteca.oninput =
+    renderBiblioteca;
+
+
+refrescarBiblioteca.onclick =
+    cargarBiblioteca;
+
+
+reindexarDocumento.onclick =
+    reindexarActivo;
+
+
+eliminarDocumento.onclick =
+    quitarDocumentoRag;
+
+
+refrescarAgenda.onclick =
+    cargarAgenda;
+
+
+botonBusquedaGlobal.onclick =
+    ejecutarBusquedaGlobal;
+
+
+busquedaGlobal.addEventListener(
+    "keydown",
     evento => {
 
-        evento.stopPropagation();
+        if (
+            evento.key
+            ===
+            "Enter"
+        ) {
 
-
-        inputArchivo.click();
+            ejecutarBusquedaGlobal();
+        }
     }
 );
 
 
-dropZone
-.addEventListener(
-    "click",
-
+botonLimpiar.onclick =
     () => {
 
-        inputArchivo.click();
-    }
-);
+        chat.innerHTML =
+            `<div class="empty">Vista limpia. El historial permanece guardado.</div>`;
 
-
-inputArchivo
-.addEventListener(
-    "change",
-
-    async () => {
-
-        const archivo =
-            inputArchivo.files[0];
-
-
-        if (
-            archivo
-        ) {
-
-            await subirArchivo(
-                archivo
-            );
-        }
-    }
-);
+        fuentes.innerHTML =
+            `<div class="empty">Sin fuentes.</div>`;
+    };
 
 
 // ============================================================
-// DRAG & DROP
-// ============================================================
-
-[
-    "dragenter",
-    "dragover"
-]
-.forEach(
-    tipo => {
-
-        dropZone
-        .addEventListener(
-            tipo,
-
-            evento => {
-
-                evento.preventDefault();
-
-                evento.stopPropagation();
-
-
-                dropZone.classList.add(
-                    "drag"
-                );
-            }
-        );
-    }
-);
-
-
-[
-    "dragleave",
-    "drop"
-]
-.forEach(
-    tipo => {
-
-        dropZone
-        .addEventListener(
-            tipo,
-
-            evento => {
-
-                evento.preventDefault();
-
-                evento.stopPropagation();
-
-
-                dropZone.classList.remove(
-                    "drag"
-                );
-            }
-        );
-    }
-);
-
-
-dropZone
-.addEventListener(
-    "drop",
-
-    async evento => {
-
-        const archivos =
-            evento
-            .dataTransfer
-            .files;
-
-
-        if (
-            archivos
-            &&
-            archivos.length
-            >
-            0
-        ) {
-
-            await subirArchivo(
-                archivos[0]
-            );
-        }
-    }
-);
-
-
-// ============================================================
-// INICIO
+// INIT
 // ============================================================
 
 window.addEventListener(
     "DOMContentLoaded",
-
     async () => {
 
         estadoAvatar(
             "idle"
         );
 
-
         await Promise.all([
-
-            cargarListaConversaciones(),
-
-            cargarArchivosRag()
-
+            cargarConversaciones(),
+            cargarBiblioteca(),
+            cargarAgenda(),
         ]);
+
+        registrarActividad(
+            "✅ Mi Agente IA V2.3 listo."
+        );
     }
 );
 

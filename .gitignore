@@ -2,8 +2,12 @@
 .env
 credentials.json
 token.json
+calendar_token.json
 indice.json
 documentos/
+documentos_subidos/
 drive_descargas/
+memoria.db
+memoria.db-journal
 __pycache__/
 *.pyc
