@@ -1,5 +1,9 @@
 # Auditoría y evolución a V2.4
 
+Actualización: los módulos faltantes ya se recuperaron y las pruebas de
+integración pasan. La sección inicial conserva los hallazgos del commit base;
+consultar el segundo incremento al final para el estado vigente.
+
 Fecha: 2026-10-04. Base: `24ece1b` (V2.3), rama `main`.
 Revisión estática de todos los archivos de código versionados, README,
 dependencias, reglas Git e historial de nombres de archivos. Del índice se
@@ -107,3 +111,57 @@ node tests/calendar_confirmation.cjs
 
 Para desbloquear la siguiente etapa hacen falta los originales V2.3 de
 `memoria.py`, `memoria_largo_plazo.py` y `rag_drive.py`, sin credenciales ni BD.
+
+
+## Segundo incremento: integración de originales V2.3
+
+Los tres módulos fueron aportados por el usuario e incorporados primero sin
+modificaciones. Se verificaron sus tablas originales: `conversaciones`,
+`mensajes` y `memoria_largo_plazo`, dentro de `memoria.db`.
+
+Cambios funcionales acotados:
+
+- `configuracion.py` carga `.env` desde la raíz antes de crear clientes y define
+  una carpeta de datos común. Por defecto se conservan nombres y ubicación
+  junto al proyecto. `MI_AGENTE_DATA_DIR` permite un directorio alternativo
+  existente, sin mover archivos ni modificar el esquema. Todos los flujos CLI,
+  web, memoria y Google usan esa misma ubicación.
+- El historial reconoce `creado_en` y `actualizado_en`, las columnas originales,
+  además de los alias que ya aceptaba. La respuesta mantiene sus nombres API.
+- El servidor reconoce `google_drive` y `drive_file_id` como origen Drive.
+  La biblioteca conserva ese ID para reindexar los registros antiguos.
+- Los fallos de descarga/extracción Drive ahora elevan errores: no se responde
+  HTTP 200 como si se hubiera indexado. El rollback existente conserva el índice
+  en la prueba secuencial. Su riesgo de concurrencia sigue pendiente.
+- `requirements.txt` pasó de UTF-16 a UTF-8, conservando pins anteriores, con
+  FastAPI, PyMuPDF y dependencias Google añadidas. `pywin32` queda restringido a
+  Windows. `requirements-dev.txt` añade el cliente HTTP de pruebas y soporte
+  SOCKS para el proxy del entorno de validación.
+- Se normalizaron los finales de línea de los originales en un commit separado,
+  para distinguir cambios de formato de cambios funcionales.
+
+Corrección del diagnóstico inicial: el `rag_drive.py` original ejecutaba
+`load_dotenv()` antes de importar `rag_mejorado` desde el servidor. Por tanto,
+una vez recuperado, ese camino ya cargaba la clave; no se confirmó un fallo de
+orden en ese flujo. La configuración compartida elimina esa dependencia lateral
+entre módulos y permite importar RAG directamente con el `.env` correcto.
+
+Validación del segundo incremento:
+
+- Instalación desde cero de `requirements-dev.txt` en un venv Linux/Python 3.12,
+  sin paquetes del sistema; `pip check`: sin incompatibilidades declaradas.
+- 12 pruebas aisladas Python y 11 casos con la aplicación FastAPI completa
+  (ejecutados mediante una prueba contenedora): todos aprobados.
+- 3 escenarios JS originales de confirmación Calendar: aprobados.
+- Arranque desde otra carpeta, carga de `.env` ficticio, historial y persistencia
+  tras otro proceso, columnas SQLite originales, upsert de memoria, TXT/DOCX/PDF,
+  render PDF escaneado con transcripción simulada, búsqueda con documento activo,
+  biblioteca y reindexación de registros `google_drive`, fallo Drive y conservación
+  del índice, denegación Calendar y contrato del secreto efímero Realtime.
+- Las APIs externas se simulan y se bloquean sockets: no se creó ningún evento,
+  no se usaron claves reales ni se leyó la base de datos personal.
+
+Pendiente antes de declarar V2.4 estable: transacciones concurrentes del índice,
+confirmación vinculada a sesión en backend, OCR mixto, diagnóstico sin OAuth,
+mejoras de errores UI y comprobación real Windows/WebRTC. La UI y etiqueta V2.3
+siguen intactas. Los commits permanecen locales hasta autorización de publicación.
