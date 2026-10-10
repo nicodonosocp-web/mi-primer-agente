@@ -1,3 +1,4 @@
+from configuracion import DATA_DIR
 import io
 import os
 

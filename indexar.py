@@ -1,3 +1,6 @@
+import almacenamiento
+from almacenamiento import indice_transaccion
+from configuracion import DATA_DIR
 import json
 import os
 from pathlib import Path
@@ -18,8 +21,8 @@ if not os.getenv("OPENAI_API_KEY"):
 
 client = OpenAI()
 
-CARPETA_DOCUMENTOS = Path("documentos")
-ARCHIVO_INDICE = Path("indice.json")
+CARPETA_DOCUMENTOS = (DATA_DIR / "documentos")
+ARCHIVO_INDICE = (DATA_DIR / "indice.json")
 
 EXTENSIONES = {".txt", ".pdf", ".docx"}
 
@@ -83,21 +86,9 @@ def extraer_docx(ruta: Path) -> str:
     return "\n".join(bloques)
 
 
-def extraer_documento(ruta: Path) -> str:
-    extension = ruta.suffix.lower()
-
-    if extension == ".txt":
-        return extraer_txt(ruta)
-
-    if extension == ".pdf":
-        return extraer_pdf(ruta)
-
-    if extension == ".docx":
-        return extraer_docx(ruta)
-
-    raise ValueError(
-        f"Formato no soportado: {extension}"
-    )
+def extraer_documento(ruta):
+    from documentos import extraer_texto_documento
+    return extraer_texto_documento(ruta)
 
 
 def dividir_texto(texto: str):
@@ -127,6 +118,7 @@ def crear_embedding(texto: str):
     return respuesta.data[0].embedding
 
 
+@indice_transaccion
 def main():
     if not CARPETA_DOCUMENTOS.exists():
         print("La carpeta documentos no existe.")
@@ -143,7 +135,7 @@ def main():
         print("No hay documentos compatibles.")
         return
 
-    indice = []
+    indice = almacenamiento.cargar_indice()
 
     print()
     print("=" * 60)
@@ -170,6 +162,8 @@ def main():
             f"  Fragmentos: {len(fragmentos)}"
         )
 
+        indice = [x for x in indice if not (x.get("archivo") == archivo.name and x.get("origen", "local") == "local" and not x.get("drive_file_id"))]
+
         for numero, fragmento in enumerate(
             fragmentos,
             start=1
@@ -188,15 +182,7 @@ def main():
                 "embedding": embedding,
             })
 
-    with ARCHIVO_INDICE.open(
-        "w",
-        encoding="utf-8"
-    ) as archivo_salida:
-        json.dump(
-            indice,
-            archivo_salida,
-            ensure_ascii=False
-        )
+    almacenamiento.guardar_indice(indice)
 
     print()
     print("=" * 60)

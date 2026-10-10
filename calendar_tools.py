@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
+from configuracion import DATA_DIR
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -14,9 +15,9 @@ from googleapiclient.discovery import build
 
 BASE_DIR = Path(__file__).resolve().parent
 
-CREDENTIALS_PATH = BASE_DIR / "credentials.json"
+CREDENTIALS_PATH = DATA_DIR / "credentials.json"
 
-TOKEN_PATH = BASE_DIR / "calendar_token.json"
+TOKEN_PATH = DATA_DIR / "calendar_token.json"
 
 SCOPES = [
     "https://www.googleapis.com/auth/calendar"
@@ -419,6 +420,9 @@ def consultar_disponibilidad(
             {},
         )
     )
+
+    if calendario.get("errors") or "busy" not in calendario:
+        raise RuntimeError("No se pudo comprobar la disponibilidad del calendario.")
 
     ocupados = calendario.get(
         "busy",

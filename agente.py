@@ -1,3 +1,6 @@
+import almacenamiento
+from almacenamiento import indice_transaccion
+from configuracion import DATA_DIR
 import json
 import os
 from pathlib import Path
@@ -44,7 +47,7 @@ if not os.getenv("OPENAI_API_KEY"):
 
 client = OpenAI()
 
-ARCHIVO_INDICE = Path("indice.json")
+ARCHIVO_INDICE = (DATA_DIR / "indice.json")
 
 MODELO_EMBEDDING = "text-embedding-3-small"
 
@@ -56,32 +59,7 @@ inicializar_memoria_largo_plazo()
 # ============================================================
 
 def cargar_indice():
-    """
-    Carga el índice semántico desde indice.json.
-    """
-
-    if not ARCHIVO_INDICE.exists():
-        return []
-
-    try:
-
-        with ARCHIVO_INDICE.open(
-            "r",
-            encoding="utf-8",
-        ) as archivo:
-
-            return json.load(
-                archivo
-            )
-
-    except Exception as error:
-
-        print(
-            f"[ERROR] No fue posible cargar "
-            f"indice.json: {error}"
-        )
-
-        return []
+    return almacenamiento.cargar_indice()
 
 
 def recargar_indice():
@@ -145,158 +123,16 @@ def embedding_consulta(
 
 
 @function_tool
-def buscar_semanticamente(
-    consulta: str,
-    cantidad_resultados: int = 5,
-) -> str:
-    """
-    Busca información dentro del índice documental RAG.
-    """
-
-    print(
-        f"[TOOL] buscar_semanticamente -> "
-        f"{consulta}"
-    )
-
-    recargar_indice()
-
-    if not INDICE:
-        return (
-            "No existe información documental "
-            "indexada actualmente."
-        )
-
+def buscar_semanticamente(consulta: str, cantidad_resultados: int = 5) -> str:
+    """Busca documentos con el mismo ranking híbrido de la interfaz Realtime."""
+    from rag_mejorado import buscar_documentos_hibrido
     try:
-
-        cantidad_resultados = int(
-            cantidad_resultados
-        )
-
+        resultados = buscar_documentos_hibrido(consulta, limite=max(1, min(int(cantidad_resultados), 10)))
+        if not resultados:
+            return 'No se encontraron documentos indexados relacionados.'
+        return json.dumps(resultados, ensure_ascii=False)
     except Exception:
-
-        cantidad_resultados = 5
-
-    cantidad_resultados = max(
-        1,
-        min(
-            cantidad_resultados,
-            10,
-        ),
-    )
-
-    try:
-
-        vector_consulta = (
-            embedding_consulta(
-                consulta
-            )
-        )
-
-    except Exception as error:
-
-        return (
-            "No fue posible generar "
-            f"el embedding: {error}"
-        )
-
-    resultados = []
-
-    for item in INDICE:
-
-        embedding = item.get(
-            "embedding"
-        )
-
-        if not embedding:
-            continue
-
-        try:
-
-            similitud = similitud_coseno(
-                vector_consulta,
-                embedding,
-            )
-
-        except Exception:
-            continue
-
-        resultados.append({
-            "similitud": similitud,
-            "archivo": item.get(
-                "archivo",
-                "Desconocido",
-            ),
-            "fragmento": item.get(
-                "fragmento",
-                "N/D",
-            ),
-            "texto": item.get(
-                "texto",
-                "",
-            ),
-            "origen": item.get(
-                "origen",
-                "local",
-            ),
-            "drive_file_id": item.get(
-                "drive_file_id"
-            ),
-        })
-
-    if not resultados:
-
-        return (
-            "No se encontraron resultados "
-            "utilizables en el índice."
-        )
-
-    resultados.sort(
-        key=lambda x: x["similitud"],
-        reverse=True,
-    )
-
-    mejores = resultados[
-        :cantidad_resultados
-    ]
-
-    salida = []
-
-    for resultado in mejores:
-
-        bloque = (
-            f"Archivo: "
-            f"{resultado['archivo']}\n"
-            f"Origen: "
-            f"{resultado['origen']}\n"
-            f"Fragmento: "
-            f"{resultado['fragmento']}\n"
-            f"Similitud: "
-            f"{resultado['similitud']:.3f}\n"
-        )
-
-        if resultado[
-            "drive_file_id"
-        ]:
-
-            bloque += (
-                f"Drive File ID: "
-                f"{resultado['drive_file_id']}\n"
-            )
-
-        bloque += (
-            f"Contenido:\n"
-            f"{resultado['texto']}"
-        )
-
-        salida.append(
-            bloque
-        )
-
-    return (
-        "\n\n---\n\n".join(
-            salida
-        )
-    )
+        return 'No se pudo consultar el índice documental. Revisa el estado local.'
 
 
 # ============================================================

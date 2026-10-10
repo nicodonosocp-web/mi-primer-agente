@@ -1,3 +1,4 @@
+from configuracion import DATA_DIR
 from pathlib import Path
 
 from google.oauth2.credentials import Credentials
@@ -10,8 +11,8 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly"
 ]
 
-CREDENTIALS_FILE = Path("credentials.json")
-TOKEN_FILE = Path("token.json")
+CREDENTIALS_FILE = (DATA_DIR / "credentials.json")
+TOKEN_FILE = (DATA_DIR / "token.json")
 
 
 def obtener_servicio_drive():

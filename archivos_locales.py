@@ -1,3 +1,7 @@
+from file_safety import ruta_archivo_segura
+import almacenamiento
+from almacenamiento import indice_transaccion
+from configuracion import DATA_DIR
 import hashlib
 import json
 from pathlib import Path
@@ -13,11 +17,9 @@ from rag_drive import (
 # CONFIGURACIÓN
 # ============================================================
 
-ARCHIVO_INDICE = Path("indice.json")
+ARCHIVO_INDICE = (DATA_DIR / "indice.json")
 
-CARPETA_SUBIDOS = Path(
-    "documentos_subidos"
-)
+CARPETA_SUBIDOS = (DATA_DIR / "documentos_subidos")
 
 
 # ============================================================
@@ -25,46 +27,11 @@ CARPETA_SUBIDOS = Path(
 # ============================================================
 
 def cargar_indice():
-    """
-    Carga indice.json.
-    """
-
-    if not ARCHIVO_INDICE.exists():
-        return []
-
-    try:
-
-        with ARCHIVO_INDICE.open(
-            "r",
-            encoding="utf-8",
-        ) as archivo:
-
-            return json.load(
-                archivo
-            )
-
-    except Exception:
-
-        return []
+    return almacenamiento.cargar_indice()
 
 
-def guardar_indice(
-    indice,
-):
-    """
-    Guarda indice.json.
-    """
-
-    with ARCHIVO_INDICE.open(
-        "w",
-        encoding="utf-8",
-    ) as archivo:
-
-        json.dump(
-            indice,
-            archivo,
-            ensure_ascii=False,
-        )
+def guardar_indice(indice):
+    return almacenamiento.guardar_indice(indice)
 
 
 def calcular_hash(
@@ -108,7 +75,7 @@ def archivo_ya_indexado(
     for item in indice:
 
         if (
-            item.get("file_hash")
+            (item.get("file_hash") or item.get("sha256"))
             == hash_archivo
         ):
             return True
@@ -120,33 +87,15 @@ def archivo_ya_indexado(
 # GUARDAR ARCHIVO SUBIDO
 # ============================================================
 
-def guardar_archivo_subido(
-    nombre,
-    contenido,
-):
-    """
-    Guarda un archivo recibido desde Streamlit.
-    """
-
-    CARPETA_SUBIDOS.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    # Evita rutas tipo ../../archivo
-    nombre_seguro = Path(
-        nombre
-    ).name
-
-    ruta = (
-        CARPETA_SUBIDOS
-        / nombre_seguro
-    )
-
-    ruta.write_bytes(
-        contenido
-    )
-
+def guardar_archivo_subido(nombre, contenido):
+    if not contenido or len(contenido) > 25 * 1024 * 1024:
+        raise ValueError('El archivo debe contener entre 1 byte y 25 MB.')
+    CARPETA_SUBIDOS.mkdir(parents=True, exist_ok=True)
+    ruta = ruta_archivo_segura(CARPETA_SUBIDOS, nombre, {'.pdf', '.docx', '.txt'})
+    if ruta.exists():
+        ruta = ruta_archivo_segura(CARPETA_SUBIDOS, f'{ruta.stem}_{hashlib.sha256(contenido).hexdigest()[:12]}{ruta.suffix}')
+    with ruta.open('xb') as out:
+        out.write(contenido)
     return ruta
 
 
@@ -154,6 +103,7 @@ def guardar_archivo_subido(
 # INDEXACIÓN
 # ============================================================
 
+@indice_transaccion
 def indexar_archivo_local(
     ruta,
 ):

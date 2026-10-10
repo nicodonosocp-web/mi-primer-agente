@@ -1,3 +1,4 @@
+from configuracion import DATA_DIR
 import sqlite3
 from pathlib import Path
 from datetime import datetime
@@ -7,7 +8,7 @@ from datetime import datetime
 # CONFIGURACIÓN
 # ============================================================
 
-ARCHIVO_DB = Path("memoria.db")
+ARCHIVO_DB = (DATA_DIR / "memoria.db")
 
 
 # ============================================================
@@ -21,7 +22,7 @@ def conectar():
     """
 
     conexion = sqlite3.connect(
-        ARCHIVO_DB
+        ARCHIVO_DB, timeout=30
     )
 
     conexion.row_factory = sqlite3.Row
@@ -114,6 +115,7 @@ def guardar_memoria(
 
     with conectar() as conexion:
 
+        conexion.execute("BEGIN IMMEDIATE")
         cursor = conexion.cursor()
 
         cursor.execute(

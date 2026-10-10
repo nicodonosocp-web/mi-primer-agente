@@ -1,3 +1,6 @@
+import almacenamiento
+from almacenamiento import indice_transaccion
+from configuracion import DATA_DIR
 import json
 import math
 import os
@@ -22,7 +25,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent
 
-INDICE_PATH = BASE_DIR / "indice.json"
+INDICE_PATH = DATA_DIR / "indice.json"
 
 MODELO_EMBEDDING = "text-embedding-3-small"
 
@@ -177,73 +180,11 @@ def tokenizar(texto: str):
 # ============================================================
 
 def cargar_indice():
-
-    if not INDICE_PATH.exists():
-        return []
-
-    try:
-
-        with open(
-            INDICE_PATH,
-            "r",
-            encoding="utf-8",
-        ) as archivo:
-
-            datos = json.load(archivo)
-
-        if isinstance(datos, list):
-            return datos
-
-    except Exception as error:
-
-        print(
-            "[RAG] Error leyendo índice:",
-            error,
-        )
-
-    return []
+    return almacenamiento.cargar_indice()
 
 
 def guardar_indice(indice):
-
-    INDICE_PATH.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    descriptor, temporal = tempfile.mkstemp(
-        prefix="indice_",
-        suffix=".json.tmp",
-        dir=str(INDICE_PATH.parent),
-    )
-
-    try:
-
-        with os.fdopen(
-            descriptor,
-            "w",
-            encoding="utf-8",
-        ) as archivo:
-
-            json.dump(
-                indice,
-                archivo,
-                ensure_ascii=False,
-            )
-
-        os.replace(
-            temporal,
-            INDICE_PATH,
-        )
-
-    except Exception:
-
-        try:
-            os.remove(temporal)
-        except Exception:
-            pass
-
-        raise
+    return almacenamiento.guardar_indice(indice)
 
 
 # ============================================================
@@ -615,7 +556,7 @@ def buscar_documentos_hibrido(
             bonus
         )
 
-        resultado = dict(item)
+        resultado = {k: v for k, v in item.items() if k != "embedding"}
 
         resultado[
             "score_semantico"
@@ -680,6 +621,8 @@ def dividir_texto_inteligente(
     solapamiento: int = 180,
 ):
 
+    if tamano_objetivo <= 0 or not 0 <= solapamiento < tamano_objetivo:
+        raise ValueError("Fragmentación inválida.")
     if not texto:
         return []
 
@@ -913,7 +856,7 @@ def obtener_estadisticas_indice():
                     0,
 
                 "origen":
-                    origen,
+                    "drive" if origen == "google_drive" else origen,
 
                 "drive_file_id":
                     item.get(
@@ -981,6 +924,7 @@ def obtener_estadisticas_indice():
 # ELIMINAR DOCUMENTO
 # ============================================================
 
+@indice_transaccion
 def eliminar_documento_indice(
     archivo: str
 ):
@@ -990,6 +934,11 @@ def eliminar_documento_indice(
     )
 
     indice = cargar_indice()
+
+    identidades = {(item.get('drive_file_id') or 'local') for item in indice
+                   if normalizar_texto(item.get('archivo', '')) == objetivo}
+    if len(identidades) > 1:
+        raise ValueError('Hay documentos homónimos de distintos orígenes. No se eliminó ninguno.')
 
     nuevo_indice = []
 

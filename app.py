@@ -201,8 +201,8 @@ with st.sidebar:
     st.markdown(
         """
         <div class="estado-ok">
-        🟢 <strong>Google Drive conectado</strong><br>
-        Modo solo lectura
+        🟢 <strong>Google Drive disponible</strong><br>
+        Modo solo lectura · conexión al consultar
         </div>
         """,
         unsafe_allow_html=True,

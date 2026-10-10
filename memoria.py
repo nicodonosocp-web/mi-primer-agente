@@ -1,3 +1,4 @@
+from configuracion import DATA_DIR
 import sqlite3
 from pathlib import Path
 
@@ -6,7 +7,7 @@ from pathlib import Path
 # CONFIGURACIÓN
 # ============================================================
 
-ARCHIVO_DB = Path("memoria.db")
+ARCHIVO_DB = (DATA_DIR / "memoria.db")
 
 
 # ============================================================
@@ -14,12 +15,9 @@ ARCHIVO_DB = Path("memoria.db")
 # ============================================================
 
 def conectar():
-    """
-    Crea una conexión con la base de datos SQLite.
-    """
-    return sqlite3.connect(
-        ARCHIVO_DB
-    )
+    conexion = sqlite3.connect(ARCHIVO_DB, timeout=30)
+    conexion.execute('PRAGMA foreign_keys = ON')
+    return conexion
 
 
 # ============================================================

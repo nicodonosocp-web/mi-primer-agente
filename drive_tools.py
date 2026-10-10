@@ -1,4 +1,6 @@
 from pathlib import Path
+from configuracion import DATA_DIR
+from file_safety import ruta_archivo_segura
 import io
 
 from google.oauth2.credentials import Credentials
@@ -12,9 +14,9 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly"
 ]
 
-CREDENTIALS_FILE = Path("credentials.json")
-TOKEN_FILE = Path("token.json")
-CARPETA_DESCARGAS = Path("drive_descargas")
+CREDENTIALS_FILE = DATA_DIR / "credentials.json"
+TOKEN_FILE = DATA_DIR / "token.json"
+CARPETA_DESCARGAS = DATA_DIR / "drive_descargas"
 
 
 def obtener_servicio_drive():
@@ -28,6 +30,7 @@ def obtener_servicio_drive():
 
     if credenciales and credenciales.expired and credenciales.refresh_token:
         credenciales.refresh(Request())
+        TOKEN_FILE.write_text(credenciales.to_json(), encoding="utf-8")
 
     if not credenciales or not credenciales.valid:
         flujo = InstalledAppFlow.from_client_secrets_file(
@@ -167,10 +170,7 @@ def descargar_archivo_drive(file_id, nombre=None):
             or nombre_original
         )
 
-    ruta_salida = (
-        CARPETA_DESCARGAS
-        / nombre_salida
-    )
+    ruta_salida = ruta_archivo_segura(CARPETA_DESCARGAS, nombre_salida)
 
     archivo_temporal = io.BytesIO()
 

@@ -1,3 +1,6 @@
+import almacenamiento
+from almacenamiento import indice_transaccion
+from configuracion import DATA_DIR
 import json
 import os
 from pathlib import Path
@@ -19,7 +22,7 @@ if not os.getenv("OPENAI_API_KEY"):
 
 client = OpenAI()
 
-ARCHIVO_INDICE = Path("indice.json")
+ARCHIVO_INDICE = (DATA_DIR / "indice.json")
 
 MODELO_EMBEDDING = "text-embedding-3-small"
 
@@ -84,21 +87,9 @@ def extraer_docx(ruta: Path) -> str:
     return "\n".join(bloques)
 
 
-def extraer_documento(ruta: Path) -> str:
-    extension = ruta.suffix.lower()
-
-    if extension == ".txt":
-        return extraer_txt(ruta)
-
-    if extension == ".pdf":
-        return extraer_pdf(ruta)
-
-    if extension == ".docx":
-        return extraer_docx(ruta)
-
-    raise ValueError(
-        f"Formato no soportado para RAG: {extension}"
-    )
+def extraer_documento(ruta):
+    from documentos import extraer_texto_documento
+    return extraer_texto_documento(ruta)
 
 
 def dividir_texto(texto: str):
@@ -129,26 +120,11 @@ def crear_embedding(texto: str):
 
 
 def cargar_indice():
-    if not ARCHIVO_INDICE.exists():
-        return []
-
-    with ARCHIVO_INDICE.open(
-        "r",
-        encoding="utf-8"
-    ) as archivo:
-        return json.load(archivo)
+    return almacenamiento.cargar_indice()
 
 
 def guardar_indice(indice):
-    with ARCHIVO_INDICE.open(
-        "w",
-        encoding="utf-8"
-    ) as archivo:
-        json.dump(
-            indice,
-            archivo,
-            ensure_ascii=False
-        )
+    return almacenamiento.guardar_indice(indice)
 
 
 def ya_indexado(indice, file_id):
@@ -159,6 +135,7 @@ def ya_indexado(indice, file_id):
     return False
 
 
+@indice_transaccion
 def indexar_archivo_drive(file_id: str) -> str:
     print(
         f"[RAG DRIVE] Descargando archivo -> {file_id}"
@@ -176,9 +153,7 @@ def indexar_archivo_drive(file_id: str) -> str:
             file_id
         )
     except Exception as error:
-        return (
-            f"No fue posible descargar el archivo: {error}"
-        )
+        raise RuntimeError("No fue posible descargar el archivo Drive.") from error
 
     ruta = Path(ruta)
 
@@ -187,14 +162,10 @@ def indexar_archivo_drive(file_id: str) -> str:
             ruta
         )
     except Exception as error:
-        return (
-            f"No fue posible extraer texto: {error}"
-        )
+        raise RuntimeError("No fue posible extraer texto Drive.") from error
 
     if not texto.strip():
-        return (
-            "El documento no contiene texto extraíble."
-        )
+        raise ValueError("El documento no contiene texto extraíble.")
 
     fragmentos = dividir_texto(
         texto
