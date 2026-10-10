@@ -1,3 +1,9 @@
+from configuracion import DATA_DIR
+from file_safety import ruta_archivo_segura
+import documentos
+from starlette.concurrency import run_in_threadpool
+import almacenamiento
+from almacenamiento import indice_transaccion
 import base64
 import hashlib
 import json
@@ -81,13 +87,13 @@ BASE_DIR = Path(
 ).resolve().parent
 
 INDICE_PATH = (
-    BASE_DIR
+    DATA_DIR
     /
     "indice.json"
 )
 
 UPLOAD_DIR = (
-    BASE_DIR
+    DATA_DIR
     /
     "documentos_subidos"
 )
@@ -139,13 +145,18 @@ client = OpenAI(
 # ============================================================
 
 app = FastAPI(
-    title="Mi Agente IA Multimodal V2.3"
+    title="GRIFO V2.4 RC1"
 )
 
 
 # ============================================================
 # BASES DE DATOS
 # ============================================================
+
+from seguridad import instalar_seguridad
+from confirmaciones import instalar_confirmaciones
+instalar_seguridad(app)
+instalar_confirmaciones(app, lambda **kwargs: crear_evento(**kwargs))
 
 inicializar_db()
 
@@ -258,14 +269,10 @@ def normalizar_conversacion(
                 ),
 
             "fecha_creacion":
-                fila.get(
-                    "fecha_creacion"
-                ),
+                (fila.get("fecha_creacion") or fila.get("creado_en")),
 
             "fecha_actualizacion":
-                fila.get(
-                    "fecha_actualizacion"
-                ),
+                (fila.get("fecha_actualizacion") or fila.get("actualizado_en")),
         }
 
     if isinstance(
@@ -453,7 +460,7 @@ def api_listar_conversaciones():
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -515,7 +522,7 @@ def api_obtener_conversacion(
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -543,7 +550,7 @@ def iniciar_conversacion():
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -646,7 +653,7 @@ def guardar_mensaje_api(
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -656,64 +663,11 @@ def guardar_mensaje_api(
 # ============================================================
 
 def cargar_indice():
-
-    if not INDICE_PATH.exists():
-        return []
-
-    try:
-
-        with open(
-            INDICE_PATH,
-            "r",
-            encoding="utf-8",
-        ) as archivo:
-
-            datos = json.load(
-                archivo
-            )
-
-        if isinstance(
-            datos,
-            list,
-        ):
-
-            return datos
-
-    except Exception as error:
-
-        print(
-            "[INDICE ERROR]",
-            error,
-        )
-
-    return []
+    return almacenamiento.cargar_indice()
 
 
-def guardar_indice(
-    indice
-):
-
-    temporal = (
-        INDICE_PATH.with_suffix(
-            ".tmp"
-        )
-    )
-
-    with open(
-        temporal,
-        "w",
-        encoding="utf-8",
-    ) as archivo:
-
-        json.dump(
-            indice,
-            archivo,
-            ensure_ascii=False,
-        )
-
-    temporal.replace(
-        INDICE_PATH
-    )
+def guardar_indice(indice):
+    return almacenamiento.guardar_indice(indice)
 
 
 def contar_fragmentos_indice():
@@ -808,6 +762,9 @@ def obtener_info_documento(
         "origen"
     )
 
+    if primero.get("drive_file_id") or origen == "google_drive":
+        origen = "drive"
+
     if not origen:
 
         origen = (
@@ -883,371 +840,44 @@ def calcular_sha256(
 # TXT
 # ============================================================
 
-def extraer_txt(
-    ruta: Path
-):
-
-    try:
-
-        return ruta.read_text(
-            encoding="utf-8"
-        )
-
-    except UnicodeDecodeError:
-
-        return ruta.read_text(
-            encoding="latin-1"
-        )
+def extraer_txt(ruta):
+    return documentos.extraer_txt(ruta)
 
 
 # ============================================================
 # OCR
 # ============================================================
 
-def pagina_pdf_a_data_url(
-    pagina,
-    zoom: float = 2.0,
-):
-
-    matriz = fitz.Matrix(
-        zoom,
-        zoom,
-    )
-
-    pixmap = pagina.get_pixmap(
-        matrix=matriz,
-        alpha=False,
-    )
-
-    png_bytes = pixmap.tobytes(
-        "png"
-    )
-
-    base64_png = (
-        base64
-        .b64encode(
-            png_bytes
-        )
-        .decode(
-            "utf-8"
-        )
-    )
-
-    return (
-        "data:image/png;base64,"
-        +
-        base64_png
-    )
+def pagina_pdf_a_data_url(pagina, zoom=2.0):
+    return documentos.pagina_pdf_a_data_url(pagina, zoom)
 
 
-def ocr_imagen_openai(
-    image_data_url: str,
-    numero_pagina: int,
-):
-
-    print(
-        f"[OCR] Página {numero_pagina}"
-    )
-
-    respuesta = (
-        client.responses.create(
-            model=
-                MODELO_OCR,
-
-            input=[
-                {
-                    "role":
-                        "user",
-
-                    "content": [
-                        {
-                            "type":
-                                "input_text",
-
-                            "text":
-                                (
-                                    "Transcribe fielmente todo el texto "
-                                    "legible de esta página. "
-                                    "No resumas, no expliques y no inventes. "
-                                    "Mantén títulos, listas, fechas, números "
-                                    "y tablas de manera legible. "
-                                    "Devuelve solamente la transcripción."
-                                ),
-                        },
-                        {
-                            "type":
-                                "input_image",
-
-                            "image_url":
-                                image_data_url,
-
-                            "detail":
-                                "high",
-                        },
-                    ],
-                }
-            ],
-        )
-    )
-
-    return (
-        respuesta.output_text
-        or ""
-    ).strip()
+def ocr_imagen_openai(image_data_url, numero_pagina):
+    return documentos.ocr_imagen_openai(image_data_url, numero_pagina)
 
 
-def extraer_pdf_con_ocr(
-    ruta: Path
-):
-
-    documento = fitz.open(
-        str(ruta)
-    )
-
-    textos = []
-
-    try:
-
-        for numero_pagina, pagina in enumerate(
-            documento,
-            start=1,
-        ):
-
-            imagen = (
-                pagina_pdf_a_data_url(
-                    pagina
-                )
-            )
-
-            texto = (
-                ocr_imagen_openai(
-                    imagen,
-                    numero_pagina,
-                )
-            )
-
-            if texto:
-
-                textos.append(
-                    (
-                        f"[Página {numero_pagina}]\n"
-                        f"{texto}"
-                    )
-                )
-
-    finally:
-
-        documento.close()
-
-    texto_total = (
-        "\n\n"
-        .join(
-            textos
-        )
-        .strip()
-    )
-
-    if not texto_total:
-
-        raise ValueError(
-            "OCR completado pero no encontró texto."
-        )
-
-    return texto_total
+def extraer_pdf_con_ocr(ruta):
+    return documentos.extraer_pdf_con_ocr(ruta)
 
 
 # ============================================================
 # PDF
 # ============================================================
 
-def extraer_pdf(
-    ruta: Path
-):
-
-    documento = None
-
-    textos = []
-
-    try:
-
-        documento = fitz.open(
-            str(ruta)
-        )
-
-        for pagina in documento:
-
-            texto = (
-                pagina.get_text(
-                    "text"
-                )
-                or ""
-            ).strip()
-
-            if texto:
-
-                textos.append(
-                    texto
-                )
-
-        texto_total = (
-            "\n\n"
-            .join(
-                textos
-            )
-            .strip()
-        )
-
-        if texto_total:
-            return texto_total
-
-    except Exception as error:
-
-        print(
-            "[PDF PyMuPDF]",
-            error,
-        )
-
-    finally:
-
-        if documento:
-
-            try:
-                documento.close()
-            except Exception:
-                pass
-
-    textos = []
-
-    try:
-
-        lector = PdfReader(
-            str(ruta)
-        )
-
-        for pagina in lector.pages:
-
-            texto = (
-                pagina.extract_text()
-                or ""
-            ).strip()
-
-            if texto:
-
-                textos.append(
-                    texto
-                )
-
-        texto_total = (
-            "\n\n"
-            .join(
-                textos
-            )
-            .strip()
-        )
-
-        if texto_total:
-            return texto_total
-
-    except Exception as error:
-
-        print(
-            "[PDF pypdf]",
-            error,
-        )
-
-    return (
-        extraer_pdf_con_ocr(
-            ruta
-        )
-    )
+def extraer_pdf(ruta):
+    return documentos.extraer_pdf(ruta)
 
 
 # ============================================================
 # DOCX
 # ============================================================
 
-def extraer_docx(
-    ruta: Path
-):
-
-    documento = Document(
-        str(ruta)
-    )
-
-    textos = []
-
-    for parrafo in documento.paragraphs:
-
-        texto = (
-            parrafo.text
-            or ""
-        ).strip()
-
-        if texto:
-
-            textos.append(
-                texto
-            )
-
-    for tabla in documento.tables:
-
-        for fila in tabla.rows:
-
-            celdas = []
-
-            for celda in fila.cells:
-
-                contenido = (
-                    celda.text
-                    or ""
-                ).strip()
-
-                if contenido:
-
-                    celdas.append(
-                        contenido
-                    )
-
-            if celdas:
-
-                textos.append(
-                    " | ".join(
-                        celdas
-                    )
-                )
-
-    return "\n".join(
-        textos
-    )
+def extraer_docx(ruta):
+    return documentos.extraer_docx(ruta)
 
 
-def extraer_texto_documento(
-    ruta: Path
-):
-
-    extension = (
-        ruta.suffix
-        .lower()
-    )
-
-    if extension == ".txt":
-        return extraer_txt(
-            ruta
-        )
-
-    if extension == ".pdf":
-        return extraer_pdf(
-            ruta
-        )
-
-    if extension == ".docx":
-        return extraer_docx(
-            ruta
-        )
-
-    raise ValueError(
-        f"Extensión no soportada: {extension}"
-    )
+def extraer_texto_documento(ruta):
+    return documentos.extraer_texto_documento(ruta)
 
 
 # ============================================================
@@ -1295,6 +925,7 @@ def crear_embeddings_lote(
 # INDEXACIÓN LOCAL
 # ============================================================
 
+@indice_transaccion
 def indexar_documento_local(
     ruta: Path,
     sha256: str,
@@ -1305,7 +936,7 @@ def indexar_documento_local(
     for item in indice:
 
         if (
-            item.get("sha256")
+            (item.get("sha256") or item.get("file_hash"))
             ==
             sha256
         ):
@@ -1356,6 +987,9 @@ def indexar_documento_local(
             fragmentos
         )
     )
+
+    if len(embeddings) != len(fragmentos):
+        raise RuntimeError("Embeddings incompletos; el índice no se modificó.")
 
     nuevos_items = []
 
@@ -1421,145 +1055,41 @@ def indexar_documento_local(
 # UPLOAD
 # ============================================================
 
-@app.post(
-    "/upload-rag"
-)
-async def upload_rag(
-    file: UploadFile = File(...)
-):
-
+@app.post('/upload-rag')
+async def upload_rag(file: UploadFile = File(...)):
     try:
-
-        nombre = limpiar_nombre_archivo(
-            file.filename
-            or
-            "documento"
-        )
-
-        extension = (
-            Path(nombre)
-            .suffix
-            .lower()
-        )
-
-        if extension not in EXTENSIONES_PERMITIDAS:
-
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "ok": False,
-                    "error":
-                        "Solo PDF, DOCX y TXT.",
-                },
-            )
-
-        contenido = await file.read()
-
+        nombre = limpiar_nombre_archivo(file.filename or 'documento')
+        ruta_archivo_segura(UPLOAD_DIR, nombre, EXTENSIONES_PERMITIDAS)
+        contenido = bytearray()
+        while True:
+            bloque = await file.read(1024 * 1024)
+            if not bloque:
+                break
+            contenido.extend(bloque)
+            if len(contenido) > MAX_ARCHIVO_BYTES:
+                return JSONResponse(status_code=413, content={'ok': False, 'error': 'El archivo supera 25 MB.'})
         if not contenido:
+            return JSONResponse(status_code=400, content={'ok': False, 'error': 'Archivo vacío.'})
+        return await run_in_threadpool(procesar_carga, nombre, bytes(contenido))
+    except ValueError as error:
+        return JSONResponse(status_code=400, content={'ok': False, 'error': str(error)})
+    except Exception:
+        return JSONResponse(status_code=500, content={'ok': False, 'error': 'No se pudo procesar el documento. El índice anterior se conserva.'})
+    finally:
+        await file.close()
 
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "ok": False,
-                    "error":
-                        "Archivo vacío.",
-                },
-            )
-
-        if (
-            len(contenido)
-            >
-            MAX_ARCHIVO_BYTES
-        ):
-
-            return JSONResponse(
-                status_code=413,
-                content={
-                    "ok": False,
-                    "error":
-                        "El archivo supera 25 MB.",
-                },
-            )
-
-        sha256 = calcular_sha256(
-            contenido
-        )
-
-        indice = cargar_indice()
-
-        existente = next(
-            (
-                item
-                for item
-                in indice
-                if (
-                    item.get(
-                        "sha256"
-                    )
-                    ==
-                    sha256
-                )
-            ),
-            None,
-        )
-
-        if existente:
-
-            return {
-                "ok": True,
-                "duplicado": True,
-                "archivo":
-                    existente.get(
-                        "archivo",
-                        nombre,
-                    ),
-                "fragmentos_agregados":
-                    0,
-            }
-
-        ruta = (
-            UPLOAD_DIR
-            /
-            nombre
-        )
-
-        if ruta.exists():
-
-            ruta = (
-                UPLOAD_DIR
-                /
-                (
-                    f"{ruta.stem}_"
-                    f"{sha256[:8]}"
-                    f"{ruta.suffix}"
-                )
-            )
-
-        ruta.write_bytes(
-            contenido
-        )
-
-        resultado = (
-            indexar_documento_local(
-                ruta,
-                sha256,
-            )
-        )
-
-        return {
-            "ok": True,
-            **resultado,
-        }
-
-    except Exception as error:
-
-        return JSONResponse(
-            status_code=500,
-            content={
-                "ok": False,
-                "error": str(error),
-            },
-        )
+@indice_transaccion
+def procesar_carga(nombre, contenido):
+    sha256 = calcular_sha256(contenido)
+    existente = next((x for x in cargar_indice() if (x.get('sha256') or x.get('file_hash')) == sha256), None)
+    if existente:
+        return {'ok': True, 'duplicado': True, 'archivo': existente['archivo'], 'fragmentos_agregados': 0}
+    ruta = ruta_archivo_segura(UPLOAD_DIR, nombre, EXTENSIONES_PERMITIDAS)
+    if ruta.exists():
+        ruta = ruta_archivo_segura(UPLOAD_DIR, f'{ruta.stem}_{sha256[:12]}{ruta.suffix}', EXTENSIONES_PERMITIDAS)
+    with ruta.open('xb') as out:
+        out.write(contenido)
+    return {'ok': True, **indexar_documento_local(ruta, sha256)}
 
 
 # ============================================================
@@ -1755,7 +1285,7 @@ def biblioteca():
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -1789,7 +1319,7 @@ def listar_documentos_rag():
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -1812,7 +1342,7 @@ def estadisticas_rag():
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -1855,7 +1385,7 @@ def buscar_rag_api(
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -1969,14 +1499,13 @@ def borrar_documento_rag(
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
 
-@app.post(
-    "/rag/reindex"
-)
+@app.post('/rag/reindex')
+@indice_transaccion
 def reindexar_documento_rag(
     request: ReindexDocumentRequest
 ):
@@ -1992,11 +1521,18 @@ def reindexar_documento_rag(
         archivo
     )
 
-    ruta_local = (
-        UPLOAD_DIR
-        /
-        archivo
-    )
+    # Rechazar antes de restauración: entradas inválidas no escriben el índice.
+    ruta_local = None
+    if not (info and info.get("origen") == "drive"):
+        try:
+            ruta_local = ruta_archivo_segura(
+                UPLOAD_DIR, archivo, EXTENSIONES_PERMITIDAS,
+            )
+        except ValueError:
+            return JSONResponse(
+                status_code=400,
+                content={"ok": False, "error": "Nombre de documento local inválido."},
+            )
 
     try:
 
@@ -2085,7 +1621,7 @@ def reindexar_documento_rag(
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
                 "restaurado":
                     True,
             },
@@ -2430,9 +1966,7 @@ def busqueda_unificada(
 
             except Exception as error:
 
-                drive_error = str(
-                    error
-                )
+                drive_error = "No se pudo consultar Drive."
 
         return {
             "ok":
@@ -2460,7 +1994,7 @@ def busqueda_unificada(
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -2501,7 +2035,7 @@ def api_calendar_eventos(
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -2527,7 +2061,7 @@ def api_calendar_listas():
             status_code=500,
             content={
                 "ok": False,
-                "error": str(error),
+                "error": "La operación no pudo completarse. Revisa los datos y el estado de la integración.",
             },
         )
 
@@ -2564,96 +2098,16 @@ def inicio():
 # HEALTH
 # ============================================================
 
-@app.get(
-    "/health"
-)
+@app.get('/health')
 def health():
-
-    drive_ok = False
-
-    calendar_ok = False
-
+    # Diagnóstico local: nunca inicia OAuth ni efectúa llamadas externas.
     try:
-
-        obtener_servicio_drive()
-
-        drive_ok = True
-
+        stats = obtener_estadisticas_indice()
+        return {'status': 'ok', 'version': '2.4-rc1', 'rag_documents': stats['documentos_totales'],
+                'rag_fragments': stats['fragmentos_totales'], 'drive_mode': 'read_only',
+                'integrations': 'not_checked', 'calendar_write_requires_confirmation': True}
     except Exception:
-        pass
-
-    try:
-
-        obtener_servicio_calendar()
-
-        calendar_ok = True
-
-    except Exception:
-        pass
-
-    stats = (
-        obtener_estadisticas_indice()
-    )
-
-    return {
-        "status":
-            "ok",
-
-        "version":
-            "multimodal-rag-2.3",
-
-        "realtime":
-            True,
-
-        "memory":
-            True,
-
-        "rag":
-            True,
-
-        "rag_version":
-            "2.3",
-
-        "rag_fragments":
-            stats[
-                "fragmentos_totales"
-            ],
-
-        "rag_documents":
-            stats[
-                "documentos_totales"
-            ],
-
-        "ocr":
-            True,
-
-        "drive":
-            drive_ok,
-
-        "drive_mode":
-            "read_only",
-
-        "calendar":
-            calendar_ok,
-
-        "calendar_read":
-            True,
-
-        "calendar_write":
-            True,
-
-        "calendar_write_requires_confirmation":
-            True,
-
-        "document_library":
-            True,
-
-        "document_preview":
-            True,
-
-        "unified_search":
-            True,
-    }
+        return JSONResponse(status_code=503, content={'status': 'error', 'error': 'Índice ilegible; requiere recuperación.'})
 
 
 # ============================================================
@@ -2718,7 +2172,7 @@ def crear_token():
 
                 content={
                     "error":
-                        respuesta.text
+                        "No se pudo iniciar Realtime."
                 },
             )
 
@@ -2730,7 +2184,7 @@ def crear_token():
             status_code=500,
             content={
                 "error":
-                    str(error)
+                    "La operación no pudo completarse."
             },
         )
 
@@ -2753,11 +2207,7 @@ def ejecutar_tool(
         or {}
     )
 
-    print(
-        "[TOOL]",
-        nombre,
-        argumentos,
-    )
+    print("[TOOL]", nombre)
 
     try:
 
@@ -3180,100 +2630,9 @@ def ejecutar_tool(
 
 
         if nombre == "crear_evento_calendar":
-
-            autorizado = argumentos.get(
-                "usuario_autorizo_creacion",
-                False,
-            )
-
-            if autorizado is not True:
-
-                return JSONResponse(
-                    status_code=403,
-                    content={
-                        "ok":
-                            False,
-
-                        "requiere_confirmacion":
-                            True,
-
-                        "error":
-                            (
-                                "La creación del evento requiere "
-                                "confirmación explícita del usuario."
-                            ),
-                    },
-                )
-
-            titulo = argumentos.get(
-                "titulo",
-                "",
-            ).strip()
-
-            inicio_iso = argumentos.get(
-                "inicio_iso",
-                "",
-            ).strip()
-
-            fin_iso = argumentos.get(
-                "fin_iso",
-                "",
-            ).strip()
-
-            if (
-                not titulo
-                or
-                not inicio_iso
-                or
-                not fin_iso
-            ):
-
-                return JSONResponse(
-                    status_code=400,
-                    content={
-                        "ok": False,
-                        "error":
-                            "Faltan datos del evento.",
-                    },
-                )
-
-            evento = crear_evento(
-                titulo=
-                    titulo,
-
-                inicio_iso=
-                    inicio_iso,
-
-                fin_iso=
-                    fin_iso,
-
-                descripcion=
-                    argumentos.get(
-                        "descripcion",
-                        "",
-                    ),
-
-                ubicacion=
-                    argumentos.get(
-                        "ubicacion",
-                        "",
-                    ),
-
-                zona_horaria=
-                    argumentos.get(
-                        "zona_horaria",
-                        "America/Santiago",
-                    ),
-            )
-
-            return {
-                "ok":
-                    True,
-
-                "result":
-                    evento,
-            }
-
+            return JSONResponse(status_code=403, content={"ok": False,
+                "requiere_confirmacion": True,
+                "error": "Crea una propuesta y confírmala desde la interfaz."})
 
         return JSONResponse(
             status_code=400,
@@ -3293,7 +2652,6 @@ def ejecutar_tool(
         print(
             "[TOOL ERROR]",
             type(error).__name__,
-            error,
         )
 
         return JSONResponse(
@@ -3301,7 +2659,7 @@ def ejecutar_tool(
             content={
                 "ok": False,
                 "error":
-                    str(error),
+                    "La operación no pudo completarse.",
 
                 "tipo":
                     type(error).__name__,

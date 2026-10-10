@@ -1,0 +1,6 @@
+{
+  "name": "grifo-ui-tests",
+  "private": true,
+  "scripts": {"test": "node tests/calendar_confirmation.cjs && node tests/ui_regression.cjs"},
+  "devDependencies": {"playwright": "1.62.1"}
+}
