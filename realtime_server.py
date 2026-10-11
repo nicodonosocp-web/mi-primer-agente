@@ -43,6 +43,7 @@ from memoria_largo_plazo import (
 from drive_tools import (
     obtener_servicio_drive,
 )
+from drive_navegacion import consultar_carpetas
 
 from rag_drive import (
     indexar_archivo_drive,
@@ -2418,6 +2419,19 @@ def ejecutar_tool(
         # ====================================================
         # DRIVE
         # ====================================================
+
+        if nombre in {"listar_carpetas_drive", "listar_contenido_carpeta_drive"}:
+            carpeta_id = None
+            if nombre == "listar_contenido_carpeta_drive":
+                carpeta_id = argumentos.get("carpeta_id", "")
+                if not isinstance(carpeta_id, str) or not carpeta_id.strip():
+                    return JSONResponse(status_code=400, content={
+                        "ok": False, "error": "Se requiere el ID de la carpeta."})
+            return {"ok": True, "result": consultar_carpetas(
+                obtener_servicio_drive(),
+                nombre=argumentos.get("nombre", ""), carpeta_id=carpeta_id,
+                limite=argumentos.get("limite", 20), pagina=argumentos.get("pagina"),
+            )}
 
         if nombre == "listar_drive":
 

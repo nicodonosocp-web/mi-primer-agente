@@ -2,6 +2,7 @@
 .env
 credentials.json
 token.json
+token.drive-respaldo-*.bak
 calendar_token.json
 indice.json
 documentos/

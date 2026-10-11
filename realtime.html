@@ -1601,6 +1601,20 @@ async function ejecutarBusquedaGlobal() {
 // ============================================================
 
 const TOOLS = [
+    {
+        type: 'function', name: 'listar_carpetas_drive',
+        description: 'Lista carpetas accesibles de Google Drive. Filtra opcionalmente por nombre; sin nombre lista carpetas. Usa siguiente_pagina para continuar. No lee el contenido de documentos.',
+        parameters: {type: 'object', properties: {
+            nombre: {type: 'string'}, limite: {type: 'integer'}, pagina: {type: 'string'}
+        }}
+    },
+    {
+        type: 'function', name: 'listar_contenido_carpeta_drive',
+        description: 'Lista archivos y subcarpetas directamente dentro de una carpeta Drive usando un ID obtenido de resultados reales. No es recursiva. Usa siguiente_pagina para continuar.',
+        parameters: {type: 'object', properties: {
+            carpeta_id: {type: 'string'}, limite: {type: 'integer'}, pagina: {type: 'string'}
+        }, required: ['carpeta_id']}
+    },
 
     {
         type:
@@ -1992,6 +2006,12 @@ function configurarSesion() {
             "Responde en español. "
             +
             "Tienes memoria persistente, RAG, Google Drive y Google Calendar. "
+            +
+            "Para buscar o listar carpetas usa listar_carpetas_drive; para ver su contenido usa listar_contenido_carpeta_drive con el ID encontrado. Si hay carpetas homónimas, pide al usuario elegir. No inventes IDs. "
+            +
+            "Si hay siguiente_pagina, el listado es parcial; continúa cuando sea necesario. Si busqueda_incompleta es true, informa la limitación. Una lista de archivos no equivale a leer sus contenidos. "
+            +
+            "Para leer o resumir un documento consulta primero el RAG con buscar_documentos y su nombre exacto en archivo. No afirmes que no puedes leerlo sin consultar el índice. Si no hay contenido recuperado, explica esa limitación sin inventar un resumen. "
             +
             "Para consultar agenda usa las herramientas Calendar. "
             +

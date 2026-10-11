@@ -43,6 +43,22 @@ class RuntimeTests(unittest.TestCase):
     def setUp(self):
         server.guardar_indice([])
 
+    def test_drive_carpetas_desde_chat(self):
+        servicio = Mock()
+        servicio.files.return_value.list.return_value.execute.return_value = {
+            'files': [{'id': 'folder-test', 'name': 'MBA'}], 'nextPageToken': 'next-test'}
+        with patch.object(server, 'obtener_servicio_drive', return_value=servicio):
+            for nombre, argumentos in [
+                ('listar_carpetas_drive', {'nombre': 'MBA'}),
+                ('listar_contenido_carpeta_drive', {'carpeta_id': 'folder-test'}),
+            ]:
+                respuesta = self.client.post('/tool', json={'name': nombre, 'arguments': argumentos})
+                self.assertEqual(respuesta.status_code, 200, respuesta.text)
+                self.assertEqual(respuesta.json()['result']['siguiente_pagina'], 'next-test')
+            respuesta = self.client.post('/tool', json={
+                'name': 'listar_contenido_carpeta_drive', 'arguments': {}})
+            self.assertEqual(respuesta.status_code, 400)
+
     def test_01_arranque_env_y_rutas(self):
         self.assertEqual(os.environ['OPENAI_API_KEY'], 'test-not-a-real-key')
         self.assertEqual(memoria.ARCHIVO_DB, DATA / 'memoria.db')
