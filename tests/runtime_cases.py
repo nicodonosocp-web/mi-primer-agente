@@ -59,6 +59,22 @@ class RuntimeTests(unittest.TestCase):
                 'name': 'listar_contenido_carpeta_drive', 'arguments': {}})
             self.assertEqual(respuesta.status_code, 400)
 
+    def test_drive_indexacion_no_autorizable_por_modelo(self):
+        with patch.object(server, 'indexar_archivo_drive') as indexar:
+            respuesta = self.client.post('/tool', json={'name': 'indexar_drive', 'arguments': {
+                'file_id': 'synthetic-id', 'usuario_autorizo_indexacion': True}})
+            self.assertEqual(respuesta.status_code, 403)
+            indexar.assert_not_called()
+        with patch.object(server, 'obtener_archivo_drive_backend', return_value={
+            'name': 'Sintetico.pdf', 'mimeType': 'application/pdf'}), patch.object(
+                server, 'indexar_archivo_drive', return_value='Indexado') as indexar:
+            propuesta = self.client.post('/drive/proposals', json={'file_id': 'synthetic-id'})
+            self.assertEqual(propuesta.status_code, 200)
+            resultado = self.client.post('/drive/confirm', json={
+                'propuesta_id': propuesta.json()['propuesta_id'], 'confirmar': True})
+            self.assertEqual(resultado.status_code, 200)
+            indexar.assert_called_once_with('synthetic-id')
+
     def test_01_arranque_env_y_rutas(self):
         self.assertEqual(os.environ['OPENAI_API_KEY'], 'test-not-a-real-key')
         self.assertEqual(memoria.ARCHIVO_DB, DATA / 'memoria.db')

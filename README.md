@@ -81,6 +81,28 @@ npm test
 
 ## Comprobación final en Windows
 
+### Arranque y actualización sin servidores antiguos
+
+Después de actualizar el repositorio, detén las ventanas anteriores de Uvicorn con
+`Ctrl+C`. Desde la carpeta del proyecto ejecuta `.\iniciar_grifo.ps1`. El script utiliza el Python de `.venv` y
+arranca en `http://127.0.0.1:8000`. Si detecta un proceso escuchando en 8000 o
+8001, muestra su PID y se detiene sin cerrar procesos ni iniciar otra instancia.
+Deja la ventana abierta y recarga el navegador con `Ctrl+F5` tras actualizar.
+
+### Indexar desde el chat
+
+Pide buscar un archivo de Drive y resumirlo. GRIFO consulta primero el RAG; si
+necesita incorporar el documento, muestra una confirmación con su nombre
+verificado. Aceptar permite descargarlo y procesarlo con OpenAI (OCR y
+embeddings, con consumo de API); cancelar no indexa nada. El original de Drive
+permanece intacto. Se admiten PDF, DOCX, TXT y Google Docs. La propuesta vence
+a los diez minutos y está ligada a la sesión que la creó. Tras una indexación
+correcta se actualiza la biblioteca y el chat puede consultar el RAG.
+
+Se puede abrir la página principal desde enlaces externos. Las llamadas a la
+API desde otros sitios siguen bloqueadas y las escrituras requieren sesión y
+CSRF. Las confirmaciones se pierden al reiniciar el servidor.
+
 1. Respaldar, instalar y ejecutar las pruebas anteriores.
 2. Abrir GRIFO; escribir sin permiso de micrófono y recuperar historial tras reiniciar.
 3. Activar voz, hablar, interrumpir y desconectar; comprobar que el micrófono se libera.

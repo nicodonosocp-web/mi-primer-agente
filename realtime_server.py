@@ -156,8 +156,11 @@ app = FastAPI(
 
 from seguridad import instalar_seguridad
 from confirmaciones import instalar_confirmaciones
+from confirmaciones_drive import instalar_confirmaciones_drive
 instalar_seguridad(app)
 instalar_confirmaciones(app, lambda **kwargs: crear_evento(**kwargs))
+instalar_confirmaciones_drive(app, lambda file_id: obtener_archivo_drive_backend(file_id),
+                             lambda file_id: indexar_archivo_drive(file_id))
 
 inicializar_db()
 
@@ -2503,58 +2506,8 @@ def ejecutar_tool(
 
 
         if nombre == "indexar_drive":
-
-            if (
-                argumentos.get(
-                    "usuario_autorizo_indexacion",
-                    False,
-                )
-                is not True
-            ):
-
-                return JSONResponse(
-                    status_code=403,
-                    content={
-                        "ok":
-                            False,
-
-                        "error":
-                            (
-                                "La indexación requiere "
-                                "autorización explícita."
-                            ),
-                    },
-                )
-
-            file_id = argumentos.get(
-                "file_id",
-                "",
-            )
-
-            antes = (
-                contar_fragmentos_indice()
-            )
-
-            resultado = (
-                indexar_archivo_drive(
-                    file_id
-                )
-            )
-
-            despues = (
-                contar_fragmentos_indice()
-            )
-
-            return {
-                "ok":
-                    True,
-
-                "fragmentos_agregados":
-                    despues - antes,
-
-                "result":
-                    resultado,
-            }
+            return JSONResponse(status_code=403, content={
+                "ok": False, "error": "La indexación requiere confirmación en la interfaz."})
 
 
         # ====================================================

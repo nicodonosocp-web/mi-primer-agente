@@ -20,7 +20,12 @@ def instalar_seguridad(app):
         expected = (request.url.scheme, request.url.netloc)
         if origin and (urlsplit(origin).scheme, urlsplit(origin).netloc) != expected:
             return JSONResponse({'ok': False, 'error': 'Origen no autorizado.'}, status_code=403)
-        if request.headers.get('sec-fetch-site') == 'cross-site':
+        entrada_desde_enlace = (
+            request.method == 'GET' and request.url.path == '/'
+            and request.headers.get('sec-fetch-mode') == 'navigate'
+            and request.headers.get('sec-fetch-dest') == 'document'
+        )
+        if request.headers.get('sec-fetch-site') == 'cross-site' and not entrada_desde_enlace:
             return JSONResponse({'ok': False, 'error': 'Origen no autorizado.'}, status_code=403)
         sid = request.cookies.get('grifo_session', '')
         now = time.time()

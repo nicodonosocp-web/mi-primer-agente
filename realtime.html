@@ -1602,6 +1602,11 @@ async function ejecutarBusquedaGlobal() {
 
 const TOOLS = [
     {
+        type: 'function', name: 'indexar_drive',
+        description: 'Propone incorporar al RAG un PDF, DOCX, TXT o Google Doc de Drive. Requiere confirmación en la interfaz y puede consumir API de OpenAI. Usa un ID real obtenido de Drive. Después del éxito consulta buscar_documentos para resumir.',
+        parameters: {type: 'object', properties: {file_id: {type: 'string'}}, required: ['file_id']}
+    },
+    {
         type: 'function', name: 'listar_carpetas_drive',
         description: 'Lista carpetas accesibles de Google Drive. Filtra opcionalmente por nombre; sin nombre lista carpetas. Usa siguiente_pagina para continuar. No lee el contenido de documentos.',
         parameters: {type: 'object', properties: {
@@ -2011,7 +2016,7 @@ function configurarSesion() {
             +
             "Si hay siguiente_pagina, el listado es parcial; continúa cuando sea necesario. Si busqueda_incompleta es true, informa la limitación. Una lista de archivos no equivale a leer sus contenidos. "
             +
-            "Para leer o resumir un documento consulta primero el RAG con buscar_documentos y su nombre exacto en archivo. No afirmes que no puedes leerlo sin consultar el índice. Si no hay contenido recuperado, explica esa limitación sin inventar un resumen. "
+            "Para leer o resumir un documento consulta primero el RAG con buscar_documentos y su nombre exacto en archivo. No afirmes que no puedes leerlo sin consultar el índice. Si no hay contenido recuperado y tienes el ID real del archivo Drive, usa indexar_drive para solicitar confirmación al usuario. Si acepta y finaliza correctamente, consulta el RAG de nuevo. Si cancela, no repitas la propuesta salvo que lo pida. Nunca inventes un resumen. Una búsqueda sin coincidencias no es un error técnico; solo informa fallos si la herramienta devuelve un error. "
             +
             "Para consultar agenda usa las herramientas Calendar. "
             +
@@ -2125,6 +2130,32 @@ async function ejecutarTool(
         return;
     }
 
+
+    if (llamada.name === 'indexar_drive') {
+        let result;
+        try {
+            const proposal = await (await fetch('/drive/proposals', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({file_id:argumentos.file_id})
+            })).json();
+            const approved = confirm('INCORPORAR DOCUMENTO AL RAG\n\n' + proposal.archivo.nombre +
+                '\n\nSe descargará y procesará su contenido con OpenAI (OCR si es necesario y embeddings), con consumo de API. El original en Drive no se modificará.\n\n¿Autorizar?');
+            registrarActividad(approved ? 'Indexando documento Drive…' : 'Indexación cancelada.');
+            result = await (await fetch('/drive/confirm', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({propuesta_id:proposal.propuesta_id, confirmar:approved})
+            })).json();
+            if (result.ok) {
+                registrarActividad('Documento incorporado al RAG.');
+                try { await cargarBiblioteca(); } catch (error) { mostrarError(error); }
+            }
+        } catch (error) { result = {ok:false,error:error.message}; mostrarError(error); }
+        if (dc?.readyState === 'open') {
+            dc.send(JSON.stringify({type:'conversation.item.create',item:{type:'function_call_output',call_id:llamada.call_id,output:JSON.stringify(result)}}));
+            dc.send(JSON.stringify({type:'response.create'}));
+        }
+        return;
+    }
 
     if (llamada.name === 'crear_evento_calendar') {
         let result;
