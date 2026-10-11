@@ -2132,6 +2132,8 @@ async function ejecutarTool(
 
 
     if (llamada.name === 'indexar_drive') {
+        const canalIndexacion = dc;
+        const archivoAlInicio = archivoActivo;
         let result;
         try {
             const proposal = await (await fetch('/drive/proposals', {
@@ -2147,10 +2149,26 @@ async function ejecutarTool(
             })).json();
             if (result.ok) {
                 registrarActividad('Documento incorporado al RAG.');
-                try { await cargarBiblioteca(); } catch (error) { mostrarError(error); }
+                try {
+                    await cargarBiblioteca();
+                    const documento = bibliotecaActual.find(item =>
+                        item.indexado && item.drive_file_id === argumentos.file_id);
+                    if (documento) {
+                        result.documento_indexado = {
+                            archivo: documento.archivo,
+                            drive_file_id: documento.drive_file_id,
+                            fragmentos: documento.fragmentos
+                        };
+                        if (dc === canalIndexacion && archivoActivo === archivoAlInicio) {
+                            await seleccionarDocumento(documento);
+                        }
+                    } else {
+                        registrarActividad('Indexación finalizada; no se pudo identificar el documento en la biblioteca.');
+                    }
+                } catch (error) { mostrarError(error); }
             }
         } catch (error) { result = {ok:false,error:error.message}; mostrarError(error); }
-        if (dc?.readyState === 'open') {
+        if (dc === canalIndexacion && dc?.readyState === 'open') {
             dc.send(JSON.stringify({type:'conversation.item.create',item:{type:'function_call_output',call_id:llamada.call_id,output:JSON.stringify(result)}}));
             dc.send(JSON.stringify({type:'response.create'}));
         }
